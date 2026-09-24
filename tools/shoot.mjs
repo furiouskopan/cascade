@@ -82,7 +82,8 @@ try {
   profile = mkdtempSync(join(tmpdir(), 'cascade-chrome-'))
   chrome = spawn(CHROME, [
     '--headless=new', `--remote-debugging-port=${dbg}`, `--user-data-dir=${profile}`,
-    '--no-first-run', '--no-default-browser-check', '--autoplay-policy=no-user-gesture-required',
+    // --mute-audio: Web Audio still runs (analysers, offline rendering), but nothing reaches the speakers.
+    '--no-first-run', '--no-default-browser-check', '--autoplay-policy=no-user-gesture-required', '--mute-audio',
     '--hide-scrollbars', `--window-size=${W},${H}`, 'about:blank',
   ], { stdio: 'ignore' })
   const version = await poll(`http://127.0.0.1:${dbg}/json/version`)
