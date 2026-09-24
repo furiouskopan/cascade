@@ -84,6 +84,119 @@
     100% { opacity: 1; }
   }
 
+  /* ---------------------------------------------------------------- the candles */
+  /* Two pricket candlesticks stand in the dark on either side of the book, where the window is wide
+     enough to hold them. The flames only sway (a slow change of shape, never of brightness). */
+  .face--sanctum .sn-candles { display: none; }
+  @media (min-width: 1560px) and (min-height: 700px) {
+    .face--sanctum .sn-candles { display: block; }
+  }
+  .face--sanctum .sn-candle {
+    position: fixed;
+    bottom: 90px;
+    z-index: 0;
+    width: 100px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    pointer-events: none;
+  }
+  .face--sanctum .sn-candle--l { left: calc((100% - 1320px) / 4 - 50px); }
+  .face--sanctum .sn-candle--r { right: calc((100% - 1320px) / 4 - 50px); }
+  .face--sanctum .sn-candle-halo {
+    position: absolute;
+    left: 50%; top: 28px;
+    width: 400px; height: 400px;
+    margin: -200px 0 0 -200px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 196, 120, 0.28) 0%, rgba(255, 160, 80, 0.11) 34%, rgba(255, 140, 60, 0) 68%);
+    transition: transform 1.8s ease;
+    animation: sn-halo 6.5s ease-in-out infinite alternate;
+  }
+  .face--sanctum .sn-candle--r .sn-candle-halo { animation-delay: -3.1s; }
+  @keyframes sn-halo { from { opacity: 0.82; } to { opacity: 1; } }
+  .face--sanctum .sn-chapel.is-night .sn-candle-halo {
+    background: radial-gradient(circle, rgba(255, 196, 120, 0.3) 0%, rgba(255, 160, 80, 0.12) 36%, rgba(255, 140, 60, 0) 70%);
+  }
+  .face--sanctum .sn-candle-fire {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    width: 30px;
+    height: 54px;
+    transform-origin: 50% 100%;
+    transition: transform 1.8s ease;
+  }
+  .face--sanctum .sn-flame {
+    position: relative;
+    width: 15px;
+    height: 40px;
+    margin-bottom: -3px;
+    border-radius: 50% 50% 50% 50% / 64% 64% 36% 36%;
+    background: radial-gradient(ellipse 46% 56% at 50% 72%, #fffdf2 0%, #fff0b8 28%, #ffc35a 58%, rgba(255, 130, 40, 0.55) 80%, rgba(255, 110, 30, 0) 100%);
+    box-shadow: 0 0 14px 4px rgba(255, 170, 70, 0.3);
+    transform-origin: 50% 92%;
+    animation: sn-flicker 3.4s ease-in-out infinite alternate;
+  }
+  /* The blue root of the flame, where the wax becomes light. */
+  .face--sanctum .sn-flame::after {
+    content: '';
+    position: absolute;
+    left: 50%; bottom: 3px;
+    width: 8px; height: 10px;
+    margin-left: -4px;
+    border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(96, 124, 255, 0.7), rgba(96, 124, 255, 0) 70%);
+  }
+  .face--sanctum .sn-candle-wick { display: block; width: 2px; height: 8px; border-radius: 1px; background: #1c120b; }
+  @keyframes sn-flicker {
+    0% { transform: scale(1, 1) skewX(0deg); }
+    30% { transform: scale(0.95, 1.06) skewX(-2.5deg); }
+    55% { transform: scale(1.03, 0.97) skewX(1.5deg); }
+    80% { transform: scale(0.97, 1.05) skewX(-1deg); }
+    100% { transform: scale(1.02, 1.01) skewX(2deg); }
+  }
+  .face--sanctum .sn-candle-wax {
+    position: relative;
+    z-index: 1;
+    width: 30px;
+    height: calc(var(--sn-wax, 1) * 270px);
+    margin-bottom: -22px;
+    border-radius: 2px 2px 1px 1px / 5px 5px 1px 1px;
+    background-repeat: no-repeat;
+    background-size: 34px 80px, 100% 100%;
+    background-position: -2px 0, 0 0;
+    box-shadow: inset 0 7px 7px -5px rgba(255, 244, 210, 0.95), 0 0 18px rgba(255, 170, 80, 0.12);
+    transition: height 3s ease;
+  }
+  /* The pool of melted wax at the top, lit from within. */
+  .face--sanctum .sn-candle-wax::before {
+    content: '';
+    position: absolute;
+    left: 0; right: 0; top: -3px;
+    height: 7px;
+    border-radius: 50%;
+    background: radial-gradient(ellipse at 50% 60%, #fff8e0, #ead9a8 72%);
+  }
+  .face--sanctum .sn-candle-foot { position: relative; z-index: 2; width: 100px; height: 240px; }
+  .face--sanctum .sn-candle-foot svg { width: 100%; height: 100%; filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.5)); }
+  /* Stillness: the flames stand straight, as if the chapel held its breath. */
+  .face--sanctum .sn-chapel:has(.sn-codex.is-hushed) .sn-flame { animation: none; transform: scale(0.94, 1.1); transition: transform 2.4s ease; }
+  /* A restless reader is a draught: the flames lean and gutter. */
+  .face--sanctum .sn-chapel:has(.sn-codex.is-restless) .sn-flame { animation-duration: 1.7s; }
+  .face--sanctum .sn-chapel:has(.sn-codex.is-restless) .sn-candle--l .sn-candle-fire { transform: rotate(-7deg); }
+  .face--sanctum .sn-chapel:has(.sn-codex.is-restless) .sn-candle--r .sn-candle-fire { transform: rotate(-5deg); }
+  /* Fiat lux: they flare. */
+  .face--sanctum .sn-chapel:has(.sn-codex.is-fiat) .sn-candle-fire { transform: scale(1.4); }
+  .face--sanctum .sn-chapel:has(.sn-codex.is-fiat) .sn-candle-halo { transform: scale(1.35); }
+  /* When the sun is covered the candles burn blue. */
+  .face--sanctum .sn-chapel.is-eclipse .sn-candle-fire,
+  .face--sanctum .sn-chapel.is-eclipse .sn-candle-halo,
+  html[data-eclipse] .face--sanctum .sn-candle-fire,
+  html[data-eclipse] .face--sanctum .sn-candle-halo { filter: hue-rotate(190deg) saturate(1.3); }
+
   /* ---------------------------------------------------------------- the codex */
   .face--sanctum .sn-codex {
     position: relative;
@@ -178,11 +291,17 @@
     letter-spacing: 0.04em;
     white-space: nowrap;
   }
+  /* Written in the head margin, above the running title, by whoever kept the reader's place. */
   .face--sanctum .sn-return-note {
     position: absolute;
-    right: -40px; top: 22px;
+    right: 0; top: -25px;
     margin: 0;
-    transform: rotate(-3deg);
+    white-space: nowrap;
+    font-size: 14px;
+    color: var(--sn-ink-2);
+    transform: rotate(-1.5deg);
+    transform-origin: 100% 50%;
+    animation: sn-fade 1.6s ease both;
   }
 
   /* ---------------------------------------------------------------- the text block */
@@ -190,6 +309,31 @@
     grid-column: text-start / text-end;
     position: relative;
     min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  /* Whatever height the facing page leaves over is ruled and left unwritten, as the scribes left it.
+     On the taller page it has no height at all; the note in the later hand appears only when there is
+     room enough for it. */
+  .face--sanctum .sn-lacuna {
+    flex: 1 1 0;
+    min-height: 0;
+    container-type: size;
+    display: grid;
+    place-items: center;
+    background: repeating-linear-gradient(180deg, transparent 0 24px, rgba(150, 72, 48, 0.1) 24px 25px);
+    -webkit-mask-image: linear-gradient(180deg, transparent, #000 30px, #000 calc(100% - 20px), transparent);
+    mask-image: linear-gradient(180deg, transparent, #000 30px, #000 calc(100% - 20px), transparent);
+  }
+  .face--sanctum .sn-lacuna-note {
+    margin: 0;
+    max-width: 22em;
+    padding: 0 12px;
+    text-align: center;
+    transform: rotate(-1.2deg);
+  }
+  @container (height < 120px) {
+    .face--sanctum .sn-lacuna-note { display: none; }
   }
   /* Ruling: the bounding lines of the text block run on into the margins, as the scribe drew them. */
   .face--sanctum .sn-textblock::before,
@@ -240,6 +384,12 @@
     orphans: 2;
   }
   .face--sanctum .sn-verse--first { margin-bottom: 0.25em; text-align: left; }
+  /* Each initial is held by its own verse, so the next verse begins on a clean line beneath it. */
+  .face--sanctum .sn-verse--first,
+  .face--sanctum .sn-verse--lombard { display: flow-root; }
+  /* The painted letter and its echo in small capitals are for the eye; a copied verse reads as one word. */
+  .face--sanctum .sn-initial,
+  .face--sanctum .sn-verse--first .sn-smallcaps[aria-hidden="true"] { user-select: none; -webkit-user-select: none; }
   .face--sanctum .sn-vnum {
     color: var(--sn-verm);
     font: 700 0.7em/1 var(--sn-font-caps);
@@ -342,6 +492,19 @@
   }
   .face--sanctum .sn-lemma-gloss abbr { text-decoration: none; color: var(--sn-verm); font-style: normal; }
 
+  /* The rubrics written in no colour (the secrets layer) are, in this book, erasures: the vellum there was
+     scraped with a knife and is a little paler and rougher than the rest. Only colour is theirs to set;
+     the size and the scraping are ours. Select the pale place and the rubric comes back. */
+  .face--sanctum span.rubric {
+    font-size: 0.74em;
+    border-radius: 40% 30% 45% 35% / 50%;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+    box-shadow: inset 0 0 0 40em rgba(255, 249, 230, 0.13), 0 0 6px 3px rgba(255, 249, 230, 0.12);
+    /* the ghosts of the scraped letters: enough to make a reader curious, not enough to read */
+    -webkit-text-stroke: 0.45px rgba(140, 60, 40, 0.16);
+  }
+
   /* ---------------------------------------------------------------- the gilding */
   /* Gold is laid as a veil above the letters that only lightens: the dark ink turns to gold, the paler
      vellum stays as it was, and text that is hidden or drawn in the vellum's own colour stays unseen.
@@ -363,15 +526,19 @@
   /* Coloured letters keep their own colours above the veil; the rubrics turn to gold on their own. */
   .face--sanctum .sn-initial,
   .face--sanctum .sn-lombard,
-  .face--sanctum .sn-lemma-text { position: relative; z-index: 1; }
+  .face--sanctum .sn-lemma-text,
+  .face--sanctum .sn-liber .sn-fleuron,
+  .face--sanctum .sn-kal-gold { position: relative; z-index: 1; }
 
   .face--sanctum .sn-vnum,
   .face--sanctum .sn-pilcrow.sn-red,
   .face--sanctum .sn-lemma-text,
+  .face--sanctum .sn-liber h3,
   .face--sanctum .sn-incipit { transition: color 5s ease; }
   .face--sanctum .is-gilded .sn-vnum,
   .face--sanctum .is-gilded .sn-pilcrow,
   .face--sanctum .is-gilded .sn-incipit,
+  .face--sanctum .is-gilded .sn-liber h3,
   .face--sanctum .is-fiat .sn-vnum,
   .face--sanctum .is-fiat .sn-pilcrow { color: #9a6e14; }
 
@@ -394,7 +561,7 @@
     color: rgba(120, 70, 45, 0.075);
     pointer-events: none;
     user-select: none;
-    white-space: nowrap;
+    overflow-wrap: anywhere;
   }
   .face--sanctum .sn-palimpsest p { margin: 0; }
   .face--sanctum .sn-uv-veil {
@@ -444,13 +611,13 @@
   .face--sanctum .sn-vertical-note {
     grid-column: outer-start / bar-start;
     grid-row: 2;
-    align-self: center;
+    align-self: start;
     justify-self: center;
-    margin: 0;
+    margin: 140px 0 0;
     writing-mode: vertical-rl;
     transform: rotate(180deg);
-    max-height: 20em;
-    font-size: 13px;
+    max-height: 15em;
+    font-size: 12.5px;
   }
 
   /* The hand of a later reader: brown ink, a quicker slant. */
@@ -469,15 +636,34 @@
     position: relative;
     margin-top: 26px;
   }
+  /* The creatures stand on one ground line; a gloss, once shown, hangs beneath the grass, so no creature
+     is ever lifted off its ground by its own explanation. */
   .face--sanctum .sn-bas-row {
+    --sn-ground-y: 126px;
+    position: relative;
     display: flex;
-    align-items: flex-end;
+    align-items: flex-start;
     justify-content: space-between;
     gap: 8px;
-    padding: 0 4px;
+    min-height: calc(var(--sn-ground-y) + 12px);
+    padding: 0 4px 4px;
   }
-  .face--sanctum .sn-ground { height: 16px; margin: -6px 0 0; }
-  .face--sanctum .sn-ground svg { width: 100%; height: 16px; }
+  .face--sanctum .sn-bas-row > .sn-ground {
+    position: absolute;
+    left: 0; right: 0;
+    top: calc(var(--sn-ground-y) - 9px);
+    height: 16px;
+    pointer-events: none;
+  }
+  .face--sanctum .sn-bas-row > .sn-ground svg { width: 100%; height: 16px; }
+  .face--sanctum .sn-bas-row .sn-beast-fig {
+    display: grid;
+    grid-template-rows: var(--sn-ground-y) auto;
+    justify-items: center;
+  }
+  .face--sanctum .sn-bas-row .sn-beast { align-self: end; }
+  .face--sanctum .sn-bas-row .sn-beast-gloss { margin-top: 12px; }
+  .face--sanctum .sn-bas-row .sn-lamp { height: var(--sn-ground-y); justify-content: flex-end; padding-bottom: 8px; }
   .face--sanctum .sn-bas-foot {
     display: flex;
     justify-content: space-between;
@@ -744,7 +930,8 @@
   .face--sanctum .is-vigil .sn-sol-open { opacity: 1; }
   .face--sanctum .is-vigil .sn-sol-shut { opacity: 0; transition: opacity 3s ease; }
   .face--sanctum .sn-sol-eclipse { opacity: 0; transition: opacity 4s ease; }
-  html[data-eclipse] .face--sanctum .sn-sol-eclipse { opacity: 1; }
+  html[data-eclipse] .face--sanctum .sn-sol-eclipse,
+  .face--sanctum .is-eclipse .sn-sol-eclipse { opacity: 1; }
   .face--sanctum .sn-opus-legend {
     margin: 6px auto 0;
     max-width: 30em;
@@ -788,7 +975,8 @@
   }
   .face--sanctum .sn-opus-btn:hover { background: linear-gradient(180deg, #c8462d, #9b2b19); }
 
-  .face--sanctum h3 {
+  .face--sanctum h3,
+  .face--sanctum .sn-h {
     margin: 0 0 4px;
     font: 700 14.5px/1.3 var(--sn-font-caps);
     letter-spacing: 0.1em;
@@ -807,7 +995,7 @@
   .face--sanctum .sn-prophecy p { margin: 0; text-align: center; font-size: 17.5px; line-height: 1.45; }
 
   .face--sanctum .sn-tractatus { position: relative; margin: 22px 0 0; }
-  .face--sanctum .sn-tractatus h3 { margin-bottom: 8px; }
+  .face--sanctum .sn-tractatus .sn-h { margin-bottom: 8px; }
   .face--sanctum .sn-tract-body {
     columns: 2;
     column-gap: 28px;
@@ -865,6 +1053,79 @@
   .face--sanctum .sn-liber-count { margin: 6px 0 0; font: italic 14px var(--sn-font); color: var(--sn-ink-2); }
   .face--sanctum .sn-liber-count:empty { display: none; }
   html[data-ascended] .face--sanctum .sn-liber h3::before { content: '\2736\00a0'; color: var(--sn-gold); }
+
+  /* ---------------------------------------------------------------- the kalendar */
+  .face--sanctum .sn-kalendar { margin: 26px 0 0; }
+  .face--sanctum .sn-kal-head {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin: 0 0 8px;
+  }
+  /* KL, for Kalendae: the great monogram that opens every month of a Book of Hours. */
+  .face--sanctum .sn-kl {
+    flex: none;
+    display: inline-flex;
+    align-items: flex-end;
+    padding: 4px 6px 2px 4px;
+    font: 700 44px/0.8 var(--sn-font-caps);
+    border-left: 2px solid var(--sn-verm);
+    box-shadow: -4px 0 0 -2px var(--sn-vellum), -5px 0 0 -2px rgba(31, 58, 138, 0.6);
+  }
+  .face--sanctum .sn-kl b {
+    background: var(--sn-gold-leaf);
+    background-size: 120px 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: #a87a1c;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 1px 0 rgba(60, 30, 0, 0.45));
+  }
+  .face--sanctum .sn-kl i { font-style: normal; font-size: 0.56em; color: var(--sn-lapis); margin-left: -0.06em; }
+  .face--sanctum .sn-kal-head h3 { margin: 0; text-align: left; }
+  .face--sanctum .sn-kal-sub { margin: 1px 0 0; font: italic 13.5px/1.3 var(--sn-font); color: var(--sn-ink-2); }
+  .face--sanctum .sn-kal-gloss { margin: 0; font-size: 12.5px; }
+  .face--sanctum .sn-kal-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14.5px;
+    line-height: 1.28;
+  }
+  .face--sanctum .sn-kal-table td {
+    padding: 3px 6px 2px;
+    vertical-align: baseline;
+    border-top: 1px solid rgba(150, 72, 48, 0.16);
+  }
+  .face--sanctum .sn-kal-table tr:last-child td { border-bottom: 1px solid rgba(150, 72, 48, 0.16); }
+  .face--sanctum .sn-kal-table td + td { border-left: 1px solid rgba(179, 48, 28, 0.22); }
+  .face--sanctum .sn-kal-gold {
+    position: relative;
+    width: 3.4em;
+    text-align: right;
+    white-space: nowrap;
+    color: var(--sn-lapis);
+    font: 700 12.5px/1.2 var(--sn-font-caps);
+  }
+  .face--sanctum .sn-kal-moon { font-family: var(--sn-font-symbol); font-size: 0.8em; color: var(--sn-ink-2); }
+  .face--sanctum .sn-kal-letter { width: 1.6em; text-align: center; font: 700 14px/1.2 var(--sn-font-caps); color: var(--sn-ink-2); }
+  .face--sanctum .is-sunday .sn-kal-letter { color: var(--sn-verm); }
+  .face--sanctum .sn-kal-date { width: 5.8em; white-space: nowrap; font-style: italic; color: var(--sn-ink-2); }
+  .face--sanctum .sn-kal-date time { text-decoration: none; }
+  .face--sanctum .is-red .sn-kal-feast { color: var(--sn-verm); }
+  .face--sanctum .is-today td { background: rgba(199, 154, 46, 0.13); }
+  .face--sanctum .is-today .sn-kal-feast { color: var(--sn-ink); font-weight: 600; }
+  .face--sanctum .is-today.is-red .sn-kal-feast { color: var(--sn-verm); }
+  .face--sanctum .is-today .sn-kal-gold::before {
+    content: '\261E\FE0E';
+    position: absolute;
+    right: calc(100% + 2px);
+    top: 1px;
+    font: 400 16px/1 var(--sn-font-symbol);
+    color: var(--sn-ink-2);
+  }
+  .face--sanctum .sn-kal-hodie { font: italic 400 12.5px var(--sn-font); color: var(--sn-ink-3); }
+  .face--sanctum .sn-kal-note { margin: 6px 0 0; text-align: center; font-size: 12.5px; }
 
   /* ---------------------------------------------------------------- the recto margin */
   .face--sanctum .sn-margin {
@@ -925,6 +1186,21 @@
   }
   .face--sanctum .sn-drypoint--1 { transform: rotate(3deg); margin-left: 12px; }
   .face--sanctum .sn-drypoint--2 { transform: rotate(-2deg); }
+
+  /* Arbor documenti: the page's own tree, as a herbal draws a plant. */
+  .face--sanctum .sn-arbor { margin: 8px 0 0; width: 100%; }
+  .face--sanctum .sn-arbor-drawing { width: 100%; }
+  .face--sanctum .sn-arbor-svg { width: 100%; height: auto; overflow: visible; filter: url(#sn-wobble); }
+  .face--sanctum .sn-arbor-label {
+    font-family: var(--font-glyph);
+    font-size: 7.5px;
+    fill: var(--sn-ink-2);
+    stroke: none;
+    letter-spacing: 0.04em;
+  }
+  .face--sanctum .sn-arbor-label--mercy { fill: var(--sn-verm); font-size: 8.5px; }
+  .face--sanctum .sn-arbor-root { font: italic 9.5px var(--sn-font); fill: var(--sn-verm); stroke: none; letter-spacing: 0.06em; }
+  .face--sanctum .sn-arbor figcaption { margin: 4px 0 0; font-size: 12px; text-align: left; transform: rotate(-1deg); }
 
   /* ---------------------------------------------------------------- the seal */
   .face--sanctum .sn-seal-wrap {
@@ -1052,10 +1328,22 @@
   }
   html[data-face="sanctum"] #mercy[aria-pressed="true"] { background: #b3301c; color: #f3e6c6; opacity: 1; }
 
+  /* ---------------------------------------------------------------- narrow openings */
+  /* Where the opening is too narrow for two columns beside the great initial, the scribe writes one. */
+  @media (min-width: 1101px) and (max-width: 1259px) {
+    .face--sanctum .sn-scripture,
+    .face--sanctum .sn-tract-body { columns: 1; }
+  }
+  @media (min-width: 1101px) and (max-width: 1399px) {
+    .face--sanctum .sn-initial { width: 92px; height: 92px; margin-right: 9px; }
+  }
+
   /* ---------------------------------------------------------------- one leaf at a time */
   @media (max-width: 1100px) {
     .face--sanctum .sn-codex { grid-template-columns: 1fr; max-width: 780px; }
     .face--sanctum .sn-codex::after, .face--sanctum .sn-ribbon { display: none; }
+    /* On a single leaf the bell hangs over the head margin: the note keeps out of its way. */
+    .face--sanctum .sn-return-note { right: 64px; }
     .face--sanctum .sn-verso { border-radius: 3px 3px 0 0; box-shadow: -1px 1px 0 #d8c39a, -2px 2px 0 #c6ae83, -3px 3px 0 #d9c7a0, inset 0 -40px 40px -30px rgba(70, 40, 12, 0.35); }
     .face--sanctum .sn-recto { border-radius: 0 0 3px 3px; box-shadow: 1px 1px 0 #d8c39a, 2px 2px 0 #c6ae83, 3px 3px 0 #d9c7a0, inset 0 40px 40px -30px rgba(70, 40, 12, 0.35); }
   }
@@ -1070,14 +1358,24 @@
     .face--sanctum .sn-head { padding-right: 58px; }
     .face--sanctum .sn-head--recto { padding-right: 0; }
     .face--sanctum .sn-running { font-size: 12px; letter-spacing: 0.3em; margin-left: 0; text-align: left; }
-    .face--sanctum .sn-return-note { right: 0; top: 30px; }
+    .face--sanctum .sn-return-note { left: 0; right: 58px; top: -19px; white-space: normal; font-size: 12.5px; line-height: 1.15; transform-origin: 0 50%; }
+    /* The seal's cord hangs into the foot of the leaf: keep the last words clear of it. */
+    .face--sanctum .sn-recto { padding-bottom: 76px; }
     .face--sanctum .sn-spray, .face--sanctum .sn-vertical-note { display: none; }
     .face--sanctum .sn-scripture, .face--sanctum .sn-tract-body { columns: 1; }
     .face--sanctum .sn-initial { width: 96px; height: 96px; margin: 4px 10px 2px 0; }
     .face--sanctum .sn-textblock::after { left: -12px; right: -12px; }
     .face--sanctum .sn-textblock::before { top: -20px; bottom: -20px; }
     .face--sanctum .sn-bas { grid-column: text-start / text-end; }
-    .face--sanctum .sn-bas-row { flex-wrap: wrap; justify-content: center; gap: 4px 0; }
+    .face--sanctum .sn-bas-row { flex-wrap: wrap; justify-content: center; align-items: flex-end; gap: 4px 0; min-height: 0; }
+    .face--sanctum .sn-bas-row > .sn-ground { position: static; flex: 0 0 100%; order: 9; margin-top: -4px; }
+    .face--sanctum .sn-bas-row .sn-beast-fig { display: flex; flex-direction: column; align-items: center; }
+    .face--sanctum .sn-bas-row .sn-lamp { height: auto; }
+    .face--sanctum .sn-kal-table { font-size: 14px; }
+    .face--sanctum .sn-kal-table td { padding: 3px 4px 2px; }
+    .face--sanctum .sn-kal-date { width: 5.2em; }
+    .face--sanctum .sn-kal-gold { width: 2.6em; }
+    .face--sanctum .sn-kl { font-size: 38px; }
     .face--sanctum .sn-beast-fig { width: 118px; }
     .face--sanctum .sn-beast { width: 116px; }
     .face--sanctum .sn-beast-svg { width: 100px; height: 83px; }
@@ -1095,6 +1393,8 @@
     }
     .face--sanctum .sn-slip { width: min(100%, 300px); margin-right: 0; transform: rotate(1.2deg); }
     .face--sanctum .sn-omen-note, .face--sanctum .sn-vigil-note, .face--sanctum .sn-graffiti { width: 100%; text-align: center; transform: none; }
+    .face--sanctum .sn-arbor { width: min(100%, 176px); }
+    .face--sanctum .sn-arbor figcaption { text-align: center; transform: none; }
     .face--sanctum .sn-opus-title { font-size: 28px; }
     .face--sanctum .sn-titulus { margin-left: 0; margin-right: 0; }
     .face--sanctum .sn-inscription { font-size: 17px; letter-spacing: 0.06em; word-spacing: 0.1em; }
