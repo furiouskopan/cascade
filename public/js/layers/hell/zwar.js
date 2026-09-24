@@ -4,7 +4,7 @@
 // reaches for 2147483647 and is refused: the Highest Heaven is not for page elements, and the war ends.
 // (Real rungs stay below 1000, under the temple's own layers, so no war ever covers the mercy button.)
 import { h } from '../../lib/dom.js'
-import { bodies, KINDS, quiet, clamp, aboveStart } from './core.js'
+import { bodies, KINDS, quiet, clamp, seen, paperOf, aboveStart } from './core.js'
 
 const RUNGS = [1, 2, 3, 5, 7, 12, 33, 108, 404, 999]
 const NAMES = { 1: 'Muladhara', 2: 'Svadhisthana', 3: 'Manipura', 5: 'Vishuddha', 7: 'the Seventh', 12: 'the Twelve', 33: 'the Age of Ascent', 108: 'the Mala', 404: 'the Lost', 999: 'the Last Rung' }
@@ -38,7 +38,7 @@ export function createZwar(env) {
       if (sideBySide) pairs.push([a, b, ra, rb, 'x', across])
       else if (stacked) pairs.push([a, b, ra, rb, 'y', down])
     }
-    return rng.shuffle(pairs).find(([a, b]) => quiet(a) && quiet(b) && positionable(a) && positionable(b)) ?? null
+    return rng.shuffle(pairs).find(([a, b, ra, rb]) => quiet(a) && quiet(b) && positionable(a) && positionable(b) && seen(a, ra) && seen(b, rb)) ?? null
   }
   // A body that is statically placed may be lifted to position: relative only if nothing inside it
   // depends on it staying static (no absolutely placed children of its own).
@@ -62,23 +62,32 @@ export function createZwar(env) {
     for (const el of [a, b]) {
       el.setAttribute('data-hell-moving', 'zwar')
       el.setAttribute('data-hell-z', getComputedStyle(el).position === 'static' ? 'lift' : 'hold')
+      // Whoever is on top wears the paper of the page, so it really hides the one beneath.
+      el.style.setProperty('--hell-z-paper', paperOf(el))
     }
     const z = new Map([[a, 0], [b, 1]])
     const setZ = (el, i) => { z.set(el, i); el.style.setProperty('--hell-z', String(RUNGS[i])) }
     setZ(a, 0)
     setZ(b, 1)
-    const tag = (el) => {
+    // The first body's rung is written over its beginning; the second's under its end (or over its end,
+    // when they stand side by side), so the two tags never cover each other.
+    const endOf = axis === 'y'
+      ? (r, tw) => [r.right - tw, r.bottom + 6]
+      : (r, tw, th) => [r.right - tw, r.top - th - 6 < 4 ? r.bottom + 6 : r.top - th - 6]
+    const tag = (el, place) => {
       const t = h('div', { class: 'hell-tag hell-z' }, h('code', {}, 'z-index: '), h('b', {}, String(RUNGS[z.get(el)])), h('span', {}, ''))
-      veils.mark(el, t, aboveStart)
+      veils.mark(el, t, place)
       w.tags.push(t)
       return t
     }
-    const ta = tag(a)
-    const tb = tag(b)
+    const ta = tag(a, aboveStart)
+    const tb = tag(b, endOf)
     const say = (t, el, note, top) => {
       t.children[1].textContent = String(RUNGS[z.get(el)])
       t.children[2].textContent = note ? ` · ${note}` : ''
       t.classList.toggle('is-top', top)
+      if (top) el.setAttribute('data-hell-ztop', '')
+      else el.removeAttribute('data-hell-ztop')
     }
     say(ta, a, NAMES[RUNGS[0]], false)
     say(tb, b, NAMES[RUNGS[1]], true)
@@ -130,7 +139,9 @@ export function createZwar(env) {
       for (const el of [w.a, w.b]) {
         el.removeAttribute('data-hell-moving')
         el.removeAttribute('data-hell-z')
+        el.removeAttribute('data-hell-ztop')
         el.style.removeProperty('--hell-z')
+        el.style.removeProperty('--hell-z-paper')
         if (!el.getAttribute('style')) el.removeAttribute('style')
       }
     }

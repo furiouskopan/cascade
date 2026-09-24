@@ -165,6 +165,7 @@
     pointer-events: none;
     z-index: 4;
   }
+  .hell-veil--words { z-index: 5; }
   #layers > .hell-veil, #layers > .hell-veil * { pointer-events: none; }
   .hell-marks {
     position: absolute;
@@ -253,8 +254,10 @@
   [data-face="recruitment"] .hell-war__head b { color: #000080; letter-spacing: 0; }
 
   /* The elements at war (the rules themselves are written into #hell-grace) */
+  /* Only the colour glides. Weight and spacing change in one step (a single reflow per round, never
+     one per frame), which is also how a rule really loses: all at once. */
   html:not([data-mercy="on"]) [data-war] {
-    transition: color 0.8s ease, letter-spacing 0.8s ease;
+    transition: color 0.8s ease;
     text-decoration-thickness: 1px;
     text-underline-offset: 0.2em;
   }
@@ -278,8 +281,17 @@
   .hell-z.is-refused span { color: var(--hell-accent); white-space: normal; }
   html:not([data-mercy="on"]) [data-hell-z] { z-index: var(--hell-z, auto); }
   html:not([data-mercy="on"]) [data-hell-z="lift"] { position: relative; }
-  html:not([data-mercy="on"]) [data-hell-z]:not([data-hell-possessed]) {
-    box-shadow: 0 10px 30px -12px color-mix(in srgb, var(--hell-paper) 30%, rgba(0, 0, 0, 0.55));
+  /* Whoever holds the higher rung is given the page's own paper (read from its ancestors by script), and a
+     margin of it drawn as a shadow, so it takes no space: the one beneath is really hidden, not only
+     overprinted. Round the paper it wears the Bliss (an outline: drawn, but taking no space), a hairline
+     in the face's accent, so the lifted body reads as a leaf laid over the page, not as a hole in it. */
+  html:not([data-mercy="on"]) [data-hell-ztop] {
+    background-color: var(--hell-z-paper, transparent);
+    box-shadow:
+      0 0 0 6px var(--hell-z-paper, transparent),
+      0 16px 30px -14px rgba(0, 0, 0, 0.6);
+    outline: 1px solid color-mix(in srgb, var(--hell-accent) 45%, transparent);
+    outline-offset: 6px;
   }
 
   /* ── Glyph rot and possession ──────────────────────────────────────────────────────────────── */
@@ -387,8 +399,6 @@
     transform: translateY(4px);
     transition: opacity 1s ease, transform 3.2s ease-out;
   }
-  .hell-whisper.is-left { transform: translate(-100%, 4px); }
-  .hell-whisper.is-left.is-shown { transform: translate(-100%, -6px); }
   .hell-whisper.is-shown { opacity: 0.92; transform: translateY(-6px); }
 
   /* ── The Inversion ────────────────────────────────────────────────────────────────────────── */

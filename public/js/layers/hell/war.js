@@ -4,7 +4,7 @@
 // id, the Pride of Ids) and the element's colour and bearing trade sides, never faster than one change
 // every 1.6 s. At the end somebody speaks the Inversion, or both are cleared, and the element returns.
 import { h } from '../../lib/dom.js'
-import { bodies, KINDS, aboveStart } from './core.js'
+import { bodies, KINDS, aboveStart, inkRect, seen } from './core.js'
 
 const ROMAN = ['i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii', 'viii', 'ix', 'x', 'xi', 'xii', 'xiii', 'xiv', 'xv', 'xvi']
 const NOT_IDS = ['#void', '#the-lost', '#nobody', '#the-old-law', '#mothership', '#the-last-selector']
@@ -153,13 +153,16 @@ export function createWars(env) {
   function choose() {
     const taken = [...wars].map((w) => w.el)
     const clash = (el) => taken.some((t) => t === el || t.contains(el) || el.contains(t))
+    // A war wants a field worth fighting over: a heading or a short paragraph, not a folio number.
+    const fit = ({ el, r }) => !clash(el) && !el.hasAttribute('data-war') && inkRect(el).width >= 90 && r.height >= 16
     let pool = bodies(ctx.root, KINDS.heading, { text: true, minChars: 3, margin: -40 })
-      .filter(({ el }) => !clash(el) && el.textContent.trim().length <= 140 && !el.hasAttribute('data-war'))
+      .filter((b) => fit(b) && b.el.textContent.trim().length <= 140)
     if (!pool.length || rng.chance(0.35)) {
-      pool = pool.concat(bodies(ctx.root, KINDS.text, { text: true, minChars: 12, margin: -40 })
-        .filter(({ el }) => !clash(el) && el.textContent.trim().length <= 260 && !el.hasAttribute('data-war')))
+      pool = pool.concat(bodies(ctx.root, KINDS.text, { text: true, minChars: 24, margin: -40 })
+        .filter((b) => fit(b) && b.el.textContent.trim().length <= 260))
     }
-    return pool.length ? rng.pick(pool).el : null
+    // Nothing is fought over that the visitor cannot see (behind a banner, under a fixed bar).
+    return rng.shuffle(pool).find(({ el, r }) => seen(el, r))?.el ?? null
   }
 
   async function wage() {
@@ -180,7 +183,8 @@ export function createWars(env) {
     render()
     drawTag(w, 'two rules claim one element')
     const alive = () => !dead && !w.over && el.isConnected
-    const beat = () => clock.wait(env.rng.float(1650, 3200) / (0.85 + I * 0.35))
+    // Never faster than one change in 1.6 s, however hot the war (Canon §8, §9).
+    const beat = () => clock.wait(Math.max(1600, env.rng.float(1700, 3300) / (0.85 + I * 0.35)))
     const rounds = rng.int(4, 8)
     for (let i = 1; i <= rounds; i++) {
       await beat()

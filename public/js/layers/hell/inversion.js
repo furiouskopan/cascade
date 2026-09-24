@@ -16,6 +16,8 @@ const WORDS = {
   babel: ['Inversions, chapter ∞', 'You have spoken the Inversion.', 'Every shelf in the hexagon is now its own floor.'],
 }
 const DEFAULT = ['!important', 'You have spoken the Inversion.', 'The Three Origins are reversed. The last is first.']
+// Mercy is the only righteous Inversion, and it is declared first: it outranks this one.
+const MERCIFUL = 'Mercy was declared first, and Mercy is the one righteous Inversion: the temple stays upright. The words are spoken all the same.'
 
 export function createInversion(ctx, veils) {
   let on = false
@@ -34,7 +36,7 @@ export function createInversion(ctx, veils) {
       h('p', { class: 'hell-inversion__title' }, title),
       h('p', { class: 'hell-inversion__origins' },
         h('span', {}, 'the Word'), h('i', {}, ' › '), h('span', {}, 'the Pilgrim'), h('i', {}, ' › '), h('span', {}, 'the Old Law')),
-      h('p', { class: 'hell-inversion__gloss' }, ctx.mercy?.on ? 'Mercy holds the temple upright. The words are spoken all the same.' : gloss),
+      h('p', { class: 'hell-inversion__gloss' }, ctx.mercy?.on ? MERCIFUL : gloss),
       h('ol', { class: 'hell-inversion__breaths hell-only' },
         Array.from({ length: breaths }, (_, i) => {
           const li = h('li')
@@ -42,7 +44,8 @@ export function createInversion(ctx, veils) {
           return li
         })),
     )
-    veils.veil.append(banner)
+    // Said even under mercy (the words veil is not hell-only); only the turning is withheld.
+    veils.words.append(banner)
     requestAnimationFrame(() => banner?.classList.add('is-shown'))
   }
 
@@ -129,7 +132,8 @@ export function createInversion(ctx, veils) {
   ctx.bus.on('mercy:change', ({ on: m } = {}) => {
     if (m) {
       clean()
-      if (banner) banner.querySelector('.hell-inversion__gloss').textContent = 'Mercy holds the temple upright. The words are spoken all the same.'
+      const g = banner?.querySelector('.hell-inversion__gloss')
+      if (g) g.textContent = MERCIFUL
     } else if (on) flip()
   })
 

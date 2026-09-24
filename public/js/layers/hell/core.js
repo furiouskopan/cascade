@@ -71,10 +71,41 @@ export function quiet(el) {
   return true
 }
 
+// Whether the visitor can really see the element: nothing of the face's own (a cookie banner, a fixed bar,
+// a dialog) lies over it. Hit-tests three points across its middle and wants two of them clear. A curse
+// with a tag must not fight over something hidden, or its tag floats over whatever hides it.
+// A few hit tests: only call it for the bodies a curse has already chosen.
+export function seen(el, r = el.getBoundingClientRect()) {
+  let clear = 0
+  let tried = 0
+  for (const fx of [0.5, 0.18, 0.82]) {
+    const x = r.left + r.width * fx
+    const y = r.top + r.height * 0.5
+    if (x < 1 || y < 1 || x > innerWidth - 1 || y > innerHeight - 1) continue
+    tried++
+    const top = document.elementFromPoint(x, y)
+    // The hit landed on the element, inside it, or passed through it to an ancestor: nothing lies over it.
+    if (top && (top === el || el.contains(top) || top.contains(el))) clear++
+  }
+  return tried > 0 && clear >= Math.min(2, tried)
+}
+
+// The colour of the page behind an element: its own background, or the first ancestor that has one.
+// A body lifted over another is given this paper, so the one on top really hides the one beneath.
+const CLEAR = /^(transparent|rgba\([^)]*,\s*0\))$/
+export function paperOf(el) {
+  for (let p = el; p && p !== document.documentElement; p = p.parentElement) {
+    const bg = getComputedStyle(p).backgroundColor
+    if (bg && !CLEAR.test(bg.replace(/\s+/g, ' '))) return bg
+  }
+  return getComputedStyle(document.documentElement).backgroundColor || '#0b0b0b'
+}
+
 // The clock of hell: time passes only while the tab is seen, mercy is not asked, and the session lives.
 // Resolution 200 ms; `speed` > 1 makes every curse hurry (?hell=fast).
 export function createClock(ctx, speed = 1) {
   const timers = new Set()
+  const waiting = new Set() // resolvers of wait(): released when the session dies, so no curse hangs forever
   let last = performance.now()
   let dead = false
   let activeMs = 0
@@ -99,11 +130,19 @@ export function createClock(ctx, speed = 1) {
     timers.add(t)
     return () => timers.delete(t)
   }
+  // A wait that outlives its session resolves at once (every curse checks that it is still alive after
+  // each await), so the war, the union and the z-war let go of the elements they held.
+  const wait = (ms) => new Promise((resolve) => {
+    if (dead) return resolve()
+    const done = () => { waiting.delete(done); resolve() }
+    waiting.add(done)
+    after(ms, done)
+  })
   return {
     speed,
     active,
     after,
-    wait: (ms) => new Promise((resolve) => after(ms, resolve)),
+    wait,
     // Seconds of seen, merciless time since this session began (scaled by speed).
     get elapsed() { return (activeMs * speed) / 1000 },
     get dead() { return dead },
@@ -111,6 +150,7 @@ export function createClock(ctx, speed = 1) {
       dead = true
       timers.clear()
       clearInterval(iv)
+      for (const done of [...waiting]) done()
     },
   }
 }
@@ -125,6 +165,9 @@ export function createMotions() {
       const a = el.animate(keyframes, { fill: 'forwards', ...opts })
       all.add(a)
       a.addEventListener('cancel', () => { all.delete(a); held.delete(a) })
+      // A motion that holds nothing when it ends (a return home) is forgotten when it ends; one that
+      // holds its pose stays registered until it is cancelled.
+      if (opts?.fill === 'none') a.addEventListener('finish', () => { all.delete(a); held.delete(a) })
       if (document.hidden) { a.pause(); held.add(a) }
       return a
     },
@@ -156,12 +199,37 @@ export function currentRotate(el) {
   return r && r !== 'none' ? parseFloat(r) || 0 : 0
 }
 
+// Where the written part of an element is. A centred heading in a full-width block has its words in the
+// middle, not at the block's left edge, so a tag that follows it should follow the ink. Clipped to the
+// element's own box; figures and empty elements answer with that box. Includes our own transforms.
+const NO_INK = /^(img|svg|picture|figure|canvas|video)$/i
+export function inkRect(el) {
+  const r = el.getBoundingClientRect()
+  if (!el.firstChild || NO_INK.test(el.tagName)) return r
+  try {
+    const range = document.createRange()
+    range.selectNodeContents(el)
+    const t = range.getBoundingClientRect()
+    const left = Math.max(r.left, t.left)
+    const right = Math.min(r.right, t.right)
+    const top = Math.max(r.top, t.top)
+    const bottom = Math.min(r.bottom, t.bottom)
+    if (!t.width || right - left < 12 || bottom - top < 6) return r
+    return { left, right, top, bottom, width: right - left, height: bottom - top }
+  } catch {
+    return r
+  }
+}
+
 // The fixed veil (inside #layers, above the page, below mercy) and the scrolling sheet of marks.
+// The veil is hell-only: mercy hides it with everything that moves. `words` is not: what the temple says
+// when a secret is spoken (the Inversion) is still said under mercy, only without the turning.
 export function createVeils() {
   const layers = document.getElementById('layers') ?? document.body
   const veil = h('div', { class: 'hell-veil hell-only', 'aria-hidden': 'true' })
+  const words = h('div', { class: 'hell-veil hell-veil--words', 'aria-hidden': 'true' })
   const status = h('p', { class: 'visually-hidden hell-status' })
-  layers.append(veil, status)
+  layers.append(veil, words, status)
 
   const sheet = h('div', { class: 'hell-marks hell-only', 'aria-hidden': 'true' })
   document.body.append(sheet)
@@ -177,14 +245,30 @@ export function createVeils() {
     const reads = []
     for (const [node, m] of marks) {
       if (!m.el.isConnected || !node.isConnected) { reads.push([node, null]); continue }
-      reads.push([node, m, m.el.getBoundingClientRect(), node.offsetWidth, node.offsetHeight])
+      reads.push([node, m, inkRect(m.el), node.offsetWidth, node.offsetHeight])
     }
+    // Tags never lie on one another. The elder keeps its place; a younger one that would cover it steps
+    // aside, up or down (whichever is the shorter way the first time, then on in that direction).
+    const placed = []
     for (const [node, m, r, w, hh] of reads) {
       if (!m) { node.hidden = true; continue }
-      const [x, y] = m.place(r, w, hh)
+      const [x, y0] = m.place(r, w, hh)
       const cx = clamp(x, 4, vw - w - 4)
+      let y = y0
+      let dir = 0
+      for (let tries = 0; tries < 8; tries++) {
+        const hit = placed.find((p) => cx < p.x + p.w + 4 && cx + w + 4 > p.x && y < p.y + p.h + 3 && y + hh + 3 > p.y)
+        if (!hit) break
+        const up = hit.y - hh - 4
+        const down = hit.y + hit.h + 4
+        if (!dir) dir = up > 4 && y - up <= down - y ? -1 : 1
+        y = dir < 0 ? up : down
+      }
+      const off = r.bottom < -40 || r.top > innerHeight + 40
+      if (!off) placed.push({ x: cx, y, w, h: hh })
       node.style.translate = `${Math.round(cx + sx)}px ${Math.round(y + sy)}px`
-      node.hidden = r.bottom < -40 || r.top > innerHeight + 40
+      // Kept in the layout while off screen (visibility, not display), so it can still be measured.
+      node.style.visibility = off ? 'hidden' : ''
     }
   }
   const schedule = () => { if (!raf && marks.size) raf = requestAnimationFrame(refresh) }
@@ -195,6 +279,7 @@ export function createVeils() {
 
   return {
     veil,
+    words,
     sheet,
     say(text) {
       status.textContent = ''

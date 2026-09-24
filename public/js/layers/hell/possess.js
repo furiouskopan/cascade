@@ -52,20 +52,48 @@ export function createPossession(env) {
     return on ? { node, s, e, word: text.slice(s, e) } : null
   }
 
+  // The meaning, dressed in the word's case: ALL CAPS stays all caps, a Capital keeps its capital.
   function shape(meaning, word) {
     let t = meaning.text
+    if (meaning.kind === 'truth') return t // code is written as the Old Law reads it, in its own case
     if (/^[A-Z]{2,}$/.test(word.replace(/[^A-Za-z]/g, '')) && word.length > 2) return t.toUpperCase()
     if (/^[A-Z]/.test(word) && /^[a-z]/.test(t)) t = t[0].toUpperCase() + t.slice(1)
     return t
   }
 
+  // Doctrine that brings its own article must not stutter ("the the Word", "a a prayer", "an a soul").
+  // An article just before the word is taken along with it and answered by the doctrine's own; after any
+  // other determiner ("our", "thy", "this") the doctrine's article is dropped.
+  const ARTICLE = /\b(the|an?)\s+$/i
+  const DETERMINER = /\b(this|that|these|those|thy|thine|our|your|my|its|his|her|their|every|each|no|one|some|any)\s+$/i
+  function phrase(hit, meaning) {
+    let { s } = hit
+    let text = shape(meaning, hit.word)
+    const own = meaning.kind === 'doctrine' ? /^(the|an?)\s+/i.exec(text) : null
+    if (own) {
+      const before = hit.node.data.slice(0, s)
+      const art = ARTICLE.exec(before)
+      if (art) {
+        s -= art[0].length
+        const cap = /^[A-Z]/.test(art[1])
+        const word = own[1].toLowerCase()
+        text = (cap ? word[0].toUpperCase() + word.slice(1) : word) + text.slice(own[1].length)
+      } else if (DETERMINER.test(before)) {
+        text = text.slice(own[0].length)
+      }
+    }
+    return { s, text }
+  }
+
   // Take the word at [s, e) of a text node.
-  function take({ node, s, e, word }, { hold = 0 } = {}) {
+  function take(hit, { hold = 0 } = {}) {
     if (active || dead || ctx.mercy?.on) return false
-    const meaning = meaningOf(word)
+    const meaning = meaningOf(hit.word)
     if (!meaning) return false
+    const { node, e } = hit
+    const { s, text } = phrase(hit, meaning)
     const parent = node.parentNode
-    const original = word
+    const original = node.data.slice(s, e)
     const rest = node.splitText(s)
     const after = rest.splitText(e - s)
     const span = document.createElement('span')
@@ -82,7 +110,7 @@ export function createPossession(env) {
     const write = (fn) => { a.mo.disconnect(); fn(); watch() }
     a.timers.push(setTimeout(() => {
       write(() => {
-        rest.data = shape(meaning, original)
+        rest.data = text
         span.className = `hell-possessed is-possessed is-${meaning.kind}`
       })
       a.born = performance.now()
@@ -161,6 +189,9 @@ export function createPossession(env) {
       range.setEnd(hit.node, hit.e)
       const r = range.getBoundingClientRect()
       if (!force && (r.top < 40 || r.bottom > innerHeight - 40)) continue
+      // Only a word the visitor can see: nothing of the face's lies over it.
+      const top = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2)
+      if (!top || !(el.contains(top) || top.contains(el))) continue
       return take(hit, { hold: rng.float(4000, 6500) })
     }
     return false

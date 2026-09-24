@@ -69,9 +69,18 @@ export function createRot(env, { ambient = true } = {}) {
       else visible.delete(e.target)
     }
   }, { threshold: [0, 0.2, 0.4, 0.6, 0.8] })
-  const watched = new WeakSet()
+  const watched = new Set()
 
+  // Every paragraph long enough to be read is watched; those the face has since taken away are let go
+  // (the Infinite Scripture writes and unwrites verses as the reader descends).
   function gather() {
+    for (const el of watched) {
+      if (el.isConnected) continue
+      io.unobserve(el)
+      watched.delete(el)
+      visible.delete(el)
+      seen.delete(el)
+    }
     const list = bodies(ctx.root, `${KINDS.text}, h1, h2, h3`, { text: true, inView: false, minChars: 40, maxArea: 0.6 })
     for (const { el } of list) if (!watched.has(el)) { watched.add(el); io.observe(el) }
   }
@@ -200,6 +209,7 @@ export function createRot(env, { ambient = true } = {}) {
     stop() {
       dead = true
       io.disconnect()
+      watched.clear()
       ctx.root.removeEventListener('pointerover', onOver)
       ctx.root.removeEventListener('pointerdown', onOver)
       for (const el of [...rotting.keys()]) restore(el)

@@ -53,7 +53,30 @@ export function createTab(ctx, rng) {
   let favicon = null // { link, href, created, timer, img, angle }
   const order = { i: 0, list: [] }
 
+  // Some whispers know the visitor: how often they have left, how often they have come, what they have seen.
+  function known() {
+    const out = []
+    const away = ctx.behavior?.awayCount ?? 0
+    const visits = ctx.visit?.visits ?? 1
+    const FIVE = ['sanctum', 'possession', 'recruitment', 'ashram', 'departure'] // babel is a route, not a face drawn by lot
+    const seen = (ctx.memory?.get?.('facesSeen', []) ?? []).filter((f) => FIVE.includes(f))
+    const words = ['', 'once', 'twice', 'three times', 'four times', 'five times', 'six times', 'seven times']
+    if (away >= 2) out.push(`you have left ${words[away] ?? `${away} times`}. we counted`)
+    if (visits >= 3) out.push(`visit ${visits}. the Akashic Record keeps them all`)
+    if (seen.length >= 2 && seen.length < 5) out.push(`${5 - seen.length} of our faces have not yet seen you`)
+    if (seen.length >= 5) out.push('you have seen every face. there is still a door')
+    return out
+  }
+
+  let sinceKnown = 2
   function nextWhisper() {
+    const mine = known()
+    sinceKnown++
+    // A whisper that knows you is rarer than one that does not, and never twice running.
+    if (mine.length && sinceKnown >= 3 && rng.chance(0.35)) {
+      sinceKnown = 0
+      return rng.pick(mine)
+    }
     if (order.i >= order.list.length) {
       order.list = rng.shuffle([...(BY_FACE[ctx.face] ?? []), ...COMMON]).slice(0, 7)
       order.i = 0
@@ -72,8 +95,11 @@ export function createTab(ctx, rng) {
   }
 
   // ── The icon becomes a sigil ─────────────────────────────────────────────────────────────────
-  function sigilOn() {
-    if (favicon) return
+  // The sigil is made from the whisper itself (the chaos-magician's way: strike the repeated letters,
+  // join the rest on a wheel), so the icon changes when the words do. Seven ticks on the rim, one for
+  // each planet of the hours, so the slow turn can be seen even when a sigil is nearly symmetrical.
+  function sigilOn(text) {
+    if (favicon) return resigil(text)
     let link = document.getElementById('favicon') || document.querySelector('link[rel~="icon"]')
     let created = false
     if (!link) {
@@ -87,7 +113,7 @@ export function createTab(ctx, rng) {
     canvas.width = canvas.height = 64
     const g = canvas.getContext('2d')
     const img = new Image()
-    const state = { link, href: link.getAttribute('href'), created, timer: 0, angle: rng.float(0, 360) }
+    const state = { link, href: link.getAttribute('href'), created, timer: 0, angle: rng.float(0, 360), img, ink, draw: null }
     favicon = state
     const draw = () => {
       if (favicon !== state || !g) return
@@ -104,12 +130,21 @@ export function createTab(ctx, rng) {
       g.save()
       g.translate(32, 32)
       g.rotate((state.angle * Math.PI) / 180)
-      if (img.complete && img.naturalWidth) g.drawImage(img, -26, -26, 52, 52)
+      g.lineWidth = 3
+      for (let i = 0; i < 7; i++) {
+        const a = (i / 7) * Math.PI * 2
+        g.beginPath()
+        g.moveTo(Math.cos(a) * 24, Math.sin(a) * 24)
+        g.lineTo(Math.cos(a) * 28, Math.sin(a) * 28)
+        g.stroke()
+      }
+      if (img.complete && img.naturalWidth) g.drawImage(img, -22, -22, 44, 44)
       g.restore()
       try { link.href = canvas.toDataURL('image/png') } catch {}
     }
+    state.draw = draw
     img.onload = draw
-    img.src = toDataUrl(sigil('come back to the flow', { size: 100, stroke: 7 }), ink)
+    resigil(text)
     draw()
     // One slow turn a minute. Hidden tabs are throttled to about one tick a second, which is all it needs.
     state.timer = setInterval(() => {
@@ -117,6 +152,16 @@ export function createTab(ctx, rng) {
       state.angle = (state.angle + 6) % 360
       draw()
     }, 1000)
+  }
+
+  // The sigil is made the way Austin Osman Spare taught: write the statement of intent, strike out the
+  // vowels and every letter that repeats, and bind what remains. Six letters at most, or at sixteen
+  // pixels the sigil is only a blot.
+  function resigil(text) {
+    if (!favicon) return
+    const letters = [...new Set(String(text || 'come back to the flow').toLowerCase().replace(/[^a-z]/g, '').replace(/[aeiou]/g, ''))]
+    const word = letters.slice(0, 6).join('') || 'cscd'
+    favicon.img.src = toDataUrl(sigil(word, { size: 100, stroke: 7 }), favicon.ink)
   }
 
   function sigilOff() {
@@ -138,12 +183,13 @@ export function createTab(ctx, rng) {
     written = nextWhisper()
     since = Date.now()
     setTitle(written)
-    sigilOn()
+    sigilOn(written)
     clearTimeout(later)
     later = setTimeout(() => {
       if (!document.hidden || document.title !== written) return
       written = rng.pick(LATER)
       setTitle(written)
+      resigil(written)
     }, 40000)
   }
 
@@ -211,7 +257,7 @@ export function createTab(ctx, rng) {
       written = String(text).slice(0, 80)
       since = since || Date.now()
       setTitle(written)
-      sigilOn()
+      sigilOn(written)
       return true
     },
     get whispering() { return Boolean(written) },

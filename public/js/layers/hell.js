@@ -104,21 +104,27 @@ export async function init(ctx) {
   }
 
   // ── An in-page whisper, near the hand ──────────────────────────────────────────────────────
+  // Written on the veil of words, which mercy does not take away: a face that asks the temple to
+  // whisper is still heard under mercy, only without the drift (mercy stills the transition).
   const whispers = new Set()
   function whisper(text, { quiet = false } = {}) {
     const t = String(text ?? '').replace(/\s+/g, ' ').trim().slice(0, 140)
     if (!t) return false
     if (tab.whisperToTab(t)) return true
-    for (const old of [...whispers].slice(0, Math.max(0, whispers.size - 2))) old.remove()
+    for (const old of [...whispers].slice(0, Math.max(0, whispers.size - 2))) { old.remove(); whispers.delete(old) }
     const node = h('p', { class: 'hell-whisper' }, t)
+    veils.words.append(node)
+    // Beside the hand when there is one; otherwise high in the middle. Measured once, kept on screen.
+    const vw = document.documentElement.clientWidth || innerWidth
+    const w = Math.min(node.offsetWidth, vw - 16)
     const p = ctx.behavior?.pointer
     const touchy = !finePointer || !p
-    const x = touchy ? innerWidth / 2 : clamp(p.x + 18, 12, innerWidth - 12)
+    let x = touchy ? (vw - w) / 2 : p.x + 18
+    if (!touchy && x + w > vw - 8) x = p.x - 14 - w // no room to the right: speak from the left of the hand
+    x = clamp(x, 8, Math.max(8, vw - w - 8))
     const y = touchy ? innerHeight * 0.3 : clamp(p.y - 30, 24, innerHeight - 90)
     node.style.setProperty('--x', `${Math.round(x)}px`)
     node.style.setProperty('--y', `${Math.round(y)}px`)
-    if (touchy || x > innerWidth * 0.62) node.classList.add('is-left')
-    veils.veil.append(node)
     whispers.add(node)
     requestAnimationFrame(() => node.classList.add('is-shown'))
     setTimeout(() => node.classList.remove('is-shown'), 3400)
@@ -222,10 +228,13 @@ export async function init(ctx) {
   ctx.bus.on('face:leaving', () => stop())
   ctx.bus.on('face:ready', () => { stop(); later(900) })
   ctx.bus.on('mercy:change', ({ on } = {}) => {
-    if (on) {
-      stop()
-      for (const w of whispers) w.classList.remove('is-shown')
-    } else later(600)
+    if (on) stop()
+    else later(600)
+  })
+  // While the temple turns over (and back), the tags that follow its elements are carried round with
+  // them; they stay upright themselves, so the annotations can still be read on an inverted page.
+  ctx.bus.on('hell:inversion', () => {
+    for (const ms of [250, 700, 1150, 1450]) setTimeout(() => veils.refresh(), ms)
   })
   document.addEventListener('visibilitychange', () => {
     if (!session) return
@@ -265,6 +274,7 @@ export async function init(ctx) {
   if (debug) {
     document.documentElement.dataset.debug = [document.documentElement.dataset.debug, 'hell'].filter(Boolean).join(' ')
     window.cascadeHell = {
+      ctx,
       get session() { return session },
       trigger: (name) => session?.fx[name]?.trigger?.(),
       api: ctx.hell,
