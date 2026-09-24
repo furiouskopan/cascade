@@ -165,6 +165,17 @@ html[data-ascended] .face--departure .dep-port { fill: #ffd76a; }
   opacity: 0; transition: opacity 2s ease 1.4s;
 }
 .face--departure .dep-speech.is-on { opacity: 1; }
+/* At 108 seconds the Mothership falls silent, so the stars can be read through where it spoke. */
+.face--departure[data-aligned] .dep-speech.is-on { opacity: 0; transition-delay: 0s; }
+/* The Transmission passing: the emitter burns brighter while it lasts (slowly; never a flash). */
+.face--departure .dep-emitter { transition: opacity 1.5s; }
+.face--departure .dep-ship.is-tx .dep-emitter { animation: dep-emit 2.6s ease-in-out infinite alternate; }
+@keyframes dep-emit { from { opacity: 0.7; } to { opacity: 1; } }
+/* The alignment window (minutes 33 to 35): every port lit, in the violet of the Crown. */
+.face--departure[data-alignment="open"] .dep-ship .dep-port { opacity: 1; fill: #e6d4ff; }
+.face--departure[data-alignment="open"] .dep-pole-ring { fill: rgba(181, 140, 255, 0.42); stroke-width: 3; }
+.face--departure[data-alignment="open"] .dep-pole-label,
+.face--departure[data-alignment="open"] .dep-pole-bearing { fill: #fff; }
 .face--departure .dep-speech p { margin: 0 0 0.5em; }
 .face--departure .dep-speech-kicker { font: 600 11px var(--f-label); letter-spacing: 0.4em; text-transform: uppercase; color: var(--dep-cyan); }
 .face--departure .dep-speech-en { font: 400 clamp(18px, 2.6vw, 26px)/1.3 var(--f-head); letter-spacing: 0.06em; text-transform: uppercase; }
@@ -210,7 +221,9 @@ html[data-ascended] .face--departure .dep-port { fill: #ffd76a; }
   60% { opacity: 1; filter: blur(0) brightness(1.4); }
   to { translate: 0 0; filter: none; }
 }
-.face--departure .dep-sighted { outline: 1px dashed var(--dep-phosphor); outline-offset: 2px; background-color: rgba(141, 255, 196, 0.1); }
+/* A sighted element is only ringed, never filled, so a constellation that answers hundreds of elements
+   does not bury the page it is looking at. */
+.face--departure .dep-sighted { outline: 1px dashed var(--dep-phosphor); outline-offset: 2px; }
 
 /* ---------------------------------------------------------------- the page ---- */
 /* At 108 seconds of stillness the page holds its breath and dims, so the stars can be read. */
@@ -282,7 +295,22 @@ html[data-ascended] .face--departure .dep-port { fill: #ffd76a; }
 
 /* Radio-teletype, grey-green enamel. */
 .face--departure .dep-ttpanel { background: linear-gradient(170deg, #45544e, #2c3733 60%, #232c29); border: 1px solid #5d6e67; color: #dfe8e2; }
-.face--departure .dep-tape-slot { height: 38px; padding: 2px 0; border-radius: 5px; background: #0d110f; box-shadow: inset 0 2px 6px #000; overflow: hidden; margin-bottom: 12px; }
+.face--departure .dep-tape-slot {
+  position: relative; height: 38px; padding: 2px 0; border-radius: 5px; background: #0d110f; box-shadow: inset 0 2px 6px #000;
+  overflow: hidden; margin-bottom: 12px; cursor: grab; touch-action: pan-y; transition: box-shadow 0.6s;
+}
+.face--departure .dep-tty.is-pulling .dep-tape-slot { cursor: grabbing; }
+.face--departure .dep-tape-slot:focus-visible { outline: 2px solid var(--dep-amber); outline-offset: 2px; }
+/* The punch runs while the paper stands still: a faint lamp comes on inside the slot. */
+.face--departure .dep-tty.is-tapeonly .dep-tape-slot { box-shadow: inset 0 2px 6px #000, inset 0 0 14px rgba(255, 179, 92, 0.45); }
+.face--departure .dep-tty.is-pulled .dep-tape-slot { box-shadow: inset 0 2px 6px #000, 0 0 0 1px rgba(255, 179, 92, 0.6); }
+.face--departure .dep-tape-label {
+  position: absolute; left: 8px; top: 50%; translate: 0 -50%; pointer-events: none;
+  font: 600 8.5px var(--f-label); letter-spacing: 0.22em; text-transform: uppercase; color: rgba(241, 228, 180, 0.78);
+  white-space: nowrap;
+  /* A printed tag on the slot, so the holes running under it never make it unreadable. */
+  padding: 3px 7px 2px; border-radius: 2px; background: #1c2421; box-shadow: 0 0 0 1px rgba(241, 228, 180, 0.18), 4px 0 8px #0d110f;
+}
 .face--departure .dep-tape {
   display: block; width: 100%; height: 34px;
   background: linear-gradient(#f1e4b4, #e2d197);
@@ -309,7 +337,9 @@ html[data-ascended] .face--departure .dep-port { fill: #ffd76a; }
 .face--departure .dep-line.is-out { color: #7a1a14; }
 .face--departure .dep-line.is-old { color: rgba(28, 26, 51, 0.5); text-shadow: none; }
 .face--departure .dep-line.is-old.is-red { color: rgba(168, 35, 26, 0.45); }
-.face--departure .dep-line.is-tear { color: rgba(28, 26, 51, 0.35); letter-spacing: 0.3em; }
+.face--departure .dep-line.is-tear { color: rgba(28, 26, 51, 0.35); overflow: hidden; }
+/* The paper is exactly as wide as its columns; nothing on it scrolls sideways. */
+.face--departure .dep-paper { overflow-x: hidden; }
 .face--departure .dep-tty-head { display: inline-block; width: 0.62em; height: 1.05em; margin-left: 1px; vertical-align: -0.16em; background: rgba(28, 26, 51, 0.78); }
 .face--departure .dep-probe { position: absolute; visibility: hidden; white-space: pre; }
 .face--departure .dep-tty-form { display: flex; align-items: stretch; gap: 8px; margin-top: 12px; }
@@ -456,6 +486,10 @@ html[data-ascended] .face--departure .dep-port { fill: #ffd76a; }
 .face--departure .dep-radio.is-on-air .dep-onair { opacity: 1; color: #ffb4a6; }
 .face--departure .dep-radio.is-on-air .dep-onair::before { background: #ff4b3a; box-shadow: 0 0 10px #ff4b3a, 0 0 22px rgba(255, 75, 58, 0.6); animation: dep-nixiebreath 2.4s ease-in-out infinite alternate; }
 .face--departure .dep-readout { margin: 12px 2px 0; min-height: 1.4em; font: 12px/1.4 var(--f-tty); color: #f1dfb8; }
+/* While the Transmission passes, the magic eye cannot settle: its green fan breathes. */
+.face--departure .dep-radio.is-tx .dep-eye-glow { animation: dep-eyetx 1.7s ease-in-out infinite alternate; }
+.face--departure .dep-radio.is-tx .dep-eye-svg { filter: drop-shadow(0 0 18px rgba(125, 255, 171, 0.7)); }
+@keyframes dep-eyetx { from { opacity: 0.55; } to { opacity: 1; } }
 .face--departure .dep-radio.is-overflow .dep-readout { color: #ff9b8a; }
 
 /* ---------------------------------------------------------------- the star chart ---- */
@@ -586,6 +620,13 @@ html[data-eclipse] .face--departure .dep-moon-corona { stroke: rgba(255, 244, 21
 .face--departure .dep-teachings li > p { margin: 0; grid-column: 2; }
 .face--departure .dep-ref { grid-row: span 2; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; padding-top: 3px; }
 .face--departure .dep-frag { font-style: italic; font-size: 14.5px; }
+/* The secrets layer may write a rubric, in no colour, under a teaching. On the ditto sheet it keeps to the
+   verse column, and a faint response mark in the margin shows where the duplicator printed nothing. */
+.face--departure .dep-teachings li > .rubric { grid-column: 2; position: relative; font-size: 13px; line-height: 1.45; }
+.face--departure .dep-teachings li > .rubric::before {
+  content: '℟'; position: absolute; left: -1.6em; top: 0.05em; font-style: normal; font-variant: normal;
+  color: rgba(80, 54, 154, 0.45); -webkit-text-fill-color: rgba(80, 54, 154, 0.45);
+}
 .face--departure .dep-frag [lang="sa"], .face--departure .dep-frag [lang="he"], .face--departure .dep-frag [lang="bo"], .face--departure .dep-frag [lang="cu"] { font-family: var(--font-sacred, serif); font-style: normal; }
 .face--departure .dep-gloss { opacity: 0.8; }
 .face--departure .dep-stages { margin: 0; }
@@ -616,7 +657,7 @@ html[data-eclipse] .face--departure .dep-moon-corona { stroke: rgba(255, 244, 21
     rgba(80, 54, 154, 0.07);
 }
 .face--departure .dep-stage--3 .dep-stage-el { position: absolute; top: -30px; left: 50%; translate: -50% 0; animation: dep-stagefloat 6s ease-in-out infinite alternate; }
-.face--departure .dep-stage-z { position: absolute; top: 4px; right: 5px; font: 700 9px var(--f-type); letter-spacing: 0.02em; }
+.face--departure .dep-stage-z { position: absolute; bottom: 0; right: 5px; font: 700 9px/12px var(--f-type); letter-spacing: 0.02em; white-space: nowrap; }
 @keyframes dep-stagefloat { from { translate: -50% 4px; } to { translate: -50% -6px; } }
 .face--departure .dep-stages figcaption { margin-top: 14px; font-style: italic; font-size: 14.5px; }
 .face--departure .dep-q-wrap { overflow-x: auto; }
@@ -627,6 +668,28 @@ html[data-eclipse] .face--departure .dep-moon-corona { stroke: rgba(255, 244, 21
 .face--departure .dep-unsaid { margin: 0; padding-left: 1.4em; }
 .face--departure .dep-unsaid li { margin-bottom: 0.5em; }
 .face--departure .dep-report-sign { margin: 2.4em 0 0; text-align: right; font-style: italic; font-size: 14.5px; }
+.face--departure .dep-qcode { display: inline-block; }
+
+/* Plate I: a small print from a box camera, taped to the report, overhanging its edge. */
+.face--departure .dep-photo {
+  position: relative; float: right; width: min(44%, 330px); margin: 4px clamp(-64px, -4vw, -24px) 18px 26px;
+  padding: 10px 10px 8px; background: #f7f3ea; rotate: 2.4deg;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.18), 0 12px 26px rgba(40, 24, 10, 0.34);
+  text-shadow: none;
+}
+.face--departure .dep-photo-img { display: block; width: 100%; height: auto; aspect-ratio: 480 / 330; background: #8d8676; filter: contrast(1.04); }
+.face--departure .dep-photo figcaption {
+  margin: 8px 2px 0; color: #2b3b73; font: 14px/1.3 'Segoe Print', 'Bradley Hand', 'Snell Roundhand', 'Lucida Handwriting', cursive;
+  rotate: -0.6deg;
+}
+.face--departure .dep-photo-tape {
+  position: absolute; top: -13px; left: 50%; width: 92px; height: 26px; translate: -50% 0; rotate: -4deg; z-index: 1;
+  background: linear-gradient(rgba(250, 244, 214, 0.72), rgba(236, 226, 190, 0.62));
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+  clip-path: polygon(2% 8%, 8% 0, 16% 10%, 24% 1%, 33% 9%, 41% 0, 50% 8%, 58% 1%, 67% 10%, 75% 0, 84% 9%, 92% 1%, 100% 7%, 98% 92%, 91% 100%, 83% 91%, 74% 100%, 66% 92%, 57% 100%, 49% 91%, 41% 100%, 32% 92%, 24% 100%, 15% 91%, 7% 100%, 0 93%);
+}
+.face--departure .dep-report-head + .dep-photo + .dep-report-p { clear: none; }
+.face--departure .dep-report h3 { clear: both; }
 
 /* ---------------------------------------------------------------- the manifests ---- */
 .face--departure .dep-manifests { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 28px; align-items: start; margin: 8vh 0 12vh; }
@@ -659,8 +722,17 @@ html[data-eclipse] .face--departure .dep-moon-corona { stroke: rgba(255, 244, 21
 .face--departure .dep-book-list time { grid-area: time; font: 500 11px var(--f-label); letter-spacing: 0.1em; opacity: 0.75; white-space: nowrap; }
 .face--departure .dep-book-list li.is-fresh { animation: dep-fresh 4s ease-out; }
 .face--departure .dep-book-more { display: block; font-style: italic; opacity: 0.75; }
+.face--departure .dep-book-list li.is-yours { background: linear-gradient(90deg, rgba(255, 215, 106, 0.32), transparent 80%); }
+.face--departure .dep-book-list li.is-yours .dep-book-no::after { content: ' · yours'; }
 @keyframes dep-fresh { from { background: rgba(255, 215, 106, 0.6); } to { background: transparent; } }
-.face--departure .dep-book-empty { margin: 8px 0 0; padding: 22px; text-align: center; font-style: italic; border: 1px dashed rgba(27, 42, 85, 0.4); }
+.face--departure .dep-book-empty { margin: 0 0 4px; font-style: italic; font-size: 15.5px; color: #6b5220; }
+/* Ruled ahead of time: blank lines wait under the last name, numbered by nobody yet. */
+.face--departure .dep-book-list li.dep-book-blank { display: block; height: 44px; padding: 24px 0 0; }
+.face--departure .dep-book-blank .dep-book-no { opacity: 0.5; }
+.face--departure .dep-book-plate {
+  margin: 22px 0 0; text-align: right; font: 600 10px var(--f-label); letter-spacing: 0.3em; text-transform: uppercase;
+  color: #8a6420; opacity: 0.7;
+}
 .face--departure .dep-book-you { margin: 18px 0 0; padding: 12px 14px; border: 1px solid #b8923a; background: rgba(255, 215, 106, 0.25); font-style: italic; }
 
 .face--departure .dep-elements, .face--departure .dep-signals {
@@ -671,11 +743,19 @@ html[data-eclipse] .face--departure .dep-moon-corona { stroke: rgba(255, 244, 21
 .face--departure .dep-elements h2, .face--departure .dep-signals h2 { margin: 0 0 8px; font: 600 13px var(--f-label); letter-spacing: 0.26em; text-transform: uppercase; }
 .face--departure .dep-elements-note { margin: 0 0 12px; font: italic 14px/1.45 var(--f-atlas); color: rgba(141, 255, 196, 0.75); }
 .face--departure .dep-elements-list { list-style: none; margin: 0 0 12px; padding: 0; max-height: 300px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(141, 255, 196, 0.4) transparent; }
+.face--departure .dep-elements-list:empty { display: none; }
 .face--departure .dep-elements-list li { padding: 5px 0; border-bottom: 1px dotted rgba(141, 255, 196, 0.25); font-size: 12px; overflow-wrap: anywhere; }
 .face--departure .dep-elements-list code { color: var(--dep-amber); font: inherit; }
 .face--departure .dep-elements-list q { color: #eafff4; }
 .face--departure .dep-el-from { opacity: 0.7; }
 .face--departure .dep-el-state { display: inline-block; padding: 0 6px; border: 1px solid currentColor; border-radius: 3px; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; }
+.face--departure .dep-el-home {
+  cursor: pointer; margin-left: 4px; padding: 0 6px; border-radius: 3px; border: 1px dashed rgba(141, 255, 196, 0.7);
+  background: transparent; color: var(--dep-phosphor); font: 10px/1.6 var(--f-tty); letter-spacing: 0.1em; text-transform: uppercase;
+}
+.face--departure .dep-el-home:hover, .face--departure .dep-el-home:focus-visible { background: rgba(141, 255, 196, 0.14); border-style: solid; }
+.face--departure .dep-elements h2:focus { outline: none; }
+.face--departure .dep-elements h2:focus-visible { outline: 2px solid var(--dep-phosphor); }
 .face--departure .is-rising .dep-el-state { color: #fff; animation: dep-nixiebreath 1.4s ease-in-out infinite alternate; }
 .face--departure .dep-elements-empty { margin: 0 0 12px; font: italic 14px var(--f-atlas); opacity: 0.8; }
 .face--departure .dep-recall, .face--departure .dep-signal {
@@ -715,6 +795,12 @@ html[data-eclipse] .face--departure .dep-moon-corona { stroke: rgba(255, 244, 21
 @media (hover: none) {
   .face--departure .dep-tty-kbd { display: none; }
 }
+/* On a wide receiver the planisphere is position: sticky, as the Saints are: it follows you down the
+   catalogue until its parent ends. */
+@media (min-width: 961px) {
+  .face--departure .dep-chart { position: sticky; top: 3vh; }
+  .face--departure .dep-chart figcaption::after { content: ' The chart is sticky, as the Saints are: it follows you until its parent ends.'; }
+}
 @media (max-width: 960px) {
   .face--departure .dep-console, .face--departure .dep-charts-body, .face--departure .dep-manifests { grid-template-columns: minmax(0, 1fr); }
   .face--departure .dep-console-side { grid-template-columns: minmax(0, 1fr); }
@@ -725,7 +811,8 @@ html[data-eclipse] .face--departure .dep-moon-corona { stroke: rgba(255, 244, 21
   .face--departure .dep-mast-rule > span:last-child { display: none; }
   .face--departure .dep-mast-rule > span:first-child { flex: 1 1 auto; }
   .face--departure .dep-title { letter-spacing: 0.03em; }
-  .face--departure .dep-mast .dep-burst--b { width: 56px; height: 56px; top: 9%; left: 2%; }
+  /* Between the bulletin rule and the kicker, so it never sits on a line of type. */
+  .face--departure .dep-mast .dep-burst--b { width: 40px; height: 40px; top: 40px; left: 6%; }
   .face--departure .dep-mast .dep-burst--c { right: 2%; bottom: 4%; }
   .face--departure .dep-panel { padding: 14px 12px 14px; }
   .face--departure .dep-paper { font-size: 12px; padding: 12px 10px; }
@@ -742,9 +829,13 @@ html[data-eclipse] .face--departure .dep-moon-corona { stroke: rgba(255, 244, 21
   .face--departure .dep-report h2 { padding-right: 0; }
   .face--departure .dep-stamp { position: relative; top: auto; right: auto; margin-top: 12px; rotate: -5deg; }
   .face--departure .dep-teachings li { grid-template-columns: minmax(0, 1fr); }
-  .face--departure .dep-teachings li > p { grid-column: 1; }
+  .face--departure .dep-teachings li > p, .face--departure .dep-teachings li > .rubric { grid-column: 1; }
+  .face--departure .dep-teachings li > .rubric::before { left: -1.2em; }
   .face--departure .dep-ref { grid-row: auto; }
   .face--departure .dep-stages-list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px 12px; }
+  .face--departure .dep-stage-z { font-size: 7.5px; right: 3px; }
+  .face--departure .dep-photo { float: none; width: auto; max-width: 360px; margin: 18px auto 26px; rotate: 1.2deg; }
+  .face--departure .dep-q th, .face--departure .dep-q td { padding-right: 8px; font-size: 13px; }
   .face--departure .dep-star-label { display: none; }
   .face--departure .dep-rosetta { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .face--departure .dep-book-list li { grid-template-columns: 3.4em minmax(0, 1fr); grid-template-areas: 'no glyph' 'no latin' 'no time'; }

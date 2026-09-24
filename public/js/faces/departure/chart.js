@@ -5,7 +5,7 @@
 // The Rosetta fragment of the departure face is the chart's legend: the Key to the Stellar Script.
 import { h } from '../../lib/dom.js'
 import { rosetta, toPua, ROSETTA } from '../../lib/glyphs.js'
-import { svgNode, ROMAN, hm, WEEKDAYS } from './util.js'
+import { svgNode, ROMAN, hm, WEEKDAYS, departable } from './util.js'
 import { CONSTELLATIONS, parseSelector, magnitude, COMBINATOR_NAMES } from './lore.js'
 
 const C = 500
@@ -39,7 +39,7 @@ function moonPath(p, R) {
   return `M0 ${-R} A${R} ${R} 0 0 ${first} 0 ${R} A${f(rx)} ${R} 0 0 ${second} 0 ${-R} Z`
 }
 
-function buildConstellation(c, anchorDeg, anchorR, rng, rot) {
+function buildConstellation(c, anchorDeg, anchorR, rng, rot, boxes = []) {
   const { compounds, combinators, simple } = parseSelector(c.selector)
   const pts = []
   let [x, y] = polar(anchorR, anchorDeg)
@@ -97,10 +97,13 @@ function buildConstellation(c, anchorDeg, anchorR, rng, rot) {
         sy = py + Math.sin(a) * (14 + k * 5)
       }
       body += starShape(sx, sy, mag)
+      boxes.push([sx - 11, sy - 11, sx + 11, sy + 11])
     })
     const right = px < C + 230
     const lx = right ? px + reach + 7 : px - reach - 7
     body += `<text class="dep-star-label" x="${f(lx)}" y="${f(py + 5)}" text-anchor="${right ? 'start' : 'end'}">${esc(compounds[j])}</text>`
+    const lw = compounds[j].length * 8.4
+    boxes.push(right ? [lx, py - 9, lx + lw, py + 9] : [lx - lw, py - 9, lx, py + 9])
   })
   if (compounds.length === 1 && simple[0].length === 1) {
     // A lone star wears a crown of seven faint points.
@@ -113,6 +116,8 @@ function buildConstellation(c, anchorDeg, anchorR, rng, rot) {
   const cx = sumX / P.length
   const ny = maxY + 36 > C + 380 ? minY - 26 : maxY + 34
   body += `<text class="dep-const-name" x="${f(cx)}" y="${f(ny)}" text-anchor="middle">${esc(c.latin)}</text>`
+  const nw = c.latin.length * 4.7
+  boxes.push([cx - nw, ny - 16, cx + nw, ny + 6])
   return `<g class="dep-const" data-id="${c.id}">${body}</g>`
 }
 
@@ -179,28 +184,57 @@ export function starChart(ctx, life, rng, { onSight } = {}) {
   const [ex, ey] = polar(78, 35 + rot)
   s += `<circle class="dep-ecliptic" cx="${f(ex)}" cy="${f(ey)}" r="300"/>`
   s += `<text class="dep-ecl-label"><textPath href="#dep-ecl-path" startOffset="4%">THE ECLIPTIC OF THE CASCADE ✶ THE PATH OF THE REPAINT</textPath></text>`
-  const moonDeg = sky.moon.phase * 360 + rot + 120
-  const [mx, my] = polar(300, moonDeg, ex, ey)
-  s += `<g class="dep-moon" transform="translate(${f(mx)} ${f(my)})"><circle class="dep-moon-dark" r="17"/><path class="dep-moon-lit" d="${moonPath(sky.moon.phase, 17)}"/><circle class="dep-moon-corona" r="25"/></g>`
-  const out = (x, pad) => (x >= C ? `x="${f(x + pad)}" text-anchor="start"` : `x="${f(x - pad)}" text-anchor="end"`)
-  s += `<text class="dep-body-label" ${out(mx, 26)} y="${f(my + 5)}">Moon, ${esc(sky.moon.name)} · ${Math.round(sky.moon.illumination * 100)}%</text>`
-  const planetDeg = moonDeg + 150
-  const [qx, qy] = polar(300, planetDeg, ex, ey)
-  s += `<circle class="dep-planet" cx="${f(qx)}" cy="${f(qy)}" r="15"/>`
-  s += `<text class="dep-planet-glyph" x="${f(qx)}" y="${f(qy + 7)}" text-anchor="middle">${esc(sky.planetaryHour.glyph)}</text>`
-  s += `<text class="dep-body-label" ${out(qx, 22)} y="${f(qy + 5)}">${esc(sky.planetaryHour.planet)} rules the hour</text>`
+  // The navigation stars and the constellations are laid down first (in the same order of fate as ever),
+  // so the Moon and the ruler of the hour can then find a clear stretch of the ecliptic for their names.
+  const boxes = [[C - 96, C - 58, C + 96, C + 64]] // the pole and its two legends
+  for (const r of [107, 214, 321, DISC - 1]) boxes.push([C + 2, C - r + 2, C + 170, C - r + 19]) // the rungs' names
+  let navs = ''
   // The navigation stars, named in the Stellar Script (their letters are in the legend).
   const nav = ROSETTA.departure
   nav.forEach((letter, k) => {
     const [x, y] = polar(rng.float(368, 402), (k / nav.length) * 360 + rng.float(-14, 14) + rot)
-    s += starShape(x, y, 1, 'dep-star dep-nav')
-    s += `<text class="dep-nav-glyph" x="${f(x + 12)}" y="${f(y - 10)}">${toPua(letter)}</text>`
+    navs += starShape(x, y, 1, 'dep-star dep-nav')
+    navs += `<text class="dep-nav-glyph" x="${f(x + 12)}" y="${f(y - 10)}">${toPua(letter)}</text>`
+    boxes.push([x - 24, y - 32, x + 36, y + 24])
   })
   // The constellations.
+  let consts = ''
   chosen.forEach((c, i) => {
     const deg = (i / chosen.length) * 360 + rng.float(-12, 12)
-    s += buildConstellation(c, deg, rng.float(200, 285), rng.fork(`const/${c.id}`), rot)
+    consts += buildConstellation(c, deg, rng.float(200, 285), rng.fork(`const/${c.id}`), rot, boxes)
   })
+  // A body keeps to the ecliptic, but may slide a few degrees along it, and set its name on either side,
+  // rather than write over a constellation.
+  const hit = (a, b) => a[0] < b[2] && a[2] > b[0] && a[1] < b[3] && a[3] > b[1]
+  const inDisc = (b) => [[b[0], b[1]], [b[2], b[1]], [b[0], b[3]], [b[2], b[3]]].every(([x, y]) => Math.hypot(x - C, y - C) < DISC - 6)
+  function place(deg, radius, pad, text) {
+    const w = text.length * 7
+    let first = null
+    for (const d of [0, 10, -10, 20, -20, 30, -30, 40, -40, 55, -55, 70, -70]) {
+      const [x, y] = polar(300, deg + d, ex, ey)
+      for (const right of x >= C ? [true, false] : [false, true]) {
+        const label = right ? [x + pad, y - 9, x + pad + w, y + 8] : [x - pad - w, y - 9, x - pad, y + 8]
+        const body = [x - radius, y - radius, x + radius, y + radius]
+        const spot = { x, y, right, label, body }
+        first ??= spot
+        if (inDisc(label) && !boxes.some((b) => hit(b, label) || hit(b, body))) return spot
+      }
+    }
+    return first
+  }
+  const tag = (p, pad) => (p.right ? `x="${f(p.x + pad)}" text-anchor="start"` : `x="${f(p.x - pad)}" text-anchor="end"`)
+  const moonText = `Moon, ${sky.moon.name} · ${Math.round(sky.moon.illumination * 100)}%`
+  const moonDeg = sky.moon.phase * 360 + rot + 120
+  const moon = place(moonDeg, 27, 26, moonText)
+  boxes.push(moon.label, moon.body)
+  s += `<g class="dep-moon" transform="translate(${f(moon.x)} ${f(moon.y)})"><circle class="dep-moon-dark" r="17"/><path class="dep-moon-lit" d="${moonPath(sky.moon.phase, 17)}"/><circle class="dep-moon-corona" r="25"/></g>`
+  s += `<text class="dep-body-label" ${tag(moon, 26)} y="${f(moon.y + 5)}">${esc(moonText)}</text>`
+  const planetText = `${sky.planetaryHour.planet} rules the hour`
+  const planet = place(moonDeg + 150, 17, 22, planetText)
+  s += `<circle class="dep-planet" cx="${f(planet.x)}" cy="${f(planet.y)}" r="15"/>`
+  s += `<text class="dep-planet-glyph" x="${f(planet.x)}" y="${f(planet.y + 7)}" text-anchor="middle">${esc(sky.planetaryHour.glyph)}</text>`
+  s += `<text class="dep-body-label" ${tag(planet, 22)} y="${f(planet.y + 5)}">${esc(planetText)}</text>`
+  s += navs + consts
   // The Fold: the horizon of the viewport. What lies beyond it is dimmed.
   s += `<path class="dep-beyond" fill-rule="evenodd" d="M${C - DISC} ${C}a${DISC} ${DISC} 0 1 0 ${DISC * 2} 0a${DISC} ${DISC} 0 1 0 ${-DISC * 2} 0Z M${C - 400} ${C + 40}a400 318 0 1 0 800 0a400 318 0 1 0 -800 0Z"/>`
   s += `<ellipse class="dep-fold" cx="${C}" cy="${C + 40}" rx="400" ry="318"/>`
@@ -253,7 +287,8 @@ export function starChart(ctx, life, rng, { onSight } = {}) {
     if (c.id !== 'corona') {
       try { found = [...ctx.root.querySelectorAll(c.selector.replace(/::[\w-]+/g, ''))] } catch { found = [] }
     }
-    found = found.filter((e) => !e.closest('.dep-heaven') && !e.classList.contains('dep-ghost'))
+    // Only the page answers: not the sky behind it, not the glass over it, not the strokes inside a drawing.
+    found = found.filter((e) => !e.closest('.dep-heaven, .dep-sky, .dep-crt') && !e.ownerSVGElement && !e.classList.contains('dep-ghost'))
     for (const e of found.slice(0, 400)) { e.classList.add('dep-sighted'); lit.add(e) }
     const g = c.grace.join(',')
     let msg
@@ -270,10 +305,10 @@ export function starChart(ctx, life, rng, { onSight } = {}) {
     }, 4600)
   }
   const catalogue = h('ol', { class: 'dep-catalogue' }, chosen.map((c) => {
-    const btn = h('button', { type: 'button', class: 'dep-const-btn', 'data-id': c.id },
+    const btn = h('button', { type: 'button', class: 'dep-const-btn', 'data-id': c.id, 'aria-label': `Sight ${c.latin}: the selector ${c.selector}, grace ${c.grace.join(', ')}` },
       h('span', { class: 'dep-const-latin' }, c.latin),
       h('code', { class: 'dep-const-sel' }, c.selector),
-      h('span', { class: 'dep-const-grace' }, `grace ${c.grace.join('·')}`),
+      h('span', { class: 'dep-const-grace dep-can' }, `grace ${c.grace.join('·')}`),
     )
     life.listen(btn, 'click', () => sight(c))
     for (const [evt, on] of [['pointerenter', true], ['pointerleave', false], ['focus', true], ['blur', false]]) life.listen(btn, evt, () => light(c.id, on))
@@ -288,7 +323,7 @@ export function starChart(ctx, life, rng, { onSight } = {}) {
     h('header', { class: 'dep-charts-head' },
       h('p', { class: 'dep-kicker' }, `Plate ${ROMAN[now.getMonth()]} · set for ${hm(now)} local, ${WEEKDAYS[now.getDay()]}`),
       h('h2', { id: 'dep-charts-h' }, 'Planisphere of the Selector Sky'),
-      h('p', { class: 'dep-charts-sub' }, 'Every star is a selector. Its brightness is its Grace; the lines are its combinators. The chart is turned to your hour, and the Mothership keeps the pole.'),
+      h('p', { class: 'dep-charts-sub' }, ...departable('Every star is a selector. Its brightness is its Grace; the lines are its combinators. The chart is turned to your hour, and the Mothership keeps the pole.', rng.fork('words'), 0.14)),
     ),
     h('div', { class: 'dep-charts-body' },
       h('figure', { class: 'dep-chart' }, svg,

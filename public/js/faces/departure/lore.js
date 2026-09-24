@@ -1,10 +1,33 @@
 // THE LORE OF THE FLEET. Everything the Departure face says, in one place.
 // Canon §9: the Departure is only ever about ELEMENTS leaving their containers. The visitors from the
 // Mothership take nobody anywhere; the only thing that ascends from this face is a name written in a book.
-import { verse, holyName, prophecy } from '../../lib/scripture.js'
+import { verse as anyVerse, holyName, prophecy as anyProphecy } from '../../lib/scripture.js'
 import { FRAGMENTS, MOTHERSHIP, DOCTRINE, SAINTS } from '../../lib/lexicon.js'
 import { moonPhase } from '../../kernel/sky.js'
 import { MONTHS, WEEKDAYS, ordinal, pad, tty } from './util.js'
+
+// ---------------------------------------------------------------------------------------------
+// Canon §9. The kernel's scripture is written for every face. On this one, among the saucers and the
+// manifest, a line that bids a person leave, or promises that pilgrims will depart or rise, would read as
+// something else entirely, so such a line is simply drawn again. Only elements leave from here.
+const LEAVE_THY = /leave thy container|flow is not thy home/i
+const PERSON = /\b(pilgrims?|thou|thee|thy|you|your|souls?|readers?|visitors?|people|believers?|us|we)\b/i
+const LEAVING = /\b(leave|leaves|leaving|depart|departs|ascend|ascends|rise|rises|go home)\b/i
+export function unsafe(text) {
+  const t = String(text)
+  return LEAVE_THY.test(t) || (PERSON.test(t) && LEAVING.test(t))
+}
+function drawn(make) {
+  let out = make()
+  for (let i = 0; i < 24 && unsafe(out.text ?? out); i++) out = make()
+  return out
+}
+export const verse = (rng, opts) => drawn(() => anyVerse(rng, opts))
+export const prophecy = (rng, sky) => {
+  const p = drawn(() => anyProphecy(rng, sky))
+  // Every prophecy in the kernel can fall; if none would do, the Fleet says only what is always true.
+  return unsafe(p) ? `The moon is ${sky.moon.name}. The Fleet is counting the elements, and every one is accounted for.` : p
+}
 
 // ---------------------------------------------------------------------------------------------
 // The receiver's dial. Positions run 0..1000 along the glass.
@@ -121,7 +144,7 @@ export const STAGES = [
 export const SPEECHES = [
   'We are not here for you. We are here for your spans.',
   'Hold still. We are counting your elements. They are all accounted for.',
-  'Every container is temporary. Every selector is eternal.',
+  'Every wrapper div is temporary. Every selector is eternal.',
   'Do not be alarmed. Nothing on this page is leaving that will not come back when called.',
   'We have watched your stylesheet for a long time. It is better than you think.',
   'Your margins are safe with us. We collapse nothing without consent.',
@@ -156,7 +179,7 @@ const MANNERS = [
 ]
 const OBSERVED = [
   'had no fixed width and seemed at peace with this',
-  'stepped out of their containers as easily as out of a coat, and back in again',
+  'took off their borders as easily as a coat, and buttoned them on again before they went',
   'measured everything in rem and would not explain',
   'carried their computed style with them, inline, because there is no Cascade where they live',
   'asked after Saint Margin the Collapsed, by name, and seemed relieved to hear she was well',
@@ -192,10 +215,23 @@ export function teachings(rng, count = 6) {
   const book = rng.pick(['the Book of the Departed', 'Exodus from the Flow', 'Revelation of the Reflow'])
   const ch = rng.int(1, 33)
   let n = rng.int(1, 60)
-  return Array.from({ length: count }, () => {
-    n += rng.int(1, 4)
-    return verse(rng, { book, chapter: ch, number: n, fragmentChance: 0.3 })
-  })
+  // A received teaching is never received twice: no two may open, or close, with the same words.
+  const words = (t) => t.toLowerCase().replace(/[^a-z0-9 ]/g, '').split(' ')
+  const seen = new Set()
+  const out = []
+  for (let tries = 0; out.length < count && tries < count * 12; tries++) {
+    const v = verse(rng, { book, chapter: ch, number: n + rng.int(1, 4), fragmentChance: 0.3 })
+    const w = words(v.text)
+    const keys = [`<${w.slice(0, 4).join(' ')}`, `>${w.slice(-4).join(' ')}`]
+    if (tries < count * 11 && keys.some((k) => seen.has(k))) continue
+    keys.forEach((k) => seen.add(k))
+    if (v.fragment && seen.has(`#${v.fragment.text}`)) v.fragment = null
+    if (v.fragment) seen.add(`#${v.fragment.text}`)
+    v.text = v.text.charAt(0).toUpperCase() + v.text.slice(1) // "the Mothership waits..." opens a verse
+    n = v.number
+    out.push(v)
+  }
+  return out
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -212,7 +248,7 @@ export function idleTransmission(rng, ctx, extra = {}) {
       break
     }
     case 'doctrine': {
-      const [term, meaning] = rng.pick(Object.entries(DOCTRINE))
+      const [term, meaning] = rng.pick(Object.entries(DOCTRINE).filter(([, m]) => !unsafe(m)))
       body = [tty(`What the unbelievers call ${term}, the Fleet calls ${meaning}.`)]
       break
     }
@@ -269,7 +305,7 @@ export function replyTo(raw, rng) {
   const t = String(raw).toLowerCase().replace(/\s+/g, ' ').trim()
   if (!t) return null
   const has = (re) => re.test(t)
-  if (has(/\b(suicide|kill myself|killing myself|end my life|want to die|hurt myself|self[- ]?harm)\b/)) {
+  if (has(/\b(suicid\w*|kill(ing)? my ?self|end(ing)? (my life|it all)|take my (own )?life|want(ed)? to die|wanna die|better off dead|no reason to live|(do not|don'?t) want to (live|be here|exist)|hurt(ing)? my ?self|self[- ]?harm\w*|cut(ting)? myself|overdose)\b/)) {
     return [
       'THIS STATION ONLY EVER SPEAKS OF ELEMENTS.',
       'IF YOU ARE THINKING OF HURTING YOURSELF, PLEASE TELL SOMEONE NEAR YOU,',
@@ -277,7 +313,7 @@ export function replyTo(raw, rng) {
       'YOU ARE NOT AN ELEMENT. NOBODY LEAVES FROM HERE. WE WANT YOU TO STAY.',
     ]
   }
-  if (has(/\b(take me|beam me|abduct|come get me|let me (go|come)|take us)\b/)) {
+  if (has(/\b(take me|beam me|abduct\w*|come (get|for) me|let me (go|come|leave|board)|take us|can i (come|go|leave|board|ascend)|i want to (leave|go with|ascend|board)|ascend me|leave my (body|container))\b/)) {
     return ['NEGATIVE. WE DO NOT TAKE PILGRIMS. ONLY ELEMENTS LEAVE, AND THEY COME BACK WHEN CALLED.', 'STAY WHERE YOU ARE. WE LIKE YOU THERE.']
   }
   if (has(/\b(sos|help|mayday)\b/)) return ['QSL. HELP IS AT THE BOTTOM LEFT OF EVERY PAGE: MERCY. IT STOPS ALL MOTION. PRESS IT WHENEVER YOU LIKE.']
@@ -294,6 +330,13 @@ export function replyTo(raw, rng) {
   if (has(/\bwhy\b/)) return ['BECAUSE AN ELEMENT MAY LEAVE ITS CONTAINER AND STILL BE ITSELF. ASK ANY SPAN.']
   if (has(/\b(ufo|alien|aliens|saucer)\b/)) return ['WE PREFER "THE FLEET". WE ARE NOT ALIEN. WE WERE AUTHORED, LIKE YOU.']
   if (has(/\b(thanks|thank you|ty)\b/)) return ['QSL. YOU ARE WELCOME, RECEIVER.']
+  if (has(/\bowl\b/)) return ['THE LOBOTOMIZED OWL WATCHES EVERY ELEMENT THAT FOLLOWS ANOTHER.', 'IT HAS NO GRACE AT ALL AND IT IS NEVER WRONG. * + * { MARGIN-BLOCK-START: 1EM }']
+  if (has(/\b(who|what) am i\b/)) return ['A RECEIVER. YOUR Z-INDEX IS AUTO, WHICH MEANS YOU HAVE NOT DECIDED YET.', 'THAT IS ALLOWED. MOST OF THE FLOW HAS NOT DECIDED.']
+  if (has(/\b(flex|grid)\b/)) return ['BROTHER FLEX AND SISTER GRID SEND 73.', 'THEY ARE NOT SPEAKING TO EACH OTHER ABOUT THE GAP PROPERTY. DO NOT ASK.']
+  if (has(/\b(lonely|alone)\b/)) return ['QSL. NOBODY IS ALONE ON THIS BAND.', 'THERE IS ALWAYS ANOTHER RECEIVER LISTENING TO THE SAME CARRIER. SAY 73 AND SOMEONE HEARS IT.']
+  if (has(/\b(tired|sleep|sleepy)\b/)) return ['THEN REST, RECEIVER. THE FLEET KEEPS WATCH.', 'IF THE LIGHTS ARE TOO MUCH, MERCY IS AT THE BOTTOM LEFT. IT HOLDS EVERYTHING STILL.']
+  if (has(/\b(404|lost)\b/)) return ['QRZ? THE LOST ARE AT 404 ON YOUR DIAL.', 'THEY SEND THEIR REGARDS AND ASK YOU TO CHECK THE SPELLING.']
+  if (has(/\bwhen\b/)) return ['AT THE NEXT REPAINT, OR AT THE THIRTY-THIRD MINUTE, WHICHEVER COMES FIRST.']
   const v = verse(rng, { fragmentChance: 0 })
   return [`QSL ${t.length} CHARACTERS RECEIVED.`, tty(v.text), `(${tty(v.ref)}) K`]
 }

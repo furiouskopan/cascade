@@ -8,7 +8,10 @@ import { h } from '../../lib/dom.js'
 const TAU = Math.PI * 2
 const COLORS = ['#cfe0ff', '#ffffff', '#ffffff', '#fff3d6', '#ffd9b0', '#bcd4ff', '#ffc4b8']
 const PAR = { far: 0.02, mid: 0.06 }
-const FPS = 24
+// Twinkles are slow changes of light, and 12 frames a second draws them without a visible step; a meteor
+// or the Alignment in motion asks for 30. Fewer frames leave the main thread to the page.
+const FPS_REST = 12
+const FPS_MOVING = 30
 
 export function starfield(ctx, life, rng) {
   const el = h('div', { class: 'dep-stars', 'aria-hidden': 'true' })
@@ -175,6 +178,7 @@ export function starfield(ctx, life, rng) {
     })
     align.t0 = now
     align.mode = 'out'
+    align.settled = false
     kick()
   }
   const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2)
@@ -226,36 +230,46 @@ export function starfield(ctx, life, rng) {
           g.beginPath(); g.arc(x, y, p.s * 3.2, 0, TAU); g.fill()
         }
       }
+      align.settled = settled
       if (settled && align.mode === 'out') align = null
     }
     g.globalAlpha = 1
   }
 
-  function loop(now) {
-    if (!running) return
-    life.raf(loop)
-    if (now - last < 1000 / FPS) return
-    last = now
-    if (now > nextMeteor) {
-      nextMeteor = now + rng.float(22000, 55000)
-      const fromLeft = rng.chance(0.5)
-      meteors.push({
-        x: rng.float(0.1, 0.9) * W, y: rng.float(0.05, 0.45) * H,
-        vx: (fromLeft ? 1 : -1) * rng.float(220, 360), vy: rng.float(90, 170),
-        t0: now, dur: rng.float(1300, 1900),
-      })
+  // One chain of frames at a time (gen), and between the slow frames of twinkling the page is left
+  // alone entirely: the next frame is asked for by a timer, not by a waiting requestAnimationFrame.
+  let gen = 0
+  const isMoving = () => meteors.length > 0 || Boolean(align && !align.settled)
+  function loop(now, g) {
+    if (!running || g !== gen) return
+    if (now - last >= 1000 / (isMoving() ? FPS_MOVING : FPS_REST) - 4) {
+      last = now
+      if (now > nextMeteor) {
+        nextMeteor = now + rng.float(22000, 55000)
+        const fromLeft = rng.chance(0.5)
+        meteors.push({
+          x: rng.float(0.1, 0.9) * W, y: rng.float(0.05, 0.45) * H,
+          vx: (fromLeft ? 1 : -1) * rng.float(220, 360), vy: rng.float(90, 170),
+          t0: now, dur: rng.float(1300, 1900),
+        })
+      }
+      meteors = meteors.filter((m) => now - m.t0 < m.dur)
+      draw(now)
     }
-    meteors = meteors.filter((m) => now - m.t0 < m.dur)
-    draw(now)
+    const next = (t) => loop(t, g)
+    if (isMoving()) life.raf(next)
+    else life.timeout(() => life.raf(next), 1000 / FPS_REST - 12)
   }
 
   function kick() {
     const want = !ctx.mercy.on && !document.hidden && !life.dead && !paused
     if (want && !running) {
       running = true
-      life.raf(loop)
+      const g = ++gen
+      life.raf((t) => loop(t, g))
     } else if (!want) {
       running = false
+      gen++
       meteors = []
       draw(performance.now())
     }
@@ -264,6 +278,9 @@ export function starfield(ctx, life, rng) {
 
   let resizeTimer = null
   life.listen(window, 'resize', () => {
+    // A phone's address bar folding away as you scroll changes only the height, a little, and often:
+    // the tiles simply stretch with the glass then. They are repainted when the sky really changes shape.
+    if (Math.round(innerWidth) === Math.round(W) && Math.abs(innerHeight - H) < H * 0.18) return
     resizeTimer?.()
     resizeTimer = life.timeout(build, 180)
   })

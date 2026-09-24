@@ -1,5 +1,22 @@
 // Small tools for the Departure face: a lifetime that owns every timer and listener (so destroy()
 // really does leave nothing behind), time formatting, and a selector path describer.
+import { h } from '../../lib/dom.js'
+
+// Some words of a text become departable: they may one day leave their sentence.
+// The first word stays when asked (a drop cap cannot reach into an inline-block to find its letter).
+export function departable(text, rng, p = 0.16, { keepFirst = false } = {}) {
+  const out = []
+  let first = true
+  for (const tok of String(text).split(/(\s+)/)) {
+    if (!tok) continue
+    const m = tok.match(/^([A-Za-z][A-Za-z'’-]{3,})([.,;:!?"”)]*)$/)
+    const may = !(keepFirst && first)
+    if (/\S/.test(tok)) first = false
+    if (m && may && rng.chance(p)) out.push(h('span', { class: 'dep-can dep-word' }, m[1]), m[2])
+    else out.push(tok)
+  }
+  return out
+}
 
 export function makeLife() {
   const cleanups = new Set()

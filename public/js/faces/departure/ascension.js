@@ -90,12 +90,13 @@ export function ascension(ctx, life, rng, { onDepart, onReturn } = {}) {
     const cs = getComputedStyle(target)
     const id = `d${++seq}`
     const ghost = target.cloneNode(true)
+    for (const n of [ghost, ...ghost.querySelectorAll('[id]')]) n.removeAttribute('id') // one name, one element
     ghost.classList.remove('dep-can', 'dep-sighted', 'dep-returned')
     ghost.classList.add('dep-ghost')
     ghost.dataset.ghostOf = id
     ghost.title = 'position: absolute. It has left the flow; its place is kept. Click to call it back.'
     const from = describe(target.parentElement, ctx.root)
-    const text = (target.textContent || '').replace(/\s+/g, ' ').trim() || `<${target.tagName.toLowerCase()}>`
+    const text = (target.textContent || '').replace(/\s+/g, ' ').trim() || target.dataset.name || `<${target.tagName.toLowerCase()}>`
     // The departed carry their computed style inline, like pilgrims carrying water.
     for (const p of CARRY) target.style.setProperty(p, cs.getPropertyValue(p))
     if (cs.color === 'rgba(0, 0, 0, 0)') target.style.setProperty('color', '#e8f4ff')
@@ -107,7 +108,7 @@ export function ascension(ctx, life, rng, { onDepart, onReturn } = {}) {
       x: `${rect.left.toFixed(1)}px`, y: `${rect.top.toFixed(1)}px`, w: `${rect.width.toFixed(1)}px`, h: `${rect.height.toFixed(1)}px`,
       dx: `${(tx - (rect.left + rect.width / 2)).toFixed(1)}px`, dy: `${(ty - (rect.top + rect.height / 2)).toFixed(1)}px`,
       sway: `${rng.float(-70, 70).toFixed(1)}px`, spin: `${rng.float(-50, 50).toFixed(1)}deg`,
-      dur: `${rng.float(reason === 'stillness' ? 6 : 8, reason === 'stillness' ? 8 : 12).toFixed(2)}s`,
+      dur: `${(reason === 'drift' ? rng.float(8, 12) : rng.float(6, 8.5)).toFixed(2)}s`,
     })
     target.dataset.departedFrom = from
     target.dataset.departedAt = hms(ctx.clock())
@@ -115,7 +116,8 @@ export function ascension(ctx, life, rng, { onDepart, onReturn } = {}) {
     target.replaceWith(ghost)
     target.classList.add('dep-risen')
     risers.append(target)
-    const rec = { id, el: target, ghost, from, at: target.dataset.departedAt, text: text.slice(0, 40), reason, state: 'rising' }
+    const named = !(target.textContent || '').trim() && Boolean(target.dataset.name)
+    const rec = { id, el: target, ghost, from, at: target.dataset.departedAt, text: text.slice(0, 40), named, reason, state: 'rising' }
     records.push(rec)
     rising++
     beamOn()

@@ -69,7 +69,10 @@ export function receiver(ctx, life, rng, { onStation, onSummon } = {}) {
   }, scale, needle)
   const knob = h('span', { class: 'dep-knob', 'aria-hidden': 'true' }, h('span', { class: 'dep-knob-cap' }))
   const lamp = h('span', { class: 'dep-onair', 'aria-live': 'polite' }, 'Off air')
-  const readout = h('p', { class: 'dep-readout', 'aria-live': 'polite' })
+  // The readout follows the needle for the eye; a screen reader hears only when a station locks (the
+  // slider's own valuetext carries the rest), so a drag across the band is not read out step by step.
+  const readout = h('p', { class: 'dep-readout' })
+  const heard = h('span', { class: 'visually-hidden', 'aria-live': 'polite' })
   const tuneIn = h('button', { type: 'button', class: 'dep-tunein' },
     h('span', { class: 'dep-tunein-knurl', 'aria-hidden': 'true' }), 'Tune in')
   const antenna = h('span', { class: 'dep-antenna' }, antennaSvg(),
@@ -79,16 +82,17 @@ export function receiver(ctx, life, rng, { onStation, onSummon } = {}) {
     antenna,
     h('header', { class: 'dep-plate' },
       h('h2', { id: 'dep-radio-h' }, 'The Receiver'),
-      h('span', { class: 'dep-plate-no' }, 'Seven-tube cosmic superheterodyne'),
+      h('span', { class: 'dep-plate-no dep-can' }, 'Seven-tube cosmic superheterodyne'),
     ),
     h('div', { class: 'dep-radio-face' },
-      h('div', { class: 'dep-eye' }, eye, h('span', { class: 'dep-eye-label' }, 'Magic eye')),
+      h('div', { class: 'dep-eye' }, eye, h('span', { class: 'dep-eye-label dep-can' }, 'Magic eye')),
       h('div', { class: 'dep-grille', 'aria-hidden': 'true' }),
       knob,
     ),
     glass,
     h('div', { class: 'dep-radio-foot' }, tuneIn, lamp),
     readout,
+    heard,
   )
 
   let tune = rng.pick([140, 250, 372, 505, 640, 790])
@@ -129,6 +133,7 @@ export function receiver(ctx, life, rng, { onStation, onSummon } = {}) {
     if (st !== locked) {
       locked = st
       readout.textContent = st ? `Tuned: ${text}` : text
+      heard.textContent = st ? `Tuned: ${text}` : ''
       dwell?.()
       dwell = null
       if (st) {
