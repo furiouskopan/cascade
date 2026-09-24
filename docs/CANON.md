@@ -401,7 +401,9 @@ MSYS_NO_PATHCONV=1 node tools/shoot.mjs --port <yours> --mobile "/?face=sanctum"
 MSYS_NO_PATHCONV=1 node tools/shoot.mjs --port <yours> --eval "document.title" --eval "await new Promise(r=>setTimeout(r,2000)); return getComputedStyle(document.body).color" "/?face=x"
 ```
 Each builder uses its own `--port` (given in the build prompt) so concurrent runs don't collide; the tool
-uses `data/test-<port>.db`. View screenshots with the Read tool; always look at your work at desktop and
+uses `data/test-<port>.db`. All runs share one muted, GPU-less headless Chrome, and only 2 render at a time
+across everyone. If the tool prints "waiting for a Chrome slot", it's queued; exit code 75 means it waited 60 s
+without getting a slot, so retry in a minute. Batch several paths into one call rather than many calls. View screenshots with the Read tool; always look at your work at desktop and
 mobile sizes, with at least two seeds, before you finish. A face or layer isn't done until it renders with
 zero console errors and zero failed requests of its own. Don't leave servers running: `shoot.mjs` cleans up
 after itself. If you start `node server/index.js` by hand, use a unique `PORT` and kill it before you finish.

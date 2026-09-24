@@ -32,6 +32,7 @@ All times are local (CEST), 24 September 2026.
 | 17:01 | *"ok pause. create a git repo from this"*: build paused; repo created; first commit `b21c55b`. |
 | 21:06 | *"Proceed… committ"*: `CLAUDE.md` committed (`bc8e24c`); build resumed with a new stage that commits each part as it passes review; the repo opened in its own VS Code window. |
 | 21:13 | *"make sure no sounds are playing"*: the agents' headless test browsers were playing the temple's bells and drones through the speakers. Muted, and this document started. |
+| 21:20 | *"use less chrome, too much ram cpu and gpu"*: every agent was launching its own Chrome for every test. Now all agents share one muted, GPU-less headless Chrome, with at most 2 pages rendering at once. |
 
 ---
 
@@ -239,6 +240,11 @@ stage then **commits** each part to git on its own, touching only that part's fi
   so every time an agent tested a bell, a drone or the Mothership's transmission, it played through the real
   speakers. Fixed at 21:14 by launching with `--mute-audio` (Web Audio still runs, so the spectrogram can
   still be verified; nothing reaches the speakers), and the headless browsers already running were stopped.
+- **Too many browsers.** With ten agents testing at once, each launching a full Chrome for every screenshot,
+  the machine's RAM, CPU and GPU filled up. Now all agents share a single headless Chrome (muted, GPU off,
+  at most 3 renderer processes, a 512 MB script heap), and a lock-file queue lets only 2 pages render at a
+  time across all agents. Each run gets its own throwaway browser context, so tests stay isolated. A small
+  warden process closes the shared Chrome after 5 idle minutes.
 - **The chat lives in the wrong folder.** Claude Code files each conversation under the folder it was
   started in, and this one started in the user's home folder. The build runs inside the conversation, so it
   can't be moved while agents are working. It will be copied into the repo's history when the build finishes.

@@ -39,6 +39,9 @@ MSYS_NO_PATHCONV=1 node tools/shoot.mjs --port 3401 "/?face=sanctum&seed=a" "/ve
 MSYS_NO_PATHCONV=1 node tools/shoot.mjs --port 3401 --mobile --eval "return document.title" "/?face=ashram"
 ```
 
+All runs share one muted, GPU-less headless Chrome on port 9333 (it closes itself after 5 idle minutes) and at
+most 2 render at once (`WITNESS_SLOTS`); exit code 75 means no slot came free within 60 s.
+
 Debug params: `?face=` `?seed=` `?at=2026-10-31T03:33` (pins the clock for omens) `?mercy=1` `?reset`.
 Without `MSYS_NO_PATHCONV=1`, Git Bash rewrites `/verse/...` into a Windows path.
 
