@@ -32,7 +32,11 @@ All times are local (CEST), 24 September 2026.
 | 17:01 | *"ok pause. create a git repo from this"*: build paused; repo created; first commit `b21c55b`. |
 | 21:06 | *"Proceed… committ"*: `CLAUDE.md` committed (`bc8e24c`); build resumed with a new stage that commits each part as it passes review; the repo opened in its own VS Code window. |
 | 21:13 | *"make sure no sounds are playing"*: the agents' headless test browsers were playing the temple's bells and drones through the speakers. Muted, and this document started. |
-| 21:20 | *"use less chrome, too much ram cpu and gpu"*: every agent was launching its own Chrome for every test. Now all agents share one muted, GPU-less headless Chrome, with at most 2 pages rendering at once. |
+| 22:42 | *"use less chrome, too much ram cpu and gpu"*: every agent was launching its own Chrome for every test. Now all agents share one muted, GPU-less headless Chrome, with at most 2 pages rendering at once. |
+| 22:42–23:57 | Each part is committed as soon as its review passes: glyphs, sanctum and secrets first, ashram last. |
+| 23:55 | *"Commit if done, and let's outline next steps… more pages like the 5, deeper holes"*: a design panel starts (6 designers, 2 judges, 1 synthesizer). |
+| 00:04 (25 Sep) | The kernel loose ends the reviewers reported are fixed and committed (`8c65e5f`), including a stack-trace leak and generated verses that told the visitor to "leave thy container". |
+| 00:46 | `docs/ROADMAP.md`: 39 proposals judged down to 8 new faces, 4 chains and a meta-puzzle, in three phases. |
 
 ---
 
@@ -225,7 +229,14 @@ stage then **commits** each part to git on its own, touching only that part's fi
 | build 1 | 11 builders, 10 at a time | the host process exited at 15:24, two minutes in, before anything was written |
 | build 2 | 11 builders, 4 at a time | stopped after a few minutes on request, to add more agents |
 | build 3 | 11 builders + 11 reviewers | six builders finished; paused at 17:01 for the git repo |
-| build 3, resumed | + a commit stage | running since 21:09; finished builders were reused from cache |
+| build 3, resumed | + a commit stage | finished at 23:57: 33 agents, 3,524 tool calls, no agent errors; 11 per-part commits |
+| roadmap | 6 designers, 2 judges, 1 synthesizer | 39 proposals, ranked and merged into `docs/ROADMAP.md` (00:46); no Chrome needed |
+
+After the build, the reviewers' requests for code they didn't own were applied by the orchestrator
+(`8c65e5f`): a JSON error handler (a malformed request used to return a stack trace with local paths),
+scripture that no longer tells a *person* to leave their container, depart or ascend, typed secrets that no
+longer fire from inside form fields, memory that survives several open tabs, the ashram keeping its
+108-second rite, and a real hit counter. The ritual's security suite passed all 580 hostile-input checks.
 
 ## 8. Things that went wrong
 
@@ -251,15 +262,18 @@ stage then **commits** each part to git on its own, touching only that part's fi
 
 ## 9. Where it stands
 
-*As of 21:15, 24 September 2026.*
+*As of 00:46, 25 September 2026.*
 
-- **In git:** `b21c55b` (first snapshot) and `bc8e24c` (`CLAUDE.md`).
-- **Finished and in review:** the glyph font, the ritual, the secrets, the audio, and the sanctum and
-  recruitment faces.
-- **Still being built:** the possession, ashram, departure and babel faces, and the hell layer.
-- **Next:** each part is committed as it passes review; then an integration pass plays the full puzzle chain
-  end to end and checks the security of the shared rites, cross-face schisms and performance; then this
-  conversation moves to the repo.
+- **Built, reviewed and committed:** all six faces (sanctum, possession, recruitment, ashram, departure,
+  babel) and all five layers (glyphs, hell, audio, ritual, secrets), one commit each, then the kernel
+  loose ends (`8c65e5f`). Every face loads with zero console errors.
+- **Running:** the temple at http://localhost:3333 (`npm start`).
+- **Next:** `docs/ROADMAP.md`. Phase 1, "Beneath the Highest Heaven", adds three faces (the Archons of the
+  Spheres, the All-Night Launderette, the Omen Tablets) and a second chain, the Descent, down to an Undercroft at
+  `/z/-2147483648` styled only by the browser's defaults. Phases 2 and 3 add the Pilgrim's path, a liturgical
+  year, the secret seventh face (the Source), teletext and a meta-puzzle. At most 3 builders at once from now on.
+- **Not yet done:** the full integration pass (a fresh-eyes solver for the whole chain, cross-face checks,
+  performance), and moving this conversation into the repo's chat history.
 
 ---
 
