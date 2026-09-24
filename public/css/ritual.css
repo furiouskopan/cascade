@@ -264,6 +264,18 @@
   #altar .mala-label { font: 10.5px/1 var(--al-mono); letter-spacing: 0.32em; text-transform: uppercase; color: var(--al-dim); padding-left: 0.32em; }
   #altar .altar-until { margin-bottom: 12px; text-align: center; font-style: italic; color: var(--al-dim); }
   #altar .altar-mine { text-align: center; font-size: 12px; color: var(--al-dim); text-wrap: balance; }
+  #altar .altar-sky {
+    margin: 4px auto 0;
+    max-width: 30em;
+    font-size: 11.5px;
+    font-style: italic;
+    line-height: 1.5;
+    text-align: center;
+    text-wrap: balance;
+    color: var(--al-dim);
+    opacity: 0.85;
+  }
+  #altar .altar-sky:empty { display: none; }
   @keyframes bead-new { from { r: 6; } to { r: 2.75; } }
 
   /* Rites and small controls */
@@ -395,7 +407,9 @@
     letter-spacing: 0.04em;
     color: var(--al-accent);
     overflow-wrap: anywhere;
+    transition: opacity 0.4s ease;
   }
+  #altar .altar-preview[data-empty="true"] { opacity: 0.3; }
   #altar .altar-wall, #altar .altar-book { margin: 0; padding: 0; list-style: none; }
   #altar .altar-wall li, #altar .altar-book li {
     display: flex;
@@ -658,6 +672,16 @@
   }
   [data-face="recruitment"] #altar .altar-intro, [data-face="recruitment"] #altar .altar-until { color: #000; }
   [data-face="recruitment"] #altar .altar-sub { font: 700 15px/1.2 var(--al-display); letter-spacing: 0; text-transform: none; color: #800080; }
+  /* Every well in a 1997 dialog is sunk into the grey: square, with the shadow on the upper left. */
+  [data-face="recruitment"] #altar :is(.altar-rule, .altar-code, .altar-field) {
+    border: 2px solid;
+    border-color: #808080 #fff #fff #808080;
+    border-radius: 0;
+    box-shadow: inset 1px 1px 0 #404040;
+  }
+  [data-face="recruitment"] #altar .altar-field:focus-visible { outline: 1px dotted #000; outline-offset: -4px; }
+  [data-face="recruitment"] #altar .altar-mercy-note { border-left-color: #000080; background: #ffffe1; }
+  [data-face="recruitment"] #altar .altar-whisper { border: 2px solid; border-color: #fff #404040 #404040 #fff; border-radius: 0; background: #ffffe1; box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.6); }
   [data-face="recruitment"] #altar .c-prop { color: #800080; }
   [data-face="recruitment"] #altar .c-at { color: #b00000; }
   [data-face="recruitment"] #altar .altar-btn {
@@ -877,12 +901,19 @@
     margin: 0;
     padding: 18px 28px;
     transform: translateX(-50%);
-    border-radius: 24px;
-    background: radial-gradient(closest-side, rgba(3, 3, 10, 0.8) 55%, rgba(3, 3, 10, 0));
     color: #f6eedb;
     font: 14px/1.55 var(--font-scripture, Georgia, serif);
     text-align: center;
     text-shadow: 0 1px 14px rgba(0, 0, 0, 0.9), 0 0 2px #000;
+  }
+  /* The umbra: the Moon's shadow falls on the page under the Sun, soft-edged, and the caption stands in it. */
+  #eclipse .eclipse-caption::before {
+    content: '';
+    position: absolute;
+    inset: -34px -84px -40px;
+    z-index: -1;
+    background: radial-gradient(closest-side, rgba(3, 3, 10, 0.8), rgba(3, 3, 10, 0.66) 38%, rgba(3, 3, 10, 0.3) 70%, rgba(3, 3, 10, 0.08) 88%, rgba(3, 3, 10, 0));
+    pointer-events: none;
   }
   #eclipse .eclipse-word {
     display: block;
@@ -915,13 +946,15 @@
     100% { transform: translate(118%, -14%); }
   }
   @keyframes eclipse-corona { 0%, 18% { opacity: 0; } 25%, 78% { opacity: 1; } 86%, 100% { opacity: 0; } }
+  /* The two glints of the diamond ring: one where the Moon arrives, one where it leaves. The bead of light moves
+     across in a single frame while it is dark, so nothing is laid out again during totality. */
   @keyframes eclipse-diamond {
-    0%, 19% { opacity: 0; left: 86%; }
-    21.5% { opacity: 1; left: 86%; }
-    24% { opacity: 0; left: 86%; }
-    76% { opacity: 0; left: 0%; }
-    79.5% { opacity: 1; left: 0%; }
-    82%, 100% { opacity: 0; left: 0%; }
+    0%, 19% { opacity: 0; translate: 0 0; }
+    21.5% { opacity: 1; translate: 0 0; }
+    24% { opacity: 0; translate: 0 0; }
+    24.1%, 76% { opacity: 0; translate: -614% 0; }
+    79.5% { opacity: 1; translate: -614% 0; }
+    82%, 100% { opacity: 0; translate: -614% 0; }
   }
 
   @media (max-width: 480px) {

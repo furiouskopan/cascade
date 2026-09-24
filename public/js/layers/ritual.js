@@ -146,18 +146,31 @@ function single(v, name) {
   return t[0]
 }
 
-const NAMED = new Set(('aliceblue antiquewhite aqua aquamarine azure beige bisque black blanchedalmond blue blueviolet brown burlywood ' +
-  'cadetblue chartreuse chocolate coral cornflowerblue cornsilk crimson cyan darkblue darkcyan darkgoldenrod darkgray darkgreen ' +
-  'darkgrey darkkhaki darkmagenta darkolivegreen darkorange darkorchid darkred darksalmon darkseagreen darkslateblue darkslategray ' +
-  'darkslategrey darkturquoise darkviolet deeppink deepskyblue dimgray dimgrey dodgerblue firebrick floralwhite forestgreen fuchsia ' +
-  'gainsboro ghostwhite gold goldenrod gray green greenyellow grey honeydew hotpink indianred indigo ivory khaki lavender ' +
-  'lavenderblush lawngreen lemonchiffon lightblue lightcoral lightcyan lightgoldenrodyellow lightgray lightgreen lightgrey lightpink ' +
-  'lightsalmon lightseagreen lightskyblue lightslategray lightslategrey lightsteelblue lightyellow lime limegreen linen magenta maroon ' +
-  'mediumaquamarine mediumblue mediumorchid mediumpurple mediumseagreen mediumslateblue mediumspringgreen mediumturquoise ' +
-  'mediumvioletred midnightblue mintcream mistyrose moccasin navajowhite navy oldlace olive olivedrab orange orangered orchid ' +
-  'palegoldenrod palegreen paleturquoise palevioletred papayawhip peachpuff peru pink plum powderblue purple rebeccapurple red ' +
-  'rosybrown royalblue saddlebrown salmon sandybrown seagreen seashell sienna silver skyblue slateblue slategray slategrey snow ' +
-  'springgreen steelblue tan teal thistle tomato turquoise violet wheat white whitesmoke yellow yellowgreen').split(' '))
+// The named colours of the Old Law, with their sRGB, so the altar can reckon each one's light and hue (see karma()).
+const NAMED_HEX = Object.freeze(Object.fromEntries((
+  'aliceblue f0f8ff antiquewhite faebd7 aqua 00ffff aquamarine 7fffd4 azure f0ffff beige f5f5dc bisque ffe4c4 black 000000 ' +
+  'blanchedalmond ffebcd blue 0000ff blueviolet 8a2be2 brown a52a2a burlywood deb887 cadetblue 5f9ea0 chartreuse 7fff00 ' +
+  'chocolate d2691e coral ff7f50 cornflowerblue 6495ed cornsilk fff8dc crimson dc143c cyan 00ffff darkblue 00008b darkcyan 008b8b ' +
+  'darkgoldenrod b8860b darkgray a9a9a9 darkgreen 006400 darkgrey a9a9a9 darkkhaki bdb76b darkmagenta 8b008b darkolivegreen 556b2f ' +
+  'darkorange ff8c00 darkorchid 9932cc darkred 8b0000 darksalmon e9967a darkseagreen 8fbc8f darkslateblue 483d8b darkslategray 2f4f4f ' +
+  'darkslategrey 2f4f4f darkturquoise 00ced1 darkviolet 9400d3 deeppink ff1493 deepskyblue 00bfff dimgray 696969 dimgrey 696969 ' +
+  'dodgerblue 1e90ff firebrick b22222 floralwhite fffaf0 forestgreen 228b22 fuchsia ff00ff gainsboro dcdcdc ghostwhite f8f8ff ' +
+  'gold ffd700 goldenrod daa520 gray 808080 green 008000 greenyellow adff2f grey 808080 honeydew f0fff0 hotpink ff69b4 ' +
+  'indianred cd5c5c indigo 4b0082 ivory fffff0 khaki f0e68c lavender e6e6fa lavenderblush fff0f5 lawngreen 7cfc00 ' +
+  'lemonchiffon fffacd lightblue add8e6 lightcoral f08080 lightcyan e0ffff lightgoldenrodyellow fafad2 lightgray d3d3d3 ' +
+  'lightgreen 90ee90 lightgrey d3d3d3 lightpink ffb6c1 lightsalmon ffa07a lightseagreen 20b2aa lightskyblue 87cefa ' +
+  'lightslategray 778899 lightslategrey 778899 lightsteelblue b0c4de lightyellow ffffe0 lime 00ff00 limegreen 32cd32 linen faf0e6 ' +
+  'magenta ff00ff maroon 800000 mediumaquamarine 66cdaa mediumblue 0000cd mediumorchid ba55d3 mediumpurple 9370db ' +
+  'mediumseagreen 3cb371 mediumslateblue 7b68ee mediumspringgreen 00fa9a mediumturquoise 48d1cc mediumvioletred c71585 ' +
+  'midnightblue 191970 mintcream f5fffa mistyrose ffe4e1 moccasin ffe4b5 navajowhite ffdead navy 000080 oldlace fdf5e6 ' +
+  'olive 808000 olivedrab 6b8e23 orange ffa500 orangered ff4500 orchid da70d6 palegoldenrod eee8aa palegreen 98fb98 ' +
+  'paleturquoise afeeee palevioletred db7093 papayawhip ffefd5 peachpuff ffdab9 peru cd853f pink ffc0cb plum dda0dd ' +
+  'powderblue b0e0e6 purple 800080 rebeccapurple 663399 red ff0000 rosybrown bc8f8f royalblue 4169e1 saddlebrown 8b4513 ' +
+  'salmon fa8072 sandybrown f4a460 seagreen 2e8b57 seashell fff5ee sienna a0522d silver c0c0c0 skyblue 87ceeb slateblue 6a5acd ' +
+  'slategray 708090 slategrey 708090 snow fffafa springgreen 00ff7f steelblue 4682b4 tan d2b48c teal 008080 thistle d8bfd8 ' +
+  'tomato ff6347 turquoise 40e0d0 violet ee82ee wheat f5deb3 white ffffff whitesmoke f5f5f5 yellow ffff00 yellowgreen 9acd32'
+).split(' ').reduce((pairs, w, i, all) => (i % 2 ? pairs : [...pairs, [w, all[i + 1]]]), [])))
+const NAMED = new Set(Object.keys(NAMED_HEX))
 
 const COLOR_HINT = 'a #hex colour (#c9a227), a colour name (crimson) or hsl(40 70% 50%)'
 
@@ -194,6 +207,54 @@ function color(tok) {
 }
 
 const looksLikeColor = (tok) => /^[#a-z]/.test(tok)
+
+// ── Karma: how an offered colour is laid on without taking the Word's light away ──────────────────────
+// A canonical colour (#hex, a name, or hsl()) is reckoned into OKLCH here, in plain arithmetic, so the CSS
+// can keep each element's OWN lightness and alpha (`oklch(from currentColor ...)`) and take only the offered
+// hue and chroma, with a small pull toward the offered light. Contrast stays what the face designed; letters
+// kept in the Clear Light (transparent) stay there; and nested congregations never compound.
+function srgbOf(c) {
+  const hex = c.startsWith('#') ? c.slice(1) : NAMED_HEX[c]
+  if (hex) {
+    const full = hex.length === 3 ? [...hex].map((d) => d + d).join('') : hex
+    return { rgb: [0, 2, 4].map((i) => parseInt(full.slice(i, i + 2), 16) / 255), alpha: 1 }
+  }
+  const m = /^hsl\(([\d.]+) ([\d.]+)% ([\d.]+)%(?: \/ ([\d.]+))?\)$/.exec(c)
+  if (!m) return null
+  const [H, S, L] = [Number(m[1]), Number(m[2]) / 100, Number(m[3]) / 100]
+  const a = S * Math.min(L, 1 - L)
+  const f = (n) => {
+    const k = (n + H / 30) % 12
+    return L - a * Math.max(-1, Math.min(k - 3, 9 - k, 1))
+  }
+  return { rgb: [f(0), f(8), f(4)], alpha: m[4] === undefined ? 1 : Number(m[4]) }
+}
+
+export function oklchOf(c) {
+  const s = srgbOf(c)
+  if (!s) return null
+  const [r, g, b] = s.rgb.map((v) => (v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4))
+  const l = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b)
+  const m = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b)
+  const q = Math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b)
+  const L = 0.2104542553 * l + 0.793617785 * m - 0.0040720468 * q
+  const A = 1.9779984951 * l - 2.428592205 * m + 0.4505937099 * q
+  const B = 0.0259040371 * l + 0.7827717662 * m - 0.808675766 * q
+  const H = (Math.atan2(B, A) * 180) / Math.PI
+  return { L, C: Math.hypot(A, B), H: H < 0 ? H + 360 : H, alpha: s.alpha }
+}
+
+const KARMA_PULL = 0.08 // the most an offering may move a letter's lightness, in OKLCH L
+function karma(c) {
+  const k = oklchOf(c)
+  const pull = `calc(l + clamp(-${KARMA_PULL}, (${fmt(k.L)} - l) * 0.35, ${KARMA_PULL}))`
+  const alpha = k.alpha < 1 ? `calc(alpha * ${fmt(k.alpha)})` : 'alpha'
+  // White, black and the greys carry no hue: they wash the colour out of the letters instead.
+  return k.C < 0.03
+    ? `oklch(from currentColor ${pull} calc(c * 0.25) h / ${alpha})`
+    : `oklch(from currentColor ${pull} ${fmt(Math.min(k.C, 0.2))} ${fmt(k.H)} / ${alpha})`
+}
+const veil = (c) => `color-mix(in oklab, ${c} 40%, transparent)`
 
 const FONTS = Object.fromEntries([
   ['serif', 'serif'],
@@ -278,20 +339,30 @@ const define = (name, def) => {
   P[name] = Object.freeze(def)
 }
 
+// Letters take the offered hue into their fill; the Drawn Names (SVG strokes follow currentColor) and the
+// Initials (::first-letter paints no fill of its own) take it into color, from what they inherit.
+const FILLED = new Set(['headings', 'paragraphs', 'links', 'buttons', 'glyphs', 'lists', 'quotes', 'emphasis', 'code'])
 define('color', {
   targets: ALL,
   hint: (t) => t === 'selection'
     ? `${COLOR_HINT}.`
-    : `${COLOR_HINT}. Karma tempers it: the element keeps 55% of what it inherited.`,
+    : `${COLOR_HINT}. Karma tempers it: each letter keeps its own light and takes your hue.`,
   parse: (v) => color(single(v, 'color')),
-  css: (v, t) => (t === 'selection' ? v : `color-mix(in oklab, ${v} 45%, currentColor)`),
+  cssProp: (t) => (FILLED.has(t) ? '-webkit-text-fill-color' : 'color'),
+  css: (v, t) => (t === 'selection' ? v : karma(v)),
+  temper: (t) => (t === 'selection' ? '' : 'karma keeps the light, the hue is yours'),
   sample: (r) => sampleColor(r),
 })
+// Emphasis and code often wear backgrounds of their own (a highlighter, a dark chip): the veil is laid OVER
+// them as an inset shadow, never in place of them, so their letters keep the ground they were made for.
+const VEILED = new Set(['emphasis', 'code'])
 define('background-color', {
   targets: ['selection', 'emphasis', 'code', 'first-letters'],
-  hint: (t) => t === 'selection' ? `${COLOR_HINT}.` : `${COLOR_HINT}. Laid on as a veil of 40%, so the Word still shows through.`,
+  hint: (t) => t === 'selection' ? `${COLOR_HINT}.` : `${COLOR_HINT}. Laid on as a veil of 40% over what is already there, so the Word still shows through.`,
   parse: (v) => color(single(v, 'background-color')),
-  css: (v, t) => (t === 'selection' ? v : `color-mix(in oklab, ${v} 40%, transparent)`),
+  cssProp: (t) => (VEILED.has(t) ? 'box-shadow' : 'background-color'),
+  css: (v, t) => (t === 'selection' ? v : VEILED.has(t) ? `inset 0 0 0 999px ${veil(v)}` : veil(v)),
+  temper: (t) => (t === 'selection' ? '' : 'laid on as a veil'),
   sample: (r) => sampleColor(r),
 })
 define('text-shadow', {
@@ -525,6 +596,8 @@ define('cursor', {
 })
 define('list-style-type', {
   targets: ['lists'],
+  // Lists a face uses for layout (markers hidden, and marked role="list" as the custom is) are not litanies: spare them.
+  scope: ':not([role="list"] > li, [role="none"] > li, [role="presentation"] > li)',
   hint: () => 'a counting style: lower-roman, lower-greek, hebrew, georgian, devanagari, tibetan, cjk-ideographic, disclosure-open...',
   parse: (v) => kw(v, LIST_STYLES, 'list-style-type'),
   sample: (r) => r.pick(LIST_STYLES),
@@ -551,8 +624,10 @@ const FORBIDDEN = [
 
 const refuse = (field, error) => ({ ok: false, field, error })
 
-// The whole law. Returns { ok, selector, property, value (canonical), cssValue, cssSelector, rule } or
-// { ok: false, field, error }. Never throws. The canonical value re-validates to itself.
+// The whole law. Returns { ok, selector, property, value (canonical), cssProperty, cssValue, cssSelector, rule,
+// temper } or { ok: false, field, error }. Never throws. The canonical value re-validates to itself.
+// `cssProperty` is what the Cascade actually writes (a colour is laid into the letters' fill, a veil into an
+// inset shadow); `temper` is a short gloss when the offering is softened on its way in.
 export function validateOffering(selector, property, value) {
   try {
     if (typeof selector !== 'string' || !Object.hasOwn(TARGETS, selector)) return refuse('selector', `No such congregation. Offer to one of: ${ALL.join(', ')}.`)
@@ -567,8 +642,13 @@ export function validateOffering(selector, property, value) {
     if (!v) return refuse('value', 'Silence is not an offering. Speak a value.')
     const canonical = def.parse(v, selector)
     const cssValue = def.css ? def.css(canonical, selector) : canonical
+    const cssProperty = def.cssProp ? def.cssProp(selector) : property
     const cssSelector = `html:not([data-mercy="on"]) ${t.base}${SPARE}${def.scope ?? ''}${t.pseudo}`
-    return { ok: true, selector, property, value: canonical, cssValue, cssSelector, rule: `${cssSelector} { ${property}: ${cssValue}; }` }
+    return {
+      ok: true, selector, property, value: canonical, cssProperty, cssValue, cssSelector,
+      rule: `${cssSelector} { ${cssProperty}: ${cssValue}; }`,
+      temper: def.temper ? def.temper(selector) : '',
+    }
   } catch (e) {
     return refuse('value', e instanceof Heresy ? e.message : 'The Cascade could not read that offering.')
   }
@@ -595,7 +675,9 @@ export function buildCanonCss(offerings) {
     const v = validateOffering(o?.selector, o?.property, o?.value)
     if (v.ok) rules.push(`  ${v.rule}`)
   }
-  return `/* THE LIVING CANON. ${rules.length} declaration${rules.length === 1 ? '' : 's'} offered by visitors, re-read by the Cascade before they are spoken. The last word wins. Mercy veils them all. You who read this in the inspector: the altar stands in the lower right corner, and it opens when its name is typed. */\n` +
+  return `/* THE LIVING CANON. ${rules.length} declaration${rules.length === 1 ? '' : 's'} offered by visitors, re-read by the Cascade before they are spoken. The last word wins. Mercy veils them all. ` +
+    'Karma tempers every offered colour: it is poured into the fill of the letters, which keep their own light and take only the hue, and every offered ground is laid on as a veil. ' +
+    'You who read this in the inspector: the altar stands in the lower right corner, and it opens when its name is typed. */\n' +
     `@layer offerings {\n${rules.join('\n')}\n}\n`
 }
 
@@ -649,6 +731,70 @@ const PRAYER_LINES = [
   'Counted. Somewhere a stranger felt the thread move.',
 ]
 
+// Each face hears a prayer in its own accent. Drawn by lot, together with the common lines above.
+const FACE_PRAYER_LINES = {
+  sanctum: ['The scribe has entered it in red, in the margin, where the living are counted.', 'A bead of gold leaf is pressed into the thread. It will not flake.'],
+  possession: ['counted. the demon counted it too. it always does.', 'prayer.length += 1; // the console did not complain'],
+  recruitment: ['THANK YOU!! Your prayer has been added to our database!!', 'Your prayer is prayer number... (please wait while the counter loads)'],
+  ashram: ['The bead moves on the out-breath, as it should.', 'Let the prayer go. The thread will keep it.'],
+  departure: ['PRAYER RECEIVED. RELAYING TO Z-INDEX 2147483647. STAND BY.', 'SIGNAL LOGGED. THE FLEET ACKNOWLEDGES ONE BEAD.'],
+  babel: ['Your prayer has been shelved, where it has always been.', 'The librarian stamps it: received, and also foretold.'],
+}
+
+// Counts the Cascade holds sacred (CANON §2) are remarked upon when a prayer lands on them.
+const SACRED_COUNTS = {
+  3: 'Three: the Origins are all present. The Old Law, the Pilgrim and the Word each heard it.',
+  5: 'Five: one prayer for each Sheath, from the Seed to the Bliss.',
+  7: 'Seven: the prayer has climbed every rung of the Ladder.',
+  12: 'Twelve: Sister Grid counts her columns and finds them full.',
+  16: 'Sixteen: the Root size of the Cascade. Every rem remembers this prayer.',
+  33: 'Thirty-three: the age of the Canon. The Living Canon is exactly this long.',
+  96: 'Ninety-six: the dots in an inch, as the Old Law measured them.',
+  404: 'Four hundred and four: the Lost. It was counted anyway. Nothing prayed is lost.',
+  1996: 'Nineteen ninety-six: the Nativity of the First Stylesheet. Someone should light a candle.',
+  2147: 'The first four digits of the Highest Heaven. The Mothership has noticed the thread.',
+}
+
+function prayerLine(n, face, r) {
+  if (SACRED_COUNTS[n]) return SACRED_COUNTS[n]
+  if (n > 0 && n % 1000 === 0) return `The ${commas(n)}th prayer. A round number, which the Cascade pretends not to care about.`
+  if (n % LIMITS.eclipseEvery === LIMITS.eclipseEvery - 1) return 'One bead before the guru bead. The next prayer, yours or a stranger\'s, covers the sun.'
+  const lines = FACE_PRAYER_LINES[face]
+  return lines && r.chance(0.4) ? r.pick(lines) : r.pick(PRAYER_LINES)
+}
+
+// What the sky says about the mala at this hour (CANON §2 sacred numbers, §4 ctx.sky). Omens first.
+const PLANET_MALA = {
+  Saturn: 'Saturn counts slowly. Every bead is weighed twice and kept.',
+  Jupiter: 'Jupiter is generous: the thread feels longer than it is.',
+  Mars: 'Mars presses the beads hard enough to warm them.',
+  Sun: 'The Sun reads the mala aloud. It has no patience for whispering.',
+  Venus: 'Venus polishes each bead before it is told.',
+  Mercury: 'Mercury carries the prayers faster than the choir can count them.',
+  Moon: 'The Moon tells the beads backwards and arrives at the same number.',
+}
+const OMEN_MALA = {
+  eclipse: 'A true eclipse falls today, in the sky above the screen. The altar wears a corona in sympathy.',
+  'thirty-three': 'Minute thirty-three. Somewhere in the temple a door is listening for knocks.',
+  witching: 'The witching hour. The thread is thinnest now; prayers pass through it easily.',
+  midnight: 'Midnight. The mala begins no new day until it is told.',
+  'full-moon': 'The moon is full. The guru bead shines as if it had been lit from behind.',
+  'new-moon': 'New moon. Pray in the dark; the count is no less true.',
+  'friday-13': 'Friday the thirteenth. The beads are counted twice, for luck, and recorded once.',
+  turning: 'The year is turning. The thread turns with it.',
+  triple: 'The digits of the clock agree with one another. A good hour for agreement.',
+}
+function skyLine(sky) {
+  if (!sky) return ''
+  const omen = ['eclipse', 'thirty-three', 'witching', 'midnight', 'full-moon', 'new-moon', 'friday-13', 'turning', 'triple'].find((o) => sky.has?.(o))
+  const planet = sky.planetaryHour?.planet
+  const hour = planet ? `${sky.planetaryHour.glyph ?? ''} Hour of ${planet}`.trim() : ''
+  const moon = sky.moon ? `${sky.moon.name} moon, ${Math.round((sky.moon.illumination ?? 0) * 100)}% lit` : ''
+  const head = [hour, moon].filter(Boolean).join(' · ')
+  const body = omen ? OMEN_MALA[omen] : PLANET_MALA[planet] ?? ''
+  return [head && `${head}.`, body].filter(Boolean).join(' ')
+}
+
 const TABS = [
   { id: 'pray', label: 'Pray' },
   { id: 'offer', label: 'Offer' },
@@ -688,7 +834,7 @@ function malaSvg() {
   return `<svg viewBox="-100 -100 200 200" aria-hidden="true" focusable="false">` +
     `<circle class="thread" r="${R}"/>${beads}` +
     `<path class="tassel" d="M0 ${-R + 5} L-4 ${-R + 19} M0 ${-R + 5} L0 ${-R + 21} M0 ${-R + 5} L4 ${-R + 19}"/>` +
-    `<circle class="guru" cx="0" cy="${-R}" r="5.4"/></svg>`
+    `<circle class="guru" cx="0" cy="${-R}" r="5.4"><title>The guru bead. It is never crossed; when the count reaches it, the sun is covered.</title></circle></svg>`
 }
 
 function ringSvg() {
@@ -762,10 +908,11 @@ export async function init(ctx) {
   $.prayBtn = h('button', { type: 'button', class: 'altar-rite altar-pray' }, 'Pray')
   $.mine = h('p', { class: 'altar-mine' })
   $.prayNote = h('p', { class: 'altar-verdict', role: 'status' })
+  $.sky = h('p', { class: 'altar-sky' })
   const prayPane = [
     $.mala, $.until,
     h('div', { class: 'altar-actions altar-actions--center' }, $.prayBtn),
-    $.prayNote, $.mine,
+    $.prayNote, $.mine, $.sky,
   ]
 
   // Offer
@@ -900,6 +1047,7 @@ export async function init(ctx) {
     $.souls.textContent = state.offline ? '·' : String(Math.min(999, Math.max(1, count(state.online))))
     altar.dataset.offline = String(state.offline)
     $.btn.title = state.offline ? 'The Altar (the line to the temple is cut)' : `The Altar · ${soulsLine()}`
+    $.btn.setAttribute('aria-label', `The Altar. ${state.offline ? 'The line to the temple is cut.' : `${soulsLine()}.`} Pray, offer a declaration, inscribe a message.`)
   }
 
   let lastLit = -1
@@ -944,26 +1092,30 @@ export async function init(ctx) {
       : [h('li', { class: 'altar-empty' }, 'The Wall is bare. Write the first words a stranger will read.')]))
   }
 
+  // Two offerings that write the same CSS property on the same congregation: the later word wins.
   function overruledIds() {
     const seen = new Set()
     const out = new Set()
     for (let i = state.offerings.length - 1; i >= 0; i--) {
       const o = state.offerings[i]
-      const k = `${o.selector}|${o.property}`
+      const v = validateOffering(o.selector, o.property, o.value)
+      const k = `${o.selector}|${v.ok ? v.cssProperty : o.property}`
       if (seen.has(k)) out.add(o.id)
       seen.add(k)
     }
     return out
   }
 
+  // Shown as it was offered; how karma softened it is said in the comment (the full law is in <style id="living-canon">).
   function codeLine(o, overruled, now) {
     const v = validateOffering(o.selector, o.property, o.value)
     if (!v.ok) return null
+    const notes = [`#${o.id}`, ago(o.at, now), v.temper, overruled && 'overruled by a later word'].filter(Boolean)
     return h('span', { class: `cl${overruled ? ' cl--overruled' : ''}` },
-      h('span', { class: 'c-cmt' }, `  /* #${o.id} · ${ago(o.at, now)}${overruled ? ' · overruled by a later word' : ''} */\n`),
+      h('span', { class: 'c-cmt' }, `  /* ${notes.join(' · ')} */\n`),
       '  ', h('span', { class: 'c-sel' }, TARGETS[o.selector].show), h('span', { class: 'c-punct' }, ' { '),
       h('span', { class: 'c-prop' }, o.property), h('span', { class: 'c-punct' }, ': '),
-      h('span', { class: 'c-val' }, v.cssValue), h('span', { class: 'c-punct' }, '; }'), '\n',
+      h('span', { class: 'c-val' }, v.value), h('span', { class: 'c-punct' }, '; }'), '\n',
     )
   }
 
@@ -1177,8 +1329,12 @@ export async function init(ctx) {
   }
 
   // ── The rites ─────────────────────────────────────────────────────────────────────────────────────
+  let praying = 0 // our own prayers in flight: their echo from the choir is not a stranger's, and does not glint
   async function pray() {
-    const r = await api.post('/pray', {})
+    praying++
+    const r = await api.post('/pray', {}).finally(() => {
+      setTimeout(() => (praying = Math.max(0, praying - 1)), 1500)
+    })
     if (!r.ok) return r
     const c = count(r.count)
     state.prayers = Math.max(count(state.prayers), c)
@@ -1203,6 +1359,7 @@ export async function init(ctx) {
     echoes.add(key)
     const r = await api.post('/offer', { selector: v.selector, property: v.property, value: v.value })
     if (r.ok && r.offering) {
+      setTimeout(() => echoes.delete(key), 20_000) // the echo may have arrived first, or never; forget it
       const o = addOffering(r.offering) ?? cleanOffering(r.offering)
       memory.set('ritual.lastOffer', Date.now())
       const n = memory.update('ritual.offered', (x) => count(x) + 1, 0)
@@ -1221,6 +1378,7 @@ export async function init(ctx) {
     echoes.add(`wall|${s.text}`)
     const r = await api.post('/wall', { text: s.text })
     if (r.ok && r.message) {
+      setTimeout(() => echoes.delete(`wall|${s.text}`), 20_000)
       const m = addMessage(r.message) ?? cleanMessage(r.message)
       memory.set('ritual.lastInscribe', Date.now())
       bus.emit('ritual:inscribed', { message: m })
@@ -1232,9 +1390,12 @@ export async function init(ctx) {
   }
 
   // ── Panel behaviour ───────────────────────────────────────────────────────────────────────────────
-  let currentTab = TABS.some((t) => t.id === memory.get('ritual.tab')) ? memory.get('ritual.tab') : 'pray'
+  const isTab = (id) => TABS.some((t) => t.id === id)
+  let currentTab = isTab(memory.get('ritual.tab')) ? memory.get('ritual.tab') : 'pray'
+  let openedAt = -Infinity // the click that opens the altar must not also close it
 
   function selectTab(id, focus = false) {
+    if (!isTab(id)) id = isTab(currentTab) ? currentTab : 'pray'
     currentTab = id
     for (const t of TABS) {
       const on = t.id === id
@@ -1250,8 +1411,10 @@ export async function init(ctx) {
   }
 
   function setOpen(want, tab) {
+    if (want) openedAt = performance.now()
     if (tab) selectTab(tab)
     if (want === open) return
+    const hadFocus = $.panel.contains(document.activeElement)
     open = want
     $.panel.hidden = !open
     $.btn.setAttribute('aria-expanded', String(open))
@@ -1259,11 +1422,14 @@ export async function init(ctx) {
     if (open) {
       renderAll()
       nextVerse()
+      $.sky.textContent = skyLine(ctx.readSky?.() ?? ctx.sky)
       selectTab(currentTab)
       TABS.find((t) => t.id === currentTab)?.btn.focus({ preventScroll: true })
       if (!state.loaded || Date.now() - lastRefresh > 60_000) refresh()
     } else {
       clearPreview()
+      // Closed from elsewhere (the console, a face) while a rite had focus: hand focus back to the altar.
+      if (hadFocus) $.btn.focus({ preventScroll: true })
     }
     syncTicker()
   }
@@ -1280,8 +1446,18 @@ export async function init(ctx) {
       $.btn.focus()
     }
   })
+  // Escape also closes it when focus has wandered to the page itself (not when another field or dialog has it).
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape' || !open || e.defaultPrevented) return
+    const a = document.activeElement
+    if (a && a !== document.body && a !== document.documentElement && !altar.contains(a)) return
+    setOpen(false)
+  })
   document.addEventListener('click', (e) => {
-    if (open && e.target instanceof Node && !altar.contains(e.target) && e.target.isConnected) setOpen(false)
+    // A face may open the altar from its own click handler; that same click, bubbling up here, is older
+    // than the opening and is ignored. Only a later click outside closes it.
+    if (!open || e.timeStamp <= openedAt) return
+    if (e.target instanceof Node && !altar.contains(e.target) && e.target.isConnected) setOpen(false)
   })
   $.tablist.addEventListener('click', (e) => {
     const b = e.target.closest?.('[role="tab"]')
@@ -1306,7 +1482,7 @@ export async function init(ctx) {
     if (r.ok) {
       $.prayNote.textContent = r.eclipse
         ? 'Yours was the hundred-and-eighth prayer. The sun is covered.'
-        : fate.pick(PRAYER_LINES)
+        : prayerLine(r.count, ctx.face, fate)
     } else if (r.status === 429) {
       $.prayNote.textContent = `The beads are warm from your fingers. Rest ${finite(r.retryAfter, 30)} seconds; patience is a sacrament.`
     } else if (r.offline) {
@@ -1330,7 +1506,8 @@ export async function init(ctx) {
   function judge() {
     const sel = $.target.value
     const prop = $.prop.value
-    $.hint.textContent = `${TARGETS[sel].gloss}. ${prop}: ${hintFor(sel, prop)}`
+    const gloss = TARGETS[sel].gloss
+    $.hint.textContent = `${gloss.charAt(0).toUpperCase()}${gloss.slice(1)}. ${prop}: ${hintFor(sel, prop)}`
     const raw = $.value.value
     if (!raw.trim()) {
       $.offerVerdict.textContent = ''
@@ -1341,7 +1518,7 @@ export async function init(ctx) {
     const v = validateOffering(sel, prop, raw)
     $.offerVerdict.dataset.verdict = v.ok ? 'yes' : 'no'
     $.offerVerdict.textContent = v.ok
-      ? `The Cascade would accept: ${TARGETS[sel].show} { ${prop}: ${v.cssValue}; }${ctx.mercy?.on && $.tryOn.checked ? ' Mercy is on, so even your trial is veiled from you.' : ''}`
+      ? `The Cascade would accept: ${TARGETS[sel].show} { ${prop}: ${v.value}; }${v.temper ? ` (${v.temper})` : ''}.${ctx.mercy?.on && $.tryOn.checked ? ' Mercy is on, so even your trial is veiled from you.' : ''}`
       : v.error
     previewStyle.textContent = v.ok && $.tryOn.checked && open ? `@layer offerings {\n  ${v.rule}\n}\n` : ''
     return v
@@ -1409,7 +1586,9 @@ export async function init(ctx) {
   function judgeWords() {
     const raw = $.words.value
     const clean = cleanWall(raw)
-    $.wordsPreview.textContent = clean || String.fromCharCode(160)
+    // Empty, the preview shows what it is for, in the script it will be written in.
+    $.wordsPreview.textContent = clean || 'your words, as a stranger will see them'
+    $.wordsPreview.dataset.empty = String(!clean)
     const stripped = raw.trim() && clean.length < raw.trim().replace(/\s+/g, ' ').length
     $.wordsMeta.textContent = `${clean.length} / ${LIMITS.wallMax} · letters, spaces and . , ! ? ' - only${stripped ? ' · some characters will be washed away' : ''}`
     $.wordsMeta.dataset.over = String(clean.length > LIMITS.wallMax)
@@ -1455,9 +1634,10 @@ export async function init(ctx) {
     const c = count(d.count)
     // Broadcasts and our own replies travel different roads; a count a few beads behind is only late.
     if (c === state.prayers || (c < state.prayers && state.prayers - c < 64)) return
+    const ours = praying > 0 && c === state.prayers + 1
     state.prayers = c
     renderPrayer()
-    glint()
+    if (!ours) glint()
   })
   bus.on('server:eclipse', (d) => {
     if (d?.local) return
@@ -1506,6 +1686,13 @@ export async function init(ctx) {
     if (open && currentTab === 'offer') judge()
   })
   bus.on('face:ready', () => renderVoice())
+  // A hidden tab's timers are slowed; on return, let the sun come out on time and the clocks catch up.
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) return
+    if (eclipseActive) checkEclipse(false)
+    if (eclipseActive) renderEclipseClock()
+    if (open) renderCooldowns()
+  })
   // Typing "altar" anywhere outside a field opens it. (It is written nowhere; it is simply true.)
   bus.on('behavior:typed', ({ buffer } = {}) => {
     if (!buffer?.endsWith('altar')) return

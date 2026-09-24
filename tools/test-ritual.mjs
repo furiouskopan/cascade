@@ -618,9 +618,14 @@ async function main() {
     const rules = lines.filter((l) => l.startsWith('  '))
     check('the Canon is one @layer offerings block', lines[1] === '@layer offerings {' && lines.filter((l) => l.includes('@')).length === 1, lines[1])
     check('one rule per offering', rules.length === state.offerings.length, `${rules.length} vs ${state.offerings.length}`)
-    const RULE = /^ {2}html:not\(\[data-mercy="on"\]\) #temple [^{};]+ \{ [a-z-]+: [^{};!@\\]+; \}$/
+    const RULE = /^ {2}html:not\(\[data-mercy="on"\]\) #temple [^{};]+ \{ (?:[a-z][a-z-]*|-webkit-text-fill-color): [^{};!@\\]+; \}$/
     const off = rules.filter((r) => !RULE.test(r))
     check('every rule is scoped to #temple, guarded by mercy, and holds one declaration', off.length === 0, show(off[0]))
+    // What the Cascade may write: the offered properties themselves, plus the two vessels karma pours colour into.
+    const WRITABLE = new Set([...g.propertiesFor('headings'), ...Object.keys(g.PROPERTIES), '-webkit-text-fill-color', 'box-shadow'])
+    const everyRule = Object.keys(g.TARGETS).flatMap((t) => g.propertiesFor(t).map((p) => g.validateOffering(t, p, g.sampleValue(t, p, makeRng(`w:${t}:${p}`)))))
+    const strange = everyRule.filter((r) => !r.ok || !WRITABLE.has(r.cssProperty) || !r.rule.includes(`{ ${r.cssProperty}: `))
+    check('every congregation and property compiles to a whitelisted CSS property', strange.length === 0 && everyRule.length > 100, show(strange[0]))
     check('braces balance', (css.match(/\{/g) || []).length === (css.match(/\}/g) || []).length)
     const body = rules.join('\n')
     const bad = ['url(', 'expression', '\\', '@import', '!important', '/*', 'var(', '<', 'javascript'].filter((m) => body.includes(m))
@@ -630,6 +635,39 @@ async function main() {
     check('the builder speaks no heresy, even when handed it raw', g.buildCanonCss(heresies).split('\n').filter((l) => l.startsWith('  ')).length === 0)
     check('the client refuses every heresy the server refuses', heresies.every((b) => !g.validateOffering(b.selector, b.property, b.value).ok))
     check('the client agrees with the server on every lawful value', VALID_OFFERINGS.every(([s, p, v, e]) => g.validateOffering(s, p, v).value === e))
+
+    // Karma: an offered colour keeps each element's own light. Letters take it into their fill, from their OWN
+    // currentColor (so contrast is what the face designed, transparent letters stay transparent, nothing
+    // compounds down the tree); the Drawn Names and the Initials take it into color; ::selection takes it raw.
+    const KARMA = /^oklch\(from currentColor calc\(l \+ clamp\(-0\.08, \(\d(?:\.\d+)? - l\) \* 0\.35, 0\.08\)\) (?:calc\(c \* 0\.25\) h|0(?:\.\d+)? \d+(?:\.\d+)?) \/ (?:alpha|calc\(alpha \* 0?\.\d+\))\)$/
+    const FILLED = ['headings', 'paragraphs', 'links', 'buttons', 'glyphs', 'lists', 'quotes', 'emphasis', 'code']
+    const COLOURS = ['crimson', 'white', 'black', 'gold', 'grey', '#c9a227', '#abc', 'hsl(40 70% 50%)', 'hsl(200 30% 80% / 0.8)', 'hsl(0 0% 50%)']
+    const karmaOff = []
+    for (const t of Object.keys(g.TARGETS)) {
+      for (const c of COLOURS) {
+        const r = g.validateOffering(t, 'color', c)
+        const want = t === 'selection' ? ['color', c] : [FILLED.includes(t) ? '-webkit-text-fill-color' : 'color', KARMA]
+        const good = r.ok && r.cssProperty === want[0] && (typeof want[1] === 'string' ? r.cssValue === want[1] : want[1].test(r.cssValue))
+        if (!good) karmaOff.push(`${t} ${c} -> ${r.cssProperty}: ${r.cssValue}`)
+      }
+    }
+    check('colours are tempered by karma: own light kept, hue given, bounded pull', karmaOff.length === 0, karmaOff[0])
+    check('a grey offering carries no hue of its own', /calc\(c \* 0\.25\) h/.test(g.validateOffering('paragraphs', 'color', 'white').cssValue) && /calc\(c \* 0\.25\) h/.test(g.validateOffering('paragraphs', 'color', 'hsl(0 0% 50%)').cssValue))
+    const veils = ['emphasis', 'code', 'first-letters', 'selection'].map((t) => g.validateOffering(t, 'background-color', 'teal'))
+    check('backgrounds are veils: over emphasis and code as an inset shadow, never in place of their own ground',
+      veils[0].cssProperty === 'box-shadow' && veils[0].cssValue === 'inset 0 0 0 999px color-mix(in oklab, teal 40%, transparent)' &&
+      veils[1].cssProperty === 'box-shadow' && veils[2].cssProperty === 'background-color' && veils[2].cssValue === 'color-mix(in oklab, teal 40%, transparent)' &&
+      veils[3].cssProperty === 'background-color' && veils[3].cssValue === 'teal', veils.map((v) => `${v.cssProperty}: ${v.cssValue}`).join(' | '))
+    {
+      const names = [...'aliceblue antiquewhite aqua aquamarine azure beige bisque black blanchedalmond blue blueviolet brown burlywood cadetblue chartreuse chocolate coral cornflowerblue cornsilk crimson cyan darkblue darkcyan darkgoldenrod darkgray darkgreen darkgrey darkkhaki darkmagenta darkolivegreen darkorange darkorchid darkred darksalmon darkseagreen darkslateblue darkslategray darkslategrey darkturquoise darkviolet deeppink deepskyblue dimgray dimgrey dodgerblue firebrick floralwhite forestgreen fuchsia gainsboro ghostwhite gold goldenrod gray green greenyellow grey honeydew hotpink indianred indigo ivory khaki lavender lavenderblush lawngreen lemonchiffon lightblue lightcoral lightcyan lightgoldenrodyellow lightgray lightgreen lightgrey lightpink lightsalmon lightseagreen lightskyblue lightslategray lightslategrey lightsteelblue lightyellow lime limegreen linen magenta maroon mediumaquamarine mediumblue mediumorchid mediumpurple mediumseagreen mediumslateblue mediumspringgreen mediumturquoise mediumvioletred midnightblue mintcream mistyrose moccasin navajowhite navy oldlace olive olivedrab orange orangered orchid palegoldenrod palegreen paleturquoise palevioletred papayawhip peachpuff peru pink plum powderblue purple rebeccapurple red rosybrown royalblue saddlebrown salmon sandybrown seagreen seashell sienna silver skyblue slateblue slategray slategrey snow springgreen steelblue tan teal thistle tomato turquoise violet wheat white whitesmoke yellow yellowgreen'.split(' ')]
+      const badName = names.find((n) => {
+        const k = g.oklchOf(n)
+        return !g.validateOffering('paragraphs', 'color', n).ok || !k || !(k.L >= -1e-6 && k.L <= 1.000001 && k.C >= 0 && k.C < 0.4 && k.H >= 0 && k.H < 360)
+      })
+      const white = g.oklchOf('white')
+      const red = g.oklchOf('red')
+      check(`all ${names.length} named colours of the Old Law are lawful and reckoned in OKLCH`, !badName && Math.abs(white.L - 1) < 1e-3 && white.C < 1e-3 && Math.abs(red.L - 0.628) < 2e-3 && Math.abs(red.H - 29.23) < 0.1, badName)
+    }
 
     // Every value fate would choose from the altar's dice is lawful and canonical.
     const dice = makeRng('ordeal')
