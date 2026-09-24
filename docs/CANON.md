@@ -403,7 +403,38 @@ MSYS_NO_PATHCONV=1 node tools/shoot.mjs --port <yours> --eval "document.title" -
 Each builder uses its own `--port` (given in the build prompt) so concurrent runs don't collide; the tool
 uses `data/test-<port>.db`. All runs share one muted, GPU-less headless Chrome, and only 2 render at a time
 across everyone. If the tool prints "waiting for a Chrome slot", it's queued; exit code 75 means it waited 60 s
-without getting a slot, so retry in a minute. Batch several paths into one call rather than many calls. View screenshots with the Read tool; always look at your work at desktop and
+without getting a slot, so retry in a minute. Batch several paths into one call rather than many calls.
+`--eval-timeout MS` (default 45 s) gives up on a stuck eval. Keep scratch files in a subfolder named after your role.
+View screenshots with the Read tool; always look at your work at desktop and
 mobile sizes, with at least two seeds, before you finish. A face or layer isn't done until it renders with
 zero console errors and zero failed requests of its own. Don't leave servers running: `shoot.mjs` cleans up
 after itself. If you start `node server/index.js` by hand, use a unique `PORT` and kill it before you finish.
+
+## §12 Added during the build
+
+Contracts that the builders introduced, recorded here so later work can rely on them.
+
+- **Faces may keep a moment**: `export const keeps = ['still']` on a face module stops schisms for that reason
+  while the face is mounted (the ashram keeps its 108-second rite). Eclipse schisms wait 15 s, so every face
+  shows its own eclipse first.
+- **Typing**: `behavior:typed` fires only for keys typed on the page itself, never inside inputs, textareas,
+  selects or contenteditable areas.
+- **Glyphs layer**: events `glyphs:bloom {word}`, `glyphs:named {letter, name}`, `glyphs:copied {displaced}`,
+  `glyphs:heaven`, `glyphs:scribe`; secret ids `amen`, `om`, `copied-glyphs`, `glyph-name`, `glyph-scribe`,
+  `katabasic`; memory `glyphs.named`; `?debug=glyphs` shows the Scribe's Exemplar. Faces re-ink glyph
+  apparitions with `--glyph-ink`, `--glyph-halo`, `--glyph-glow`, `--glyph-aura` and `--glyph-whisper-*`, set on
+  `[data-face="<face>"]` (the `<html>` element). Default `.inscription` and `.rosetta` styles live in
+  `@layer base.glyphs`, so plain face rules override them. `lib/glyphs.js` also exports `ALPHABET` (a name,
+  sign and gloss for each letter), `STROKES`, `NUMERALS` and `SCRIPT`.
+- **Audio layer**: event `audio:transmission {duration, letters}`; memory `audio.muted` and `audio.summons`.
+  A prayer (`ritual:prayed`) is a soft summon: with a live gesture and unless muted, the first prayer wakes
+  the sound.
+- **Hell layer**: `?debug=hell` and `?hell=all|none|fast|<0..1>|<curse,curse>`. `data-hell="spare"` on an
+  element exempts it and everything inside it from every curse. `ctx.hell.whisper()` still shows its text
+  under mercy, without motion.
+- **Ritual**: `GET /api/state` also returns `hits` (temple page loads, counted in `server/index.js`);
+  the layer emits `ritual:state {state}` whenever the state changes.
+- **Server**: errors answer as JSON without stack traces (a malformed body is a 400).
+- **§9 in generated text**: scripture groups and fates speak only of elements. Nothing generated tells a
+  person to leave, depart or ascend; `MOTHERSHIP.container` speaks of an element's container.
+

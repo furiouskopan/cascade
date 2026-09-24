@@ -60,7 +60,8 @@ async function mountFace(name) {
   ctx.root.className = `face face--${name}`
   const mod = await import(`./faces/${name}.js`)
   const destroy = await mod.render(ctx)
-  current = { name, destroy: typeof destroy === 'function' ? destroy : null }
+  // A face may keep a moment for itself (e.g. `export const keeps = ['still']`): no schism for that reason.
+  current = { name, destroy: typeof destroy === 'function' ? destroy : null, keeps: new Set(mod.keeps ?? []) }
   memory.set('lastFace', name)
   memory.update('facesSeen', (s) => (s.includes(name) ? s : [...s, name]), [])
   bus.emit('face:ready', { face: name, schism: ctx.schisms > 0 })
@@ -78,7 +79,7 @@ ctx.switchFace = switchFace
 
 // Schisms: rare mid-visit changes of face, driven by the visitor's own behavior.
 function trySchism(reason) {
-  if (ctx.face === 'babel' || ctx.schisms >= 2) return
+  if (ctx.face === 'babel' || ctx.schisms >= 2 || current?.keeps.has(reason)) return
   if (performance.now() - ctx.startedAt < 45000 && reason !== 'eclipse') return
   const next = schismCandidate(ctx, reason)
   if (next) switchFace(next, reason)
@@ -86,7 +87,8 @@ function trySchism(reason) {
 bus.on('behavior:restless', () => trySchism('restless'))
 bus.on('behavior:still', ({ seconds }) => seconds >= 108 && trySchism('still'))
 bus.on('behavior:return', ({ awayMs }) => awayMs > 60000 && trySchism('return'))
-bus.on('server:eclipse', () => trySchism('eclipse'))
+// Let the face show its own eclipse first; the schism, if fate wills one, comes after.
+bus.on('server:eclipse', () => setTimeout(() => trySchism('eclipse'), 15000))
 
 addEventListener('pagehide', () => memory.set('restlessness', ctx.behavior.restlessness))
 

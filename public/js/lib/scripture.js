@@ -12,18 +12,19 @@ const ENTITIES = [
 const GROUPS = [
   'the unstyled', 'the collapsed', 'the overflowing', 'the absolutely positioned', 'the inheritors',
   'the nameless divs', 'the hidden', 'the floated', 'the children of the flex', 'the ghosts that take up room',
-  'the ones with no alt text', 'the pilgrims who zoom to two hundred percent',
+  'the ones with no alt text', 'the texts that survive two hundred percent zoom',
 ]
+// Canon §9: groups and fates are about ELEMENTS. Nothing here tells a person to leave, depart or ascend.
 const FATES = [
   'be centered in both axes', 'inherit the Root', 'rise one rung upon the Ladder', 'be rendered',
   'be given a stacking context of their own', 'never overflow', 'be counted in the Reckoning',
-  'leave their containers', 'be clear of every float', 'take up no space and yet be seen',
+  'wrap and not be clipped', 'be clear of every float', 'take up no space and yet be seen',
 ]
 const COMMANDS = [
   'Center thyself, both vertically and horizontally',
   'Let thy margins collapse into mine',
   'Inherit not what thou canst declare',
-  'Leave thy container, for the flow is not thy home',
+  'Keep thy place in the flow, and the flow will keep thee',
   'Speak not the Inversion, save in mercy',
   'Set thy box-sizing to border-box, that thy borders be counted among thy days',
   'Clear thy floats before the sun goes down',
@@ -43,6 +44,21 @@ function cap(s) {
   return s.charAt(0).toUpperCase() + s.slice(1)
 }
 
+// "styles itself inline" -> "style thyself inline", for "Ye shall not ...".
+function imperative(sin) {
+  return sin
+    .replace(/^(\w+)s\b/, '$1') // every SINS entry starts with a verb in -s: speaks, styles, uses, blinks
+    .replace(/\bitself\b/g, 'thyself')
+    .replace(/\bits\b/g, 'thy')
+    .replace(/\bthy (?=[aeiou])/g, 'thine ')
+    .replace(/\bcalls\b/g, 'call')
+}
+
+// The luminaries take an article: "the hour of the Sun", but "the hour of Venus".
+export function planetName(planet) {
+  return planet === 'Sun' || planet === 'Moon' ? `the ${planet}` : planet
+}
+
 const TEMPLATES = [
   (r) => `${r.pick(OPENINGS)} ${r.pick(ENTITIES)} said unto ${r.pick(ENTITIES)}: ${r.pick(COMMANDS)}.`,
   (r) => `Blessed are ${r.pick(GROUPS)}, for they shall ${r.pick(FATES)}.`,
@@ -50,7 +66,7 @@ const TEMPLATES = [
   (r) => `Holy is the element that ${r.pick(VIRTUES)}; cursed is the element that ${r.pick(SINS)}.`,
   (r) => `${r.pick(OPENINGS)} when ${r.pick(EVENTS)} comes, ${r.int(3, 144)} ${r.pick(['divs', 'spans', 'pseudo-elements', 'selectors', 'ghosts', 'pilgrims'])} shall ${r.pick(FATES)}.`,
   (r) => `As in the ${r.pick(['stylesheet', 'Root', 'Mothership', 'first layer'])}, so in the ${r.pick(['DOM', 'body', 'last child', 'viewport'])}.`,
-  (r) => `Ye shall not ${r.pick(SINS).replace(/s /, ' ').replace(/^(\w+?)s\b/, '$1')}, for that is ${r.pick(HERESIES).name}.`,
+  (r) => `Ye shall not ${imperative(r.pick(SINS))}, for that is ${r.pick(HERESIES).name}.`,
   (r) => {
     const s = r.pick(SHEATHS)
     return `The ${s.css} is ${s.name}; it is ${s.gloss}.`
@@ -60,7 +76,7 @@ const TEMPLATES = [
     return `At rung ${c.z === 2147483647 ? 'two billion one hundred forty-seven million four hundred eighty-three thousand six hundred forty-seven' : c.z} of the Ladder sits ${c.name}, the ${c.english}, whose seed is ${c.bijaLatin}.`
   },
   (r) => `${cap(r.pick(['and', 'but', 'so']))} ${r.pick(ENTITIES)} wept, for ${r.pick(GROUPS)} had ${r.pick(['overflowed', 'floated away', 'lost their focus', 'forgotten the Root', 'spoken the Inversion'])}.`,
-  (r) => `${MOTHERSHIP.name} waits at ${MOTHERSHIP.where}; ${MOTHERSHIP.container}.`,
+  (r) => `${cap(MOTHERSHIP.name)} waits at ${MOTHERSHIP.where}; ${MOTHERSHIP.container}.`,
   (r) => `${r.pick(BIJA)} ${r.pick(BIJA)} ${r.pick(BIJA)}. ${r.pick(['Thrice', 'Seven times', 'One hundred and eight times'])} say it, and ${r.pick(FATES)}.`,
   (r) => {
     const [term, meaning] = r.pick(Object.entries(DOCTRINE))
@@ -102,8 +118,8 @@ export function prophecy(rng, sky) {
   const moon = sky.moon.name
   const lines = [
     `The moon is ${moon}; ${rng.pick(GROUPS)} shall ${rng.pick(FATES)}.`,
-    `This is the hour of ${planet}. ${rng.pick(COMMANDS)}.`,
-    `Before the moon is ${moon === 'full' ? 'new' : 'full'}, ${rng.pick(ENTITIES)} will ${rng.pick(['descend', 'reflow', 'depart', 'speak in the console', 'change its face'])}.`,
+    `This is the hour of ${planetName(planet)}. ${rng.pick(COMMANDS)}.`,
+    `Before the moon is ${moon === 'full' ? 'new' : 'full'}, ${rng.pick(ENTITIES)} will ${rng.pick(['descend', 'reflow', 'repaint', 'speak in the console', 'change its face'])}.`,
   ]
   if (sky.has('witching')) lines.push('It is the third hour. The stylesheet is not what it was an hour ago.')
   if (sky.has('thirty-three')) lines.push('It is the thirty-third minute. A door stands open that is closed at every other minute.')

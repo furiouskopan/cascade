@@ -12,6 +12,7 @@
 //   --wait MS         wait after load before evaluating/screenshotting (default 3500)
 //   --eval CODE       JS evaluated in the page after the wait (awaited; repeatable). Result is printed.
 //   --after MS        extra wait after the evals, before the screenshot (default 600)
+//   --eval-timeout MS give up on a single --eval after this long (default 45000)
 //   --full            capture the full scrollable page instead of the viewport
 //
 // Prints one JSON object per page: { path, screenshot, console[], errors[], failedRequests[], evals[] }.
@@ -30,7 +31,7 @@ import { fileURLToPath } from 'node:url'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const argv = process.argv.slice(2)
-const opts = { port: 3401, out: 'shots', size: '1280x800', wait: 3500, after: 600, evals: [], paths: [] }
+const opts = { port: 3401, out: 'shots', size: '1280x800', wait: 3500, after: 600, evalTimeout: 45000, evals: [], paths: [] }
 for (let i = 0; i < argv.length; i++) {
   const a = argv[i]
   if (a === '--port') opts.port = Number(argv[++i])
@@ -43,6 +44,7 @@ for (let i = 0; i < argv.length; i++) {
   else if (a === '--after') opts.after = Number(argv[++i])
   else if (a === '--eval') opts.evals.push(argv[++i])
   else if (a === '--full') opts.full = true
+  else if (a === '--eval-timeout') opts.evalTimeout = Number(argv[++i])
   // Git Bash rewrites "/verse/x" into "C:/Program Files/Git/verse/x"; undo that.
   else opts.paths.push(a.replace(/^[A-Za-z]:[\\/].*?[\\/]Git(?=[\\/])/, '').replace(/\\/g, '/'))
 }
@@ -230,7 +232,11 @@ try {
         await sleep(opts.wait)
         for (const code of opts.evals) {
           try {
-            const r = await send('Runtime.evaluate', { expression: `(async () => { ${code} })()`, awaitPromise: true, returnByValue: true, userGesture: true }, sessionId)
+            // A stuck eval must not hold a Chrome slot forever.
+            const r = await Promise.race([
+              send('Runtime.evaluate', { expression: `(async () => { ${code} })()`, awaitPromise: true, returnByValue: true, userGesture: true }, sessionId),
+              sleep(opts.evalTimeout).then(() => { throw new Error(`eval timed out after ${opts.evalTimeout} ms`) }),
+            ])
             report.evals.push(r.exceptionDetails ? { error: r.exceptionDetails.exception?.description ?? r.exceptionDetails.text } : { value: r.result.value })
           } catch (e) {
             report.evals.push({ error: String(e) })

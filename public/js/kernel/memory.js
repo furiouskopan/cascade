@@ -4,9 +4,13 @@ import { bus } from './bus.js'
 const KEY = 'cascade.memory.v1'
 let cache = null
 
+function read() {
+  try { return JSON.parse(localStorage.getItem(KEY)) || {} } catch { return null }
+}
+
 function load() {
   if (cache) return cache
-  try { cache = JSON.parse(localStorage.getItem(KEY)) || {} } catch { cache = {} }
+  cache = read() ?? {}
   return cache
 }
 
@@ -14,13 +18,19 @@ function save() {
   try { localStorage.setItem(KEY, JSON.stringify(cache)) } catch {}
 }
 
+// Other tabs of the temple write to the same record; take their news instead of overwriting it.
+addEventListener('storage', (e) => {
+  if (e.key === KEY) cache = null
+})
+
 export const memory = {
   get(k, fallback = undefined) {
     const v = load()[k]
     return v === undefined ? fallback : v
   },
   set(k, v) {
-    load()[k] = v
+    cache = read() ?? load() // re-read before writing, so another tab's keys survive
+    cache[k] = v
     save()
     return v
   },

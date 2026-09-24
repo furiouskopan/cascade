@@ -134,7 +134,7 @@ export const MOTHERSHIP = {
   name: 'the Mothership',
   where: 'z-index: 2147483647, the Viewport above the Viewport',
   departure: 'when an element sheds position: static and leaves the flow',
-  container: 'the div that holds you is not your home',
+  container: 'the div that holds an element is not its home',
   comet: 'the Scrollbar Comet, seen only when the page overflows',
   stratum: 'the Stratum Beyond Style',
 }

@@ -51,7 +51,10 @@ export function startBehavior() {
 
   addEventListener('keydown', (e) => {
     input()
-    if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+    // Words typed into a field are the visitor's, not a spell: only typing on the page itself counts.
+    const t = e.target
+    const editable = t?.isContentEditable || (t?.closest && t.closest('input, textarea, select'))
+    if (!editable && e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
       state.typed = (state.typed + e.key.toLowerCase()).slice(-BUFFER_LEN)
       bus.emit('behavior:typed', { buffer: state.typed, key: e.key })
     }

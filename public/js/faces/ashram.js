@@ -38,6 +38,9 @@ import { buildThreshold, buildMantra, buildSutra, buildFooter } from './ashram/t
 import { buildLetters } from './ashram/letters.js'
 import { buildCat } from './ashram/cat.js'
 
+// The 108-second stillness belongs to the ashram's own rite (the chamber), not to a schism.
+export const keeps = ['still']
+
 export function render(ctx) {
   const life = makeLife()
   const ticker = makeTicker(ctx, life)

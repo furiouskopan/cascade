@@ -51,8 +51,9 @@
   :focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
 
   .noscript { max-width: 36em; margin: 20vh auto; padding: 0 16px; font-size: 1.25rem; }
+  /* fixed, not absolute: a hidden announcer at the end of <body> must not lengthen the page */
   .visually-hidden {
-    position: absolute !important; width: 1px; height: 1px; overflow: hidden;
+    position: fixed !important; width: 1px; height: 1px; overflow: hidden;
     clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
   }
 }

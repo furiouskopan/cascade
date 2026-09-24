@@ -72,6 +72,7 @@ function readAscended() {
 export function readState() {
   return {
     prayers: whole(kvGet(K_PRAYERS, 0)),
+    hits: whole(kvGet('hits', 0)), // page loads, counted by server/index.js
     eclipseUntil: whole(kvGet(K_ECLIPSE, 0)),
     offerings: readOfferings(),
     wall: readWall(),

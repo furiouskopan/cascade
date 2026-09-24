@@ -4,6 +4,7 @@ import express from 'express'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { streamHandler, online } from './sse.js'
+import { kvGet, kvSet } from './db.js'
 import ritual from './routes/ritual.js'
 import secrets from './routes/secrets.js'
 
@@ -28,10 +29,25 @@ app.use('/api', ritual)
 app.use('/', secrets)
 app.use('/api', (req, res) => res.status(404).json({ error: 'no such rite' }))
 
+// Each page load of the temple (any extensionless GET that reaches this far) is counted, for the recruitment
+// face's hit counter. Assets have extensions; /api and the secrets' own pages were answered above.
+app.use((req, res, next) => {
+  if (req.method === 'GET' && !/\.[a-z0-9]+$/i.test(req.path)) kvSet('hits', (Number(kvGet('hits', 0)) || 0) + 1)
+  next()
+})
+
 app.use(express.static(pub, { extensions: ['html'], index: 'index.html' }))
 
 // Every unknown path is a verse of the infinite scripture (the Babel face reads location.pathname).
 app.get(/.*/, (req, res) => res.sendFile(resolve(pub, 'index.html')))
+
+// Last rites: never show a stack trace or a file path. A malformed JSON body is a 400, the rest a 500.
+app.use((err, req, res, next) => {
+  if (res.headersSent) return next(err)
+  const status = err.type === 'entity.parse.failed' || err.type === 'entity.too.large' ? (err.status || 400) : 500
+  if (status >= 500) console.error('[temple]', err)
+  res.status(status).json({ error: status >= 500 ? 'the temple stumbled' : 'the offering was malformed' })
+})
 
 app.listen(PORT, () => {
   console.log(`THE CASCADE flows at http://localhost:${PORT}`)
