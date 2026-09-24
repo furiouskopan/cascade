@@ -74,13 +74,19 @@ export function sparkleTrail(ctx, life, host, rng) {
 export function makeToaster(life, host) {
   let current = null
   let timer = null
+  let returnTo = null
   function close() {
     clearTimeout(timer)
+    // If the keyboard was inside the window, hand it back to where it was before the window opened.
+    const hadFocus = Boolean(current?.contains(document.activeElement))
     current?.remove()
     current = null
+    if (hadFocus && returnTo?.isConnected) returnTo.focus({ preventScroll: true })
+    returnTo = null
   }
   function show({ title, body, ms = 16000, className = '', focus = false }) {
     close()
+    returnTo = focus && document.activeElement !== document.body ? document.activeElement : null
     const closeBtn = h('button', { type: 'button', class: 'rc-toast__x', 'aria-label': 'Close' }, '×')
     const el = h('section', { class: `rc-toast ${className}`.trim(), role: 'status', 'aria-live': 'polite', tabindex: '-1' },
       h('div', { class: 'rc-win__title' }, h('span', {}, title), closeBtn),
@@ -111,8 +117,11 @@ export function makeScreensaver(ctx, life, host, rng) {
   const hues = [0, 45, 60, 120, 180, 220, 280, 320]
   let hueIndex = 0
 
+  let box = { w: 300, h: 60 }
   function resize() {
     if (!canvas) return
+    // Measured here, not in the loop, so the loop never asks the page for layout.
+    if (logo) box = { w: logo.offsetWidth, h: logo.offsetHeight }
     canvas.width = Math.max(1, Math.floor(innerWidth / 2))
     canvas.height = Math.max(1, Math.floor(innerHeight / 2))
   }
@@ -150,8 +159,8 @@ export function makeScreensaver(ctx, life, host, rng) {
       g.fillRect(x, y, size, size)
     }
     // The bouncing logo (moves about 70px per second; it only changes colour when it hits a wall).
-    const bw = logo.offsetWidth
-    const bh = logo.offsetHeight
+    const bw = box.w
+    const bh = box.h
     pos.x += pos.vx
     pos.y += pos.vy
     let bounced = false

@@ -7,9 +7,18 @@ export function vars(el, obj) {
   return el
 }
 
+// The tiled backgrounds of 1997. The Webmaster changes the wallpaper now and then; the Oracle picks it per visit.
+export const TILES = { stars: 6, nebula: 3, planets: 2 }
+
+// Draw something at its own place and at the eight places it wraps to, so the tile repeats without a seam.
+function wrapped(size, x, y, draw) {
+  for (const dx of [-size, 0, size]) for (const dy of [-size, 0, size]) draw(x + dx, y + dy)
+}
+
 // A 1997 starfield tile: black, single-pixel stars, a few fat ones, two sparkles, and (very faintly)
-// the sign of the planet that rules this hour, repeated across the whole sky.
-export function starTile(rng, planetGlyph = '☿') {
+// the sign of the planet that rules this hour, repeated across the whole sky. `variant` adds a
+// nebula (soft clouds that repeat every 144 pixels, as they did) or a little ringed planet and its moon.
+export function starTile(rng, planetGlyph = '☿', variant = 'stars') {
   const size = 144
   const c = document.createElement('canvas')
   c.width = c.height = size
@@ -17,6 +26,22 @@ export function starTile(rng, planetGlyph = '☿') {
   if (!g) return null
   g.fillStyle = '#000006'
   g.fillRect(0, 0, size, size)
+  if (variant === 'nebula') {
+    const hues = rng.shuffle([[150, 40, 190], [40, 110, 200], [200, 40, 120], [30, 150, 150]]).slice(0, 3)
+    for (const [r, gr, b] of hues) {
+      const x = rng.int(0, size - 1)
+      const y = rng.int(0, size - 1)
+      const rad = rng.int(34, 62)
+      wrapped(size, x, y, (px, py) => {
+        const grad = g.createRadialGradient(px, py, 0, px, py, rad)
+        grad.addColorStop(0, `rgba(${r},${gr},${b},0.34)`)
+        grad.addColorStop(0.55, `rgba(${r},${gr},${b},0.12)`)
+        grad.addColorStop(1, `rgba(${r},${gr},${b},0)`)
+        g.fillStyle = grad
+        g.fillRect(px - rad, py - rad, rad * 2, rad * 2)
+      })
+    }
+  }
   const tints = ['#ffffff', '#ffffff', '#c8c8c8', '#8a8a8a', '#5c5c5c', '#ccccff', '#ffffcc', '#99aaff', '#ffccdd']
   for (let i = 0; i < 90; i++) {
     g.fillStyle = rng.pick(tints)
@@ -38,8 +63,44 @@ export function starTile(rng, planetGlyph = '☿') {
     g.fillStyle = '#ffffff'
     g.fillRect(x, y, 1, 1)
   }
+  if (variant === 'planets') {
+    // A little ringed planet with a moon, drawn the way a paint program would: hard edges, two colours.
+    const x = rng.int(30, size - 30)
+    const y = rng.int(26, size - 26)
+    const [body, shade, ring] = rng.pick([['#c46a2c', '#7a3b12', '#e8c77a'], ['#3f78c9', '#1d3f73', '#b7d6ff'], ['#8a5bc2', '#4a2a73', '#f0b8ff']])
+    g.save()
+    g.translate(x, y)
+    g.rotate(-0.35)
+    g.strokeStyle = ring
+    g.lineWidth = 2
+    g.beginPath()
+    g.ellipse(0, 0, 17, 5, 0, Math.PI, Math.PI * 2)
+    g.stroke()
+    g.fillStyle = body
+    g.beginPath()
+    g.arc(0, 0, 9, 0, Math.PI * 2)
+    g.fill()
+    g.fillStyle = shade
+    g.beginPath()
+    g.arc(3, 2, 9, -0.2, Math.PI * 0.8)
+    g.fill()
+    g.beginPath()
+    g.ellipse(0, 0, 17, 5, 0, 0, Math.PI)
+    g.stroke()
+    g.restore()
+    const mx = (x + rng.int(34, 60)) % size
+    const my = (y + rng.int(30, 70)) % size
+    g.fillStyle = '#d8d8c8'
+    g.beginPath()
+    g.arc(mx, my, 3, 0, Math.PI * 2)
+    g.fill()
+    g.fillStyle = '#000006'
+    g.beginPath()
+    g.arc(mx + 1.4, my - 0.8, 2.6, 0, Math.PI * 2)
+    g.fill()
+  }
   g.font = '10px serif'
-  g.fillStyle = '#2c2a4a'
+  g.fillStyle = variant === 'nebula' ? '#3a3560' : '#2c2a4a'
   g.fillText(planetGlyph, rng.int(8, size - 20), rng.int(14, size - 6))
   try {
     return c.toDataURL('image/png')
@@ -48,17 +109,31 @@ export function starTile(rng, planetGlyph = '☿') {
   }
 }
 
-// WordArt: each letter on an arch, with a rainbow fill continuous across the word.
-export function wordArt(text, className = '') {
+// WordArt, in the four presets every 1997 homepage had to choose between (recruitment.css draws them):
+//   rainbow  letters on an arch, a rainbow continuous across the word
+//   chrome   polished metal on an arch, with a navy drop shadow
+//   fire     letters riding a wave, yellow at the top and red at the bottom
+//   slant    blue block letters that grow toward the end, extruded like a 3D bevel
+export const WORDART = { rainbow: 4, chrome: 2, fire: 2, slant: 2 }
+export function wordArt(text, className = '', preset = 'rainbow') {
   const letters = [...text]
   const n = letters.length
   const mid = (n - 1) / 2
-  const wrap = h('span', { class: `rc-wordart ${className}`.trim(), 'aria-hidden': 'true' })
+  const wrap = h('span', { class: `rc-wordart ${className}`.trim(), 'aria-hidden': 'true', 'data-preset': preset })
   vars(wrap, { '--n': n })
   letters.forEach((ch, i) => {
     const t = mid ? (i - mid) / mid : 0
+    const u = n > 1 ? i / (n - 1) : 0.5
     const el = h('span', { class: ch === ' ' ? 'rc-wa rc-wa--space' : 'rc-wa' }, ch === ' ' ? ' ' : ch)
-    vars(el, { '--t': t.toFixed(3), '--t2': (t * t).toFixed(3), '--p': `${n > 1 ? ((i / (n - 1)) * 100).toFixed(1) : 50}%` })
+    vars(el, {
+      '--t': t.toFixed(3),
+      '--t2': (t * t).toFixed(3),
+      '--p': `${(u * 100).toFixed(1)}%`,
+      '--u': u.toFixed(3),
+      // the wave: height and slope of a sine that makes one and a half turns across the word
+      '--w': Math.sin(u * Math.PI * 3).toFixed(3),
+      '--wd': Math.cos(u * Math.PI * 3).toFixed(3),
+    })
     wrap.append(el)
   })
   return wrap

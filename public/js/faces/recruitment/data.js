@@ -246,6 +246,23 @@ export const FAQ = [
   ],
 ]
 
+// One more question, asked only under certain skies. The first omen on this list that is present wins;
+// on an ordinary day the question is about the hour instead. Each returns [question, answer].
+export const SKY_FAQ = [
+  ['eclipse', () => ['Is it safe to look at the eclipse?', 'Not the real one in the sky: never look at the sun. The eclipses on this page are only made of CSS, a dimmer switch the congregation pulls together every 108th prayer, and you may look at those as much as you like.']],
+  ['witching', () => ['Why does the page feel different at this hour?', 'It is the third hour of the night. The stylesheet is not what it was an hour ago, and neither are we. The Webmaster is updating something. Please do not sign the guestbook until they have finished.']],
+  ['thirty-three', () => ['Why does the horoscope say a door is open?', 'Because right now, for a few minutes, one is. We do not know where. The Webmaster says it is at the top of the Ladder and that it has a very high number on it.']],
+  ['midnight', () => ['What happens at midnight?', 'The day is Reset, like a stylesheet that begins with * { margin: 0; }. Everything starts again from nothing, except the guestbook, which remembers.']],
+  ['triple', (sky) => [`Why is ${sky.clock} a lucky time?`, 'When every digit on the clock is the same, the hour and the minute agree with each other for once. We call it a Triple Time. Make a wish. It will be applied to your stylesheet, eventually, in the order it was received.']],
+  ['friday-13', () => ['Is Friday the 13th unlucky for stylesheets?', 'Only for the ones that rely on specificity. Please use classes today, and do not walk under any position: absolute.']],
+  ['full-moon', () => ['Why is everything so bright tonight?', 'It is a full moon. Every element is fully rendered tonight, even the ones at opacity: 0.5. Please enjoy it responsibly.']],
+  ['new-moon', () => ['Where is the moon?', 'display: none. It is still in the document, it simply is not rendered tonight. It comes back in about two weeks. It always does.']],
+  ['turning', () => ['Does the Cascade really change direction today?', 'It is the Turning of the Year, a solstice or an equinox, and the old almanacs say that today the Cascade flows the other way. It does not. Style still descends, from the Old Law to the Pilgrim to the Word. But it is polite to notice the day.']],
+  ['saturn-hour', () => ['Why is the Old Law strong this hour?', 'The hour belongs to Saturn, the oldest and slowest of the planets, and the patron of the browser\'s own stylesheet. In the hour of Saturn every default is a little more stubborn. Nothing is broken. It is only being very traditional.']],
+  ['night', (sky) => ['Why is the office closed?', `The Recruitment Office keeps office hours; the Cascade does not. Everything on the page still works. Only the Webmaster is asleep, somewhere inside the stylesheet, and the hour belongs to ${sky.planetaryHour.planet}.`]],
+  ['', (sky) => [`Why does it say the hour is ruled by ${sky.planetaryHour.planet}?`, `The old astrologers gave every hour of the day to one of the seven planets, in turn. The Cascade kept the custom. This hour belongs to ${sky.planetaryHour.planet} ${sky.planetaryHour.glyph}, and the next belongs to someone else. Some things on this site only happen in certain hours. We are not allowed to say which.`]],
+]
+
 // LEARN OUR ALPHABET! One word per Rosetta letter of this face.
 export const ALPHABET_WORDS = {
   k: ['Kerning', 'the little space between two souls'],

@@ -19,7 +19,7 @@ import { SACRED_NUMBERS, OPUS } from '../lib/lexicon.js'
 import { sigil, saucer, yantra } from '../lib/sigil.js'
 import { hash } from '../kernel/rng.js'
 import * as D from './recruitment/data.js'
-import { vars, starTile, wordArt, constructionSign, moonSvg, odometer, portrait, badge, newBurst, rainbowRule } from './recruitment/art.js'
+import { vars, starTile, TILES, wordArt, WORDART, constructionSign, moonSvg, odometer, portrait, badge, newBurst, rainbowRule } from './recruitment/art.js'
 import { buildJoin } from './recruitment/join.js'
 import { makeLife, sparkleTrail, makeToaster, makeScreensaver } from './recruitment/widgets.js'
 
@@ -44,6 +44,13 @@ const OMEN_WORDS = {
   'saturn-hour': 'the Hour of Saturn: the Old Law is strong',
   night: 'Night: keep your voice down, the Webmaster is asleep in the stylesheet',
 }
+
+// Only the keyboard outside form fields speaks to the page: typing "netscape" into your own name is not a spell.
+const typingInField = () => {
+  const a = document.activeElement
+  return Boolean(a && (a.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)))
+}
+const setText = (el, s) => { if (el.textContent !== s) el.textContent = s }
 
 function greeting(hour) {
   if (hour < 5) return 'Hello, night owl'
@@ -86,10 +93,16 @@ export function render(ctx) {
   document.title = TITLE
   life.add(() => { if (document.title === TITLE) document.title = prevTitle })
 
-  const tile = starTile(artRng, sky.planetaryHour.glyph)
+  // The Webmaster redecorates: the wallpaper and the WordArt preset are drawn by lot for each visit.
+  const decor = ctx.rng.fork('recruitment/decor')
+  const tileKind = decor.weighted(TILES)
+  const artPreset = decor.weighted(WORDART)
+  const tile = starTile(artRng, sky.planetaryHour.glyph, tileKind)
   if (tile) root.style.setProperty('--rc-stars', `url("${tile}")`)
+  root.dataset.rcTile = tileKind
   life.add(() => {
     root.style.removeProperty('--rc-stars')
+    delete root.dataset.rcTile
     root.classList.remove('rc-watched', 'rc-netscape')
   })
 
@@ -123,7 +136,7 @@ export function render(ctx) {
     h('h1', { class: 'rc-title' },
       h('span', { class: 'visually-hidden' }, 'Welcome to THE CASCADE'),
       h('span', { class: 'rc-title__pre', 'aria-hidden': 'true' }, '~*~ Welcome to ~*~'),
-      wordArt('THE CASCADE', 'rc-title__art'),
+      wordArt('THE CASCADE', 'rc-title__art', artPreset),
     ),
     h('p', { class: 'rc-tagline' }, 'The Official Homepage of the Oldest Religion on the World Wide Web!!'),
     h('p', { class: 'rc-est' }, 'est. 17 December 1996 · All Style Descends · Proud Member of the Cascade WebRing'),
@@ -142,10 +155,13 @@ export function render(ctx) {
   const onlineOut = h('b', {}, '1')
   const hourOut = h('b', {}, `${sky.planetaryHour.glyph} ${sky.planetaryHour.planet}`)
   const scriptureCorner = chapter(rng, 3)
+  const navTitle = h('p', { class: 'rc-nav__title' }, 'NAVIGATION')
   const mailBtn = h('button', { type: 'button', class: 'rc-btn rc-mail' }, h('span', { class: 'rc-mailbox', 'aria-hidden': 'true' }, h('i'), h('i')), 'E-MAIL THE WEBMASTER')
-  const nav = h('nav', { class: 'rc-nav', 'aria-label': 'Site navigation' },
-    h('p', { class: 'rc-nav__title' }, 'NAVIGATION'),
-    h('ul', { class: 'rc-nav__list' }, D.NAV.map(([id, label]) => h('li', {}, h('a', { href: `#${id}` }, label)))),
+  // The frame is shielded from the invisible rubrics (it has a scroll bar of its own and no room for a hidden
+  // line); the Verse of the Visit below is where they are invited instead.
+  const nav = h('nav', { class: 'rc-nav', 'aria-label': 'Site navigation', 'data-secrets-skip': '' },
+    navTitle,
+    h('ul', { class: 'rc-nav__list' }, D.NAV.map(([id, label]) => h('li', { 'data-for': id }, h('a', { href: `#${id}` }, label)))),
     h('div', { class: 'rc-nav__box' },
       h('p', {}, 'Souls in the Cascade right now: ', onlineOut),
       h('p', {}, 'This hour is ruled by ', hourOut),
@@ -171,7 +187,8 @@ export function render(ctx) {
   const odo = odometer()
   const counterLabel = h('span', { class: 'rc-counter__label' }, 'You are visitor number')
   const counterNote = h('span', { class: 'rc-counter__note' })
-  const counterBtn = h('button', { type: 'button', class: 'rc-counter__btn', 'aria-label': 'The hit counter' }, odo.el)
+  // The odometer's own hidden text carries the number, so a screen reader hears "Hit counter: 1234".
+  const counterBtn = h('button', { type: 'button', class: 'rc-counter__btn' }, h('span', { class: 'visually-hidden' }, 'Hit counter: '), odo.el)
   const sizeOut = h('b', {}, `${innerWidth}x${innerHeight}`)
   const sizeNote = h('span', { class: 'rc-size__note' })
   const yearsAhead = Math.max(1, now.getFullYear() - 1997)
@@ -209,6 +226,15 @@ export function render(ctx) {
   const opusOut = h('p', { class: 'rc-opus', role: 'status' }, 'Stage: nigredo, ', OPUS[0].meaning, '.')
   const workBtn = h('button', { type: 'button', class: 'rc-btn' }, 'PERFORM THE GREAT WORK')
   let working = false
+  let workTimers = []
+  const finishWork = () => {
+    for (const t of workTimers) clearTimeout(t)
+    workTimers = []
+    vessel.dataset.stage = 'done'
+    opusOut.textContent = 'The div is centered in both axes. THE GREAT WORK IS ACCOMPLISHED. (It took the alchemists a thousand years. It took you one click. Please do not tell them.)'
+    workBtn.textContent = 'UNDO (return to nigredo)'
+    working = false
+  }
   life.on(workBtn, 'click', () => {
     if (working) return
     if (vessel.dataset.stage === 'done') {
@@ -217,20 +243,16 @@ export function render(ctx) {
       workBtn.textContent = 'PERFORM THE GREAT WORK'
       return
     }
-    const finish = () => {
-      vessel.dataset.stage = 'done'
-      opusOut.textContent = 'The div is centered in both axes. THE GREAT WORK IS ACCOMPLISHED. (It took the alchemists a thousand years. It took you one click. Please do not tell them.)'
-      workBtn.textContent = 'UNDO (return to nigredo)'
-      working = false
-    }
-    if (ctx.mercy.on) return finish()
+    if (ctx.mercy.on) return finishWork()
     working = true
-    OPUS.forEach((o, i) => life.timeout(() => {
+    workTimers = OPUS.map((o, i) => life.timeout(() => {
       vessel.dataset.stage = o.stage
       opusOut.textContent = `Stage: ${o.stage}, ${o.meaning}.`
     }, i * 700))
-    life.timeout(finish, OPUS.length * 700)
+    workTimers.push(life.timeout(finishWork, OPUS.length * 700))
   })
+  // Mercy arriving in the middle of the Work completes it at once: nothing keeps moving on its own.
+  life.bus(ctx, 'mercy:change', ({ on } = {}) => { if (on && working) finishWork() })
   const beliefs = panel('rc-beliefs', 'WHAT WE BELIEVE (in 5 easy steps!)', 'white',
     h('ol', { class: 'rc-beliefs' }, D.BELIEFS.map((b) => h('li', {},
       h('h3', {}, b.title),
@@ -252,7 +274,9 @@ export function render(ctx) {
   }
   updateOldTime()
   const heavens = panel('rc-heavens', 'TODAY IN THE HEAVENS: a horoscope for all elements', 'sky',
-    h('div', { class: 'rc-horo' },
+    // Shielded from the invisible rubrics: on a phone this block is centred, and a hidden line of its own
+    // would open a hole under the prophecy. The rubrics find plenty of other prose on this page.
+    h('div', { class: 'rc-horo', 'data-secrets-skip': '' },
       h('div', { class: 'rc-horo__moon', html: moonSvg(sky.moon.phase, `The moon tonight: ${sky.moon.name}`) }),
       h('div', {},
         h('p', {}, 'The moon is ', h('b', {}, sky.moon.name), ` (${Math.round(sky.moon.illumination * 100)}% lit, ${sky.moon.age.toFixed(1)} days old).`),
@@ -268,7 +292,7 @@ export function render(ctx) {
     ),
     h('div', { class: 'rc-votd' },
       h('p', { class: 'rc-votd__title' }, 'VERSE OF THE VISIT'),
-      h('blockquote', {}, h('p', {}, v.text), v.fragment ? h('p', { class: 'rc-votd__frag' }, h('span', { lang: v.fragment.lang }, v.fragment.text), ` (${v.fragment.gloss})`) : null),
+      h('blockquote', {}, h('p', { class: 'rc-votd__verse' }, v.text), v.fragment ? h('p', { class: 'rc-votd__frag' }, h('span', { lang: v.fragment.lang }, v.fragment.text), ` (${v.fragment.gloss})`) : null),
       h('p', { class: 'rc-votd__ref' }, '— ', h('a', { href: verseHref(v) }, v.ref), ' (click to read the whole chapter!)'),
     ),
     h('div', { class: 'rc-oldtime' },
@@ -379,7 +403,7 @@ export function render(ctx) {
       return h('li', { class: 'rc-testimonial' },
         portrait(t.portrait),
         h('div', {},
-          h('p', { class: 'rc-stars', 'aria-label': `${t.stars} stars` }, stars),
+          h('p', { class: 'rc-stars' }, h('span', { 'aria-hidden': 'true' }, stars), h('span', { class: 'visually-hidden' }, `${t.stars} out of 5 stars`)),
           quote,
           h('p', { class: 'rc-who' }, '— ', h('b', {}, t.saint), h('br'), h('small', {}, `from ${t.from}`)),
         ),
@@ -400,9 +424,12 @@ export function render(ctx) {
   }
 
   // ---- FAQ ------------------------------------------------------------------------------------------
+  // The sky asks one extra question, third in line, marked NEW! (or SHH! at night).
+  const skyQ = (D.SKY_FAQ.find(([omen]) => !omen || sky.has(omen)) ?? D.SKY_FAQ[D.SKY_FAQ.length - 1])[1](sky)
+  const faqItems = [...D.FAQ.slice(0, 2), [...skyQ, true], ...D.FAQ.slice(2)]
   const faq = panel('rc-faq', 'Frequently Asked Questions (F.A.Q.)', 'white',
-    h('div', { class: 'rc-faq' }, D.FAQ.map(([q, a], i) => h('details', { open: i === 0 },
-      h('summary', {}, h('span', { class: 'rc-q' }, 'Q:'), ' ', q),
+    h('div', { class: 'rc-faq' }, faqItems.map(([q, a, fresh], i) => h('details', { open: i === 0, class: fresh ? 'rc-faq__sky' : null },
+      h('summary', {}, h('span', { class: 'rc-q' }, 'Q:'), ' ', q, fresh ? [' ', burst()] : null),
       h('p', {}, h('span', { class: 'rc-a' }, 'A:'), ' ', a),
     ))),
   )
@@ -419,7 +446,8 @@ export function render(ctx) {
   })
   const known = new Set(seen.flatMap((f) => ROSETTA[f] ?? []))
   const practiceIn = h('input', { id: 'rc-practice', type: 'text', maxlength: '24', autocomplete: 'off', spellcheck: 'false', placeholder: 'type your name' })
-  const practiceOut = h('p', { class: 'rc-practice__out', 'aria-live': 'polite' })
+  // The glyphs mean nothing to a screen reader, so the output is one image with a spoken description.
+  const practiceOut = h('p', { class: 'rc-practice__out', role: 'img' })
   const renderPractice = () => {
     const text = practiceIn.value.toLowerCase().replace(/[^a-z ]/g, '').slice(0, 24)
     const parts = [...text].map((c) => {
@@ -429,7 +457,7 @@ export function render(ctx) {
     })
     const unknown = [...text].filter((c) => c !== ' ' && !known.has(c)).length
     practiceOut.replaceChildren(...(parts.length ? parts : [h('span', { class: 'rc-practice__hint' }, '(your name will appear here, in glyphs)')]))
-    practiceOut.setAttribute('aria-label', parts.length ? `Your name in the glyph script. ${unknown} of its letters are not learned yet.` : 'Nothing written yet')
+    practiceOut.setAttribute('aria-label', parts.length ? `Your name in the glyph script. ${unknown} of its letters ${unknown === 1 ? 'is' : 'are'} not learned yet.` : 'Nothing written yet')
   }
   renderPractice()
   life.on(practiceIn, 'input', renderPractice)
@@ -492,7 +520,8 @@ export function render(ctx) {
   const gbIn = h('input', { id: 'rc-gb-text', type: 'text', minlength: '3', maxlength: '80', autocomplete: 'off', placeholder: 'Your message (letters only please!)' })
   const gbSubmit = h('button', { type: 'submit', class: 'rc-btn' }, 'Sign!')
   const gbStatus = h('p', { class: 'rc-gb__status', role: 'status' })
-  const gbList = h('ol', { class: 'rc-gb__list', reversed: true })
+  // Visitors' words are kept exactly as they were written: no hidden rubrics among the signatures.
+  const gbList = h('ol', { class: 'rc-gb__list', reversed: true, 'data-secrets-skip': '' })
   let gbLatin = false
   const gbTranslate = h('button', { type: 'button', class: 'rc-btn rc-btn--small', 'aria-pressed': 'false' }, 'View in English (members only)')
   const gbForm = h('form', { class: 'rc-gb__form', novalidate: true },
@@ -673,6 +702,32 @@ export function render(ctx) {
   add(fixedHost)
   sparkleTrail(ctx, life, fixedHost, ctx.rng.fork('recruitment/sparkles'))
 
+  // ---- the frame knows where you are: a pointing hand beside the section you are reading -----------------
+  const navItems = new Map([...nav.querySelectorAll('li[data-for]')].map((li) => [li.dataset.for, li]))
+  let hereId = ''
+  function markHere(id) {
+    if (!id || id === hereId || !navItems.has(id)) return
+    const was = navItems.get(hereId)
+    was?.classList.remove('is-here')
+    was?.firstElementChild?.removeAttribute('aria-current')
+    hereId = id
+    const li = navItems.get(id)
+    li.classList.add('is-here')
+    li.firstElementChild?.setAttribute('aria-current', 'location')
+  }
+  markHere('rc-welcome')
+  if ('IntersectionObserver' in window) {
+    // A thin band a third of the way down the window: whichever section crosses it is "here".
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) if (e.isIntersecting) markHere(e.target.id)
+    }, { rootMargin: '-32% 0px -64% 0px' })
+    for (const id of navItems.keys()) {
+      const el = document.getElementById(id)
+      if (el) io.observe(el)
+    }
+    life.add(() => io.disconnect())
+  }
+
   // ---- the ritual surfaces here ------------------------------------------------------------------------------
   let sig = { wall: '', canon: '', book: '' }
   let counterOverride = false
@@ -688,20 +743,20 @@ export function render(ctx) {
     if (counterOverride) return
     const hits = live(st) ? [st.hits, st.visits, st.visitors].find((x) => Number.isFinite(x)) : undefined
     if (Number.isFinite(hits)) {
-      counterLabel.textContent = 'You are visitor number'
-      counterNote.textContent = '(counted since the Nativity)'
+      setText(counterLabel, 'You are visitor number')
+      setText(counterNote, '(counted since the Nativity)')
       odo.set(hits)
       remember(hits, 'hits')
     } else if (live(st) && Number.isFinite(st.prayers)) {
-      counterLabel.textContent = 'Prayers counted since the Nativity:'
-      counterNote.textContent = '(every visitor, every face, all added up)'
+      setText(counterLabel, 'Prayers counted since the Nativity:')
+      setText(counterNote, '(every visitor, every face, all added up)')
       odo.set(st.prayers)
       remember(st.prayers, 'prayers')
     } else {
       const last = remembered
       const n = Number.isFinite(last?.n) ? last.n : 1996 + visits * 33 + (hash(ctx.seed)() % 404)
-      counterLabel.textContent = last?.kind === 'prayers' ? 'Prayers counted since the Nativity:' : 'You are visitor number'
-      counterNote.textContent = st && st.loaded === false && !st.offline ? '(the counter is waking up…)' : '(the counter is resting; this is the last number it remembered)'
+      setText(counterLabel, last?.kind === 'prayers' ? 'Prayers counted since the Nativity:' : 'You are visitor number')
+      setText(counterNote, st && st.loaded === false && !st.offline ? '(the counter is waking up…)' : '(the counter is resting; this is the last number it remembered)')
       odo.set(n)
     }
   }
@@ -711,8 +766,8 @@ export function render(ctx) {
     const st = live(raw) ? raw : null
     const waking = raw ? raw.loaded === false && !raw.offline : !awake
     renderCounter(raw)
-    if (Number.isFinite(st?.online)) onlineOut.textContent = fmt(Math.max(1, st.online))
-    if (Number.isFinite(st?.prayers)) prayOut.textContent = fmt(st.prayers)
+    if (Number.isFinite(st?.online)) setText(onlineOut, fmt(Math.max(1, st.online)))
+    if (Number.isFinite(st?.prayers)) setText(prayOut, fmt(st.prayers))
     else if (prayOut.textContent === '…' && !waking) prayOut.textContent = 'the counter is resting'
 
     if (waking && !force) return
@@ -764,14 +819,16 @@ export function render(ctx) {
     // The altar asks the server for its state when it wakes; look again as the answer arrives.
     for (const ms of [250, 900, 2200]) life.timeout(() => sync(), ms)
   })
-  for (const evt of ['temple:awake', 'server:open', 'server:presence', 'server:prayer', 'server:wall', 'server:offering', 'server:ascended', 'ritual:prayed', 'ritual:offered', 'ritual:inscribed']) {
+  // The altar announces each fresh state (ritual:state); the other events arrive before it has folded
+  // them in, so look a moment later. A slow poll covers an altar that says nothing at all.
+  life.bus(ctx, 'ritual:state', () => { awake = true; sync() })
+  for (const evt of ['server:open', 'server:presence', 'server:prayer', 'server:wall', 'server:offering', 'server:ascended', 'ritual:prayed', 'ritual:offered', 'ritual:inscribed']) {
     life.bus(ctx, evt, (data) => {
-      if (evt === 'server:presence' && Number.isFinite(data?.online)) onlineOut.textContent = fmt(Math.max(1, data.online))
-      // Let the ritual layer fold the event into its state first.
+      if (evt === 'server:presence' && Number.isFinite(data?.online)) setText(onlineOut, fmt(Math.max(1, data.online)))
       life.timeout(() => sync(), 60)
     })
   }
-  life.interval(() => { if (!document.hidden) sync() }, 5000)
+  life.interval(() => { if (!document.hidden) sync() }, 15000)
 
   // ---- secret: the counter overflows ------------------------------------------------------------------
   let clicks = []
@@ -840,7 +897,7 @@ export function render(ctx) {
     return box
   }
   life.bus(ctx, 'behavior:typed', ({ buffer } = {}) => {
-    if (typeof buffer !== 'string') return
+    if (typeof buffer !== 'string' || typingInField()) return
     if (buffer.endsWith('netscape')) netscape()
     else if (buffer.endsWith('webmaster')) webmaster()
   })
@@ -867,6 +924,8 @@ export function render(ctx) {
   life.bus(ctx, 'behavior:still', ({ seconds } = {}) => {
     if (seconds === 7) {
       root.classList.add('rc-watched')
+      // The frame stays on screen while you read, so it is the frame that asks.
+      navTitle.textContent = 'ARE YOU STILL THERE?'
       statusLine.textContent = 'Are you still there? That is all right. The Cascade is patient.'
     } else if (seconds === 33) {
       unlockMembers(true)
@@ -877,6 +936,7 @@ export function render(ctx) {
   })
   const stir = () => {
     root.classList.remove('rc-watched')
+    setText(navTitle, 'NAVIGATION')
     if (saver.open) saver.hide()
     if (statusLine.textContent !== 'Document: Done') statusLine.textContent = 'Document: Done'
   }
