@@ -158,6 +158,7 @@ export const RULES = [
   'Nothing may be floated in the meditation hall unless it is cleared before nightfall.',
   'Silence is z-index: auto.',
   'Mercy is always at the bottom left. No one will ask why you pressed it.',
+  'The gates of the yantra open for whoever keeps still for the length of a mala. Nobody has to.',
 ]
 
 // Opening lines, chosen by how often the visitor has sat here.
@@ -166,4 +167,67 @@ export function welcome(sittings) {
   if (sittings < 7) return `This is your ${ordinal(sittings)} sitting. The yantra remembers the shape of your stillness.`
   if (sittings < 108) return `Sitting ${sittings}. The cushion has taken your computed shape.`
   return `Sitting ${sittings}. You have completed the mala of sittings. There is nothing left to teach you, so we will keep breathing.`
+}
+
+// When a schism carries the visitor here from another face, the guide says how they arrived.
+export function arrival(ctx) {
+  if (!(ctx.schisms > 0)) return null
+  const b = ctx.behavior ?? {}
+  if (document.documentElement.hasAttribute('data-eclipse')) return 'The sun was covered, and in the dark the temple changed its face. This one does not need light to breathe.'
+  if ((b.stillFor ?? 0) >= 100) return 'You were so still in the other hall that the temple carried you here without waking you. Nothing is expected of you. Stay as you are.'
+  if ((b.restlessness ?? 0) > 0.3) return 'You arrived restless, and the yantra lost its count before it had begun. Sit. It will find you.'
+  if ((b.stillFor ?? 0) < 3 && (b.awayCount ?? 0) > 0) return 'You were away a long time. While you were gone the temple changed its face. This one breathes, and kept your cushion.'
+  return 'The temple has changed its face while you were looking. This one breathes, and waits for you to breathe with it.'
+}
+
+// The saṅkalpa: the intention a sitting is begun with. One is drawn for each sitting.
+export const SANKALPA = [
+  'to declare nothing !important until sunset',
+  'to let one margin collapse into another without resentment',
+  'to keep my focus ring visible, even when it is not beautiful',
+  'to inherit only what I would have declared',
+  'to center one thing today, and not to force it',
+  'to wrap, and not to overflow',
+  'to say my name to the reader of screens',
+  'to give every image its alt text, even the ones nobody sees',
+  'to use no magic number until the lamps are lit',
+  'to hold still whenever mercy is asked',
+  'to let the Cascade decide, and to read what it decided',
+  'to clear one float I have carried since 1996',
+]
+
+// What the prayer wheel says at the sacred numbers of its turning.
+export const TURN_VOICES = {
+  1: 'One turn. One prayer rises.',
+  3: 'Three turns: one for the Old Law, one for the Pilgrim, one for the Word.',
+  5: 'Five turns, one for each sheath. The fifth takes no space, and it rose anyway.',
+  7: 'Seven turns: every wheel of the Ladder has been turned once.',
+  12: 'Twelve turns, the columns of the grid. Sister Grid is pleased with you.',
+  16: 'Sixteen turns: the Root Measure, in prayers.',
+  27: 'Twenty-seven: a quarter of the mala. The marker bead is passed.',
+  33: 'Thirty-three turns, the age of ascent. The drum is warm under your hand.',
+  54: 'Fifty-four: half the mala. From here the count runs home.',
+  96: 'Ninety-six turns, the dots of the Old Inch. Twelve more.',
+}
+
+// What the ashram cat is called, and what it says when it is disturbed. It left the flow long ago.
+export const CAT = {
+  name: 'Float',
+  deva: 'मार्जार',
+  iast: 'mārjāra',
+  woke: [
+    'Float opens one eye, finds you unremarkable, and closes it.',
+    'Float stretches in both axes at once, which is more than any div has managed.',
+    'Float yawns. It has been absolutely positioned here since before the Reset.',
+    'Float purrs at a frequency the tanpura cannot reach.',
+    'Float moves one paw a single pixel to the left. This is a blessing.',
+  ],
+  moved: 'Float did not like your restlessness and has gone to sleep somewhere else. It does not need a container.',
+  still: 'Float breathes with the yantra now. It has been doing so for longer than you.',
+}
+
+// The drum is filled with a scroll, wound tight around the axle, as the old wheels are.
+export const SCROLL = {
+  line: 'all style descends',
+  times: 1080,
 }

@@ -109,9 +109,15 @@ export function buildSheaths(A) {
     h('p', { class: 'ash-kosha-coda' }, 'The old teachers count the sheaths from the body inward: food outermost, bliss at the core. The box model counts from the content outward. The ashram teaches that both are right, depending on which side of the border you stand.'),
   )
 
+  // The padding, which is the Breath, keeps the yantra's own clock, but only while anyone can see it.
+  // (It is real padding, so every change is a real layout: it moves in half pixels, at most ten times a second.)
+  const breath = A.breath?.follow?.(body, (v) => ({ padding: `${Math.round((12 + v * 16) * 2) / 2}px` }), { active: false, layout: true })
   // Live values, read back from the body with getComputedStyle.
   let visible = false
-  const io = life.observe(new IntersectionObserver((es) => { visible = es.some((e) => e.isIntersecting) }))
+  const io = life.observe(new IntersectionObserver((es) => {
+    visible = es.some((e) => e.isIntersecting)
+    breath?.setActive(visible)
+  }))
   io.observe(frame)
   function readBody() {
     const cs = getComputedStyle(body)
@@ -125,20 +131,23 @@ export function buildSheaths(A) {
   }
   requestAnimationFrame(readBody)
   life.interval(() => { if (visible) readBody() }, 500)
-  life.bus(ctx.bus, 'mercy:change', ({ on }) => {
-    if (on) body.style.setProperty('--breath', '0.5')
-    readBody()
-  })
-  if (ctx.mercy?.on) body.style.setProperty('--breath', '0.5')
+  life.bus(ctx.bus, 'mercy:change', () => readBody())
 
   // The figure keeps its eyes closed while you are calm. When you are restless it opens them and
   // follows your pointer; when you settle, it closes them again, slowly, as if it had not looked.
   let watching = false
   let third = false
   let look = { x: 0, y: 0 }
-  function aim(dt) {
+  // Where the figure sits is measured once, and again only after a scroll or a resize (or a second later).
+  let rect = null
+  let rectAt = 0
+  const staleRect = () => { rect = null }
+  life.on(window, 'scroll', staleRect, { passive: true })
+  life.on(window, 'resize', staleRect, { passive: true })
+  function aim(dt, now) {
     const p = ctx.behavior?.pointer
-    const r = fig.svg.getBoundingClientRect()
+    if (!rect || now - rectAt > 1000) { rect = fig.svg.getBoundingClientRect(); rectAt = now }
+    const r = rect
     if (!p || !r.width) return
     const sx = r.width / 150
     const want = fig.eyes.map((e) => {
@@ -157,26 +166,20 @@ export function buildSheaths(A) {
     look = { x: nx, y: ny }
     for (const e of fig.eyes) e.pupil.setAttribute('transform', `translate(${nx.toFixed(2)} ${ny.toFixed(2)})`)
   }
+  let unAim = null
+  life.add(() => unAim?.())
   function watch(on) {
     if (watching === on) return
     watching = on
     el.classList.toggle('is-watching', on)
+    unAim?.()
+    unAim = on ? ticker.add((dt, now) => { if (visible) aim(dt, now) }) : null
     if (!on) {
       look = { x: 0, y: 0 }
       for (const e of fig.eyes) e.pupil.removeAttribute('transform')
     }
     if (visible) readBody()
   }
-
-  let lastV = -1
-  ticker.add((dt) => {
-    if (!visible) return
-    if (watching) aim(dt)
-    const v = A.breath?.value ?? 0.5
-    if (Math.abs(v - lastV) < 0.004) return
-    lastV = v
-    body.style.setProperty('--breath', v.toFixed(3))
-  })
 
   return {
     el,

@@ -3,7 +3,10 @@ const SVGNS = 'http://www.w3.org/2000/svg'
 
 export function makeLife() {
   const cleanups = []
+  // One-shot timers forget themselves when they fire, so a long sitting does not pile up their cleanups.
+  const timers = new Set()
   let dead = false
+  cleanups.push(() => { timers.forEach(clearTimeout); timers.clear() })
   return {
     get dead() { return dead },
     add(fn) { cleanups.push(fn); return fn },
@@ -16,8 +19,8 @@ export function makeLife() {
       if (off) cleanups.push(off)
     },
     timeout(fn, ms) {
-      const id = setTimeout(() => { if (!dead) fn() }, ms)
-      cleanups.push(() => clearTimeout(id))
+      const id = setTimeout(() => { timers.delete(id); if (!dead) fn() }, ms)
+      timers.add(id)
       return id
     },
     interval(fn, ms) {

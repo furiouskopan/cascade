@@ -83,13 +83,15 @@ export function buildBowl(A) {
     type: 'button',
     class: 'ash-bowl',
     'aria-label': 'Singing bowl. Strike it to summon the temple’s sound.',
+    'aria-describedby': 'ash-bowl-hint',
   }, h('span', { class: 'ash-bowl-glow', 'aria-hidden': 'true' }), svg)
   const wrap = h('figure', { class: 'ash-bowl-wrap' },
     button,
     h('figcaption', {},
-      h('span', { class: 'ash-kicker' }, 'the singing bowl · ', h('span', { lang: 'sa', class: 'ash-kicker-deva' }, 'कांस्य पात्र')),
+      h('span', { class: 'ash-kicker' }, 'the singing bowl ', h('span', { lang: 'sa', class: 'ash-kicker-deva' }, 'कांस्य पात्र')),
       status,
-      h('span', { class: 'ash-bowl-hint' }, 'Old bowls also sing when their rim is circled.')),
+      h('span', { class: 'ash-bowl-hint', id: 'ash-bowl-hint' }, 'Old bowls also sing when their rim is circled.',
+        h('span', { class: 'ash-bowl-keys' }, ' From the keyboard, walk round it with the arrow keys.'))),
   )
 
   let ringTimer = 0
@@ -159,6 +161,22 @@ export function buildBowl(A) {
   const endRub = () => { rub = null; if (!sung) button.style.removeProperty('--song') }
   life.on(button, 'pointerup', endRub)
   life.on(button, 'pointercancel', endRub)
+
+  // The keyboard sings it too: each arrow walks the striker one petal (a twelfth) round the rim. Right
+  // and down go sunwise, left and up the other way; turning back, or resting too long, starts over.
+  let walk = { sum: 0, at: 0 }
+  life.on(button, 'keydown', (e) => {
+    const dir = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key]
+    if (!dir) return
+    e.preventDefault()
+    const now = performance.now()
+    if (now - walk.at > 2500 || Math.sign(walk.sum) === -dir) walk.sum = 0
+    walk.at = now
+    walk.sum += dir / 12
+    const circles = Math.abs(walk.sum)
+    if (!sung) button.style.setProperty('--song', Math.min(1, circles / 3).toFixed(3))
+    if (circles >= 3 && !sung) sing()
+  })
 
   function sing() {
     sung = true

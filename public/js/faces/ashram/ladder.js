@@ -180,6 +180,7 @@ export function buildLadder(A) {
   // --------------------------------------------------------------- the serpent
   let steps = []
   let risen = false
+  let risenBy = null // 'stillness' returns to the Root at the first movement; 'seeds', once spoken, stays
   function clearSteps() { steps.forEach(clearTimeout); steps = [] }
   life.add(clearSteps)
   function yOf(i) {
@@ -192,9 +193,10 @@ export function buildLadder(A) {
     serpent.style.zIndex = String(z)
   }
   function settle() {
+    if (!risen || risenBy === 'seeds') return
     clearSteps()
-    if (!risen) return
     risen = false
+    risenBy = null
     el.classList.remove('is-risen', 'is-rising')
     rungs.forEach((r) => r.li.classList.remove('is-awake'))
     serpent.classList.add('is-returning')
@@ -203,10 +205,14 @@ export function buildLadder(A) {
   }
   function rise(reason = 'stillness') {
     if (risen) {
-      if (reason === 'seeds') note.textContent = 'The seeds were spoken from the Root upward, and the serpent was already at the Crown. It bows its head to you.'
+      if (reason === 'seeds') {
+        risenBy = 'seeds'
+        note.textContent = 'The seeds were spoken from the Root upward, and the serpent was already at the Crown. Now it will stay there for the rest of this sitting.'
+      }
       return
     }
     risen = true
+    risenBy = reason
     clearSteps()
     el.classList.add('is-rising')
     const finish = () => {

@@ -3,7 +3,7 @@ import { h } from '../../lib/dom.js'
 import { glyphText } from '../../lib/glyphs.js'
 import { chapter, mantra, holyName } from '../../lib/scripture.js'
 import { INVENTED_MANTRAS } from '../../lib/lexicon.js'
-import { SEEDS, CSS_DEVA, TIMETABLE, RULES, HORA, devaNum, ordinal } from './lore.js'
+import { SEEDS, CSS_DEVA, TIMETABLE, RULES, HORA, SANKALPA, devaNum, ordinal } from './lore.js'
 
 const pad = (n) => String(n).padStart(2, '0')
 const hhmm = (d) => `${pad(d.getHours())}:${pad(d.getMinutes())}`
@@ -13,6 +13,8 @@ export function buildThreshold(A) {
   const rng = A.rng.fork('threshold')
   const clock = h('span', { class: 'ash-clock' }, hhmm(ctx.clock()))
   life.interval(() => { clock.textContent = hhmm(ctx.clock()) }, 15000)
+  const teacher = holyName(rng)
+  const lead = h('span', { class: 'ash-lead' }, `led by ${teacher}`)
   const el = h('header', { class: 'ash-threshold' },
     h('div', { class: 'ash-mark' },
       h('p', { class: 'ash-title-deva', lang: 'sa', 'aria-hidden': 'true' }, 'आश्रम'),
@@ -23,7 +25,7 @@ export function buildThreshold(A) {
     ),
     h('p', { class: 'ash-sitting' },
       h('span', {}, `sitting № ${A.sittings}`),
-      h('span', {}, `led by ${holyName(rng)}`),
+      lead,
       clock,
     ),
   )
@@ -37,7 +39,16 @@ export function buildThreshold(A) {
       glyphText(name, { className: 'ash-ascended-name' }),
       ' is written in the Book. The cushion was kept for you.'))
   }
-  return { el }
+  return {
+    el,
+    // After the mala of seconds the teacher is no longer needed, and the header says so.
+    ledByYou(on) {
+      lead.textContent = on ? 'led by you' : `led by ${teacher}`
+      lead.classList.toggle('is-you', on)
+      if (on) lead.title = `${teacher} has left the flow for the rest of this sitting.`
+      else lead.removeAttribute('title')
+    },
+  }
 }
 
 export function buildMantra(A) {
@@ -66,6 +77,9 @@ export function buildMantra(A) {
       h('p', { class: 'ash-newseeds-latin' }, h('code', {}, invented)),
     ),
     h('p', { class: 'ash-mantra-how' }, 'Say it quietly three times, or one hundred and eight. Or do not say it at all: the page has already said it for you.'),
+    h('p', { class: 'ash-sankalpa' },
+      h('span', { class: 'ash-kicker' }, h('span', { lang: 'sa', class: 'ash-deva' }, 'सङ्कल्प'), ' saṅkalpa · the intention of this sitting'),
+      h('span', { class: 'ash-sankalpa-text' }, rng.pick(SANKALPA) + '.')),
     chantBtn,
     status,
   )
@@ -98,7 +112,7 @@ export function buildSutra(A) {
   const ch = verses[0]?.chapter ?? 1
   const item = (num, text, frag) => h('li', { class: 'ash-sutra-verse' },
     h('div', { class: 'ash-verse-grid' },
-      h('span', { class: 'ash-vnum', 'aria-label': `verse ${num}` }, `॥ ${devaNum(num)} ॥`),
+      h('span', { class: 'ash-vnum' }, h('span', { 'aria-hidden': 'true' }, `॥ ${devaNum(num)} ॥`), h('span', { class: 'visually-hidden' }, `Verse ${num}.`)),
       h('div', {},
         h('p', {}, text),
         frag ? h('p', { class: 'ash-frag' },
@@ -114,7 +128,7 @@ export function buildSutra(A) {
     h('header', { class: 'ash-sec-head' },
       h('p', { class: 'ash-sec-deva', lang: 'sa', 'aria-hidden': 'true' }, 'सूत्र'),
       h('h2', { id: 'ash-sutra-title' }, book.replace(/^the /, 'The ')),
-      h('p', { class: 'ash-lede' }, `Pāda ${devaNum(ch)}, the ${ordinal(ch)} chapter, as it was rendered for this sitting. No two sittings receive the same pāda.`),
+      h('p', { class: 'ash-lede' }, `Pāda ${devaNum(ch)}, the ${ordinal(ch)} chapter, as it was rendered for this sitting. No two sittings receive the same pāda. A sūtra is a thread: the verses are strung on one, and it runs through every one of them, as inheritance does.`),
     ),
     list,
     h('p', { class: 'ash-colophon' },

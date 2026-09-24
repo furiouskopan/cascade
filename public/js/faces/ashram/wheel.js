@@ -4,7 +4,7 @@
 // and the wheel says so. A mala of 108 beads counts your turns across every visit.
 import { h } from '../../lib/dom.js'
 import { glyphText } from '../../lib/glyphs.js'
-import { SEEDS } from './lore.js'
+import { SEEDS, TURN_VOICES, SCROLL } from './lore.js'
 import { s, fmt, clamp } from './life.js'
 
 const N = 24
@@ -75,6 +75,8 @@ export function buildWheel(A) {
   let sent = 0
   let sending = false
   let heard = Number(ctx.ritual?.state?.prayers) || null
+  let lastSent = -Infinity // when this drum last sent a prayer; the choir echoes our own back to us
+  let lastStranger = -Infinity
 
   const body = h('div', { class: 'ash-drum-body' })
   for (let i = 0; i < N; i++) {
@@ -110,6 +112,18 @@ export function buildWheel(A) {
   const beadEl = h('span', { class: 'ash-num' })
   const onlineEl = h('span', { class: 'ash-num' })
   const voice = h('p', { class: 'ash-wheel-voice', 'aria-live': 'polite' })
+  // What is wound inside the drum, as in the old wheels: one line, written over and over.
+  const scroll = h('details', { class: 'ash-scroll' },
+    h('summary', {}, 'What is written inside the drum'),
+    h('div', { class: 'ash-scroll-body' },
+      h('p', {}, `A scroll is wound tight around the axle. It holds one line, written ${SCROLL.times.toLocaleString('en-US')} times in the glyph script, and every turn of the drum counts as reading all of it aloud. The Cascade accepts this, in the same way it accepts a computed value in place of the declaration that produced it.`,
+        h('span', { class: 'visually-hidden' }, ` The line reads: ${SCROLL.line}.`)),
+      h('div', { class: 'ash-scroll-paper', 'aria-hidden': 'true' },
+        Array.from({ length: 9 }, (_, i) => glyphText(Array(4).fill(SCROLL.line).join(' · '), { tag: 'span', className: `ash-scroll-line${i === 4 ? ' is-middle' : ''}` }))),
+      h('p', { class: 'ash-scroll-css' }, h('code', {}, `.ash-drum::before { content: "${SCROLL.line}"; /* × ${SCROLL.times} */ }`)),
+      h('p', { class: 'ash-scroll-note' }, 'The line is not secret. It is the only thing the Cascade has ever said. Copy the glyphs above and paste them anywhere; they will read as they were written.'),
+    ),
+  )
   const wallBox = h('div', { class: 'ash-wall', hidden: true })
 
   const el = h('section', { class: 'ash-wheel-sec', 'aria-labelledby': 'ash-wheel-title' },
@@ -128,6 +142,7 @@ export function buildWheel(A) {
         h('div', {}, h('dt', {}, 'souls in the Cascade'), h('dd', {}, onlineEl)),
       ),
       voice,
+      scroll,
       wallBox,
     ),
   )
@@ -173,8 +188,8 @@ export function buildWheel(A) {
       if (total % 108 === 0) {
         say('The mala is complete: one hundred and eight turns. It begins again at the guru bead, as it always does.')
         ctx.memory?.markSecret?.('ashram-mala', { face: 'ashram', turns: total })
-      } else if (visitTurns === 1) say('One turn. One prayer rises.')
-      else if (queue >= 12) say('The wheel turns faster than the heavens can listen. The rest are kept in the drum until they can.')
+      } else if (queue >= 12) say('The wheel turns faster than the heavens can listen. The rest are kept in the drum until they can.')
+      else if (TURN_VOICES[visitTurns]) say(TURN_VOICES[visitTurns])
     } else {
       widdershins++
       visitTurns++
@@ -199,6 +214,7 @@ export function buildWheel(A) {
       return
     }
     sending = true
+    lastSent = performance.now()
     queue--
     try {
       const res = await ritual.pray()
@@ -304,7 +320,20 @@ export function buildWheel(A) {
     const c = Number(d?.count)
     if (Number.isFinite(c)) { heard = Math.max(heard ?? 0, c); paintCounts() }
   }
-  life.bus(ctx.bus, 'server:prayer', onCount)
+  life.bus(ctx.bus, 'server:prayer', (d) => {
+    onCount(d)
+    // Someone else, somewhere, turned a wheel or prayed at an altar. Say so, but not often. (Wait a
+    // moment first: the choir may sing our own prayer back before the ritual says it was ours.)
+    const c = Number(d?.count)
+    if (!Number.isFinite(c) || performance.now() - lastStranger < 45000) return
+    life.timeout(() => {
+      const now = performance.now()
+      if (now - lastSent < 4000 || now - lastStranger < 45000) return
+      lastStranger = now
+      say(`Somewhere another pilgrim has prayed. The drum felt it: the count is ${fmt(c)} now.`)
+    }, 1500)
+  })
+  life.bus(ctx.bus, 'ritual:prayed', () => { lastSent = performance.now() })
   life.bus(ctx.bus, 'ritual:prayed', onCount)
   life.bus(ctx.bus, 'server:presence', () => paintCounts())
   // The face hears the choir before the ritual layer has written the message down; read it a beat later.

@@ -128,6 +128,8 @@ html[data-face="ashram"] { background: #05041a; }
     color: var(--ash);
   }
   & .ash-clock { color: var(--accent-hi); font-variant-numeric: tabular-nums; letter-spacing: 0.12em; }
+  & .ash-lead { transition: color 3s; }
+  & .ash-lead.is-you { color: var(--accent-hi); }
   & .ash-ascended { flex-basis: 100%; font: italic 14px/1.5 var(--ash-text); color: var(--ash); }
   & .ash-ascended .ash-deva { font-style: normal; color: var(--accent); }
   & .ash-ascended-name { font-size: 1.2em; font-style: normal; color: var(--accent-hi); }
@@ -166,14 +168,20 @@ html[data-face="ashram"] { background: #05041a; }
     border-radius: 50%;
     background: radial-gradient(circle, rgba(255, 196, 110, 0.34) 0%, rgba(245, 140, 40, 0.15) 32%, rgba(140, 70, 180, 0.07) 55%, transparent 70%);
     opacity: 0.7;
+    will-change: opacity; /* its own layer: the breath changes it every frame, and the yantra need not be repainted for it */
   }
   & .ash-yantra { position: absolute; inset: 0; color: var(--accent); }
   & .ash-yantra svg {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     overflow: visible;
     filter: drop-shadow(0 0 2.5px rgba(245, 158, 43, 0.55));
   }
+  /* The triangles and the bindu lie on sheets of their own, so a faltering yantra is turned by the
+     compositor and never repainted. */
+  & .ash-yantra .ash-y-sheet { transform-origin: 50% 50%; will-change: transform; pointer-events: none; }
   & .ash-y-gates path { stroke: var(--accent); stroke-width: 0.55; transition: transform 6s cubic-bezier(.4, 0, .2, 1), opacity 6s; }
   & .ash-y-gates path:nth-child(1) { stroke: var(--accent-hi); stroke-width: 0.8; }
   & .ash-y-gates path:nth-child(3) { opacity: 0.6; }
@@ -219,8 +227,9 @@ html[data-face="ashram"] { background: #05041a; }
     transform: rotate(15deg) scale(0.99);
     pointer-events: none;
     filter: blur(0.4px);
+    will-change: transform;
   }
-  & .ash-ghost svg { width: 100%; height: 100%; overflow: visible; }
+  & .ash-ghost svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
   & .ash-stage .ash-mandala .ash-ghost :is(path, circle) { stroke: currentColor; fill: none; }
   & .ash-ghost .ash-y-mala, & .ash-ghost .ash-y-bindu { display: none; }
   & .ashram.is-dark .ash-yantra { opacity: 0.78; }
@@ -334,7 +343,7 @@ html[data-face="ashram"] { background: #05041a; }
   }
   & .ash-phase-iast { font: italic 17px/1.4 var(--ash-text); color: var(--ash); margin-top: 6px; }
   & .ash-ticks { display: flex; justify-content: flex-end; gap: 4px; list-style: none; margin: 18px 0 6px; padding: 0; }
-  & .ash-ticks li { width: 13px; height: 4px; border-radius: 2px; background: rgba(255, 255, 255, 0.09); transition: background .5s, box-shadow .5s; }
+  & .ash-ticks li { width: 13px; height: 4px; border-radius: 2px; background: rgba(255, 255, 255, 0.09); } /* a metronome: no easing */
   & .ash-ticks li[data-phase="hold"] { width: 13px; background: rgba(255, 255, 255, 0.05); }
   & .ash-ticks li.is-past[data-phase="in"] { background: rgba(245, 158, 43, 0.55); }
   & .ash-ticks li.is-past[data-phase="hold"] { background: rgba(241, 227, 198, 0.4); }
@@ -365,10 +374,24 @@ html[data-face="ashram"] { background: #05041a; }
   & .ash-stage.is-merciful .ash-ticks,
   & .ash-stage.is-merciful .ash-phase-count { display: none; }
   & .ash-stage.is-faltering .ash-phase-deva { filter: blur(0.7px); opacity: 0.72; }
+  & .ash-stage.is-merciful .ash-phase-line { font-size: 16px; letter-spacing: 0.16em; }
+
+  /* The yantra hears the bowl: struck, its rings brighten while the bowl rings; sung, its letters light. */
+  & .ash-y-rings circle { transition: stroke 1.2s, opacity 1.2s; }
+  & .ash-aura { transition: filter 1.2s; }
+  & .ash-stage.is-struck .ash-y-rings circle { stroke: var(--accent-hi); opacity: 1; }
+  & .ash-stage.is-struck .ash-y-lotus .is-outer { stroke: #fff1c8; }
+  & .ash-stage.is-struck .ash-aura { filter: brightness(1.35); }
+  & .ash-rosetta dt, & .ash-petal-seeds span { transition: color 1.6s, text-shadow 1.6s, scale 0.6s; }
+  & .ash-stage.is-sung .ash-rosetta dt { color: #fffbef; text-shadow: 0 0 8px var(--accent-hi), 0 0 22px var(--accent), 0 0 1px #000; }
+  & .ash-stage.is-sung .ash-petal-seeds span { color: #ffe0ea; text-shadow: 0 0 14px var(--kumkum), 0 0 26px var(--lotus); }
+  & .ash-rosetta .rosetta-pair.is-named dt { scale: 1.4; color: #fff; text-shadow: 0 0 10px #fff3cf, 0 0 26px var(--accent-hi); }
+  & .ash-rosetta .rosetta-pair.is-named dd { color: #fff; }
   & .ash-stage.is-faltering .ash-ticks { opacity: 0.5; }
 
   /* The side: the reading and the bowl. */
   & .ash-side { justify-self: start; display: grid; gap: 26px; max-width: 320px; }
+  & .ash-reading .ash-kicker { letter-spacing: 0.2em; }
   & .ash-reading-sky { display: flex; align-items: center; gap: 16px; }
   & .ash-moon { width: 56px; height: 56px; flex: none; overflow: visible; }
   & .ash-moon-dark { fill: #17134a; stroke: rgba(241, 227, 198, 0.22); stroke-width: 0.4; }
@@ -430,7 +453,7 @@ html[data-face="ashram"] { background: #05041a; }
   & .ash-bowl.is-singing .ash-bowl-glow { opacity: 0.8; }
   & .ash-bowl-wrap figcaption { display: grid; gap: 6px; padding-right: 64px; } /* the altar lives in the corner */
   & .ash-bowl-wrap .ash-kicker { margin: 0; }
-  & .ash-kicker-deva { font: 400 14px/1 var(--ash-deva); letter-spacing: 0.02em; text-transform: none; color: var(--accent); white-space: nowrap; }
+  & .ash-kicker-deva { display: block; margin-top: 5px; font: 400 15px/1.1 var(--ash-deva); letter-spacing: 0.02em; text-transform: none; color: var(--accent); white-space: nowrap; }
   /* On touch screens a sleeping bowl lets the page scroll past it; once struck, it keeps the finger. */
   @media (pointer: coarse) {
     & .ash-bowl { touch-action: pan-y; }
@@ -438,6 +461,9 @@ html[data-face="ashram"] { background: #05041a; }
   }
   & .ash-bowl-status { font: 15px/1.45 var(--ash-text); color: var(--sandal); }
   & .ash-bowl-hint { font: italic 13.5px/1.4 var(--ash-text); color: var(--ash); }
+  /* How to sing it from the keyboard: read to screen readers always, shown to the eye while the bowl has focus. */
+  & .ash-bowl-keys { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  & .ash-bowl-wrap:has(.ash-bowl:focus-visible) .ash-bowl-keys { position: static; width: auto; height: auto; overflow: visible; clip-path: none; white-space: normal; color: var(--accent-hi); }
 
   /* ---------------------------------------------------------------- THE MANTRA */
   & .ash-mantra-sec {
@@ -946,7 +972,34 @@ html[data-face="ashram"] { background: #05041a; }
     padding: 64px 0 40px;
     border-top: 1px solid rgba(245, 158, 43, 0.12);
   }
-  & .ash-sutra { display: grid; gap: 22px; list-style: none; margin: 0; padding: 0; }
+  & .ash-sutra { position: relative; display: grid; gap: 22px; list-style: none; margin: 0; padding: 0; }
+  /* Sūtra means a thread. The verses are strung on one, a twisted cord of saffron and kumkum that runs
+     down between the numbers and the words, knotted once at every verse. */
+  & .ash-sutra::before {
+    content: '';
+    position: absolute;
+    left: 86px;
+    top: -22px;
+    bottom: -22px;
+    width: 2px;
+    border-radius: 1px;
+    background: repeating-linear-gradient(170deg, var(--accent) 0 4px, var(--kumkum) 4px 6px, var(--accent-hi) 6px 9px);
+    mask-image: linear-gradient(180deg, transparent, #000 22px, #000 calc(100% - 22px), transparent);
+    opacity: 0.6;
+  }
+  & .ash-sutra-verse { position: relative; }
+  & .ash-sutra-verse::before {
+    content: '';
+    position: absolute;
+    left: 83px;
+    top: 12px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #ffe7b5, var(--accent) 55%, #7a3a0c);
+    box-shadow: 0 0 0 2px var(--ind-1), 0 0 8px rgba(245, 158, 43, 0.5);
+  }
+  & .ash-sutra-verse.is-108::before { background: radial-gradient(circle at 35% 35%, #fff, #ffd76a 50%, var(--kumkum)); box-shadow: 0 0 0 2px var(--ind-1), 0 0 14px rgba(255, 215, 106, 0.8); }
   & .ash-verse-grid { display: grid; grid-template-columns: 78px minmax(0, 1fr); gap: 18px; align-items: baseline; }
   & .ash-sutra-verse > :not(.ash-verse-grid) { display: block; margin-left: 96px; font-size: 14px; }
   & .ash-vnum { font: 400 18px/1 var(--ash-deva); color: var(--accent); text-align: right; white-space: nowrap; }
@@ -994,7 +1047,7 @@ html[data-face="ashram"] { background: #05041a; }
   & .ash-rules ol { margin: 0; padding-left: 1.4em; display: grid; gap: 8px; font: 15.5px/1.5 var(--ash-text); color: var(--sandal); }
   & .ash-rules li::marker { font-family: var(--ash-label); color: var(--accent); }
   & .ash-shanti { grid-column: 1 / -1; display: grid; justify-items: center; gap: 6px; text-align: center; padding-top: 18px; }
-  & .ash-shanti .ash-deva { font-size: 30px; color: var(--accent-hi); }
+  & .ash-shanti .ash-deva { font-size: clamp(22px, 6.4vw, 30px); color: var(--accent-hi); }
   & .ash-shanti span:last-child { font: 300 11.5px/1.5 var(--ash-label); letter-spacing: 0.22em; text-transform: uppercase; color: var(--ash); }
 
   /* ---------------------------------------------------------------- THE WOMB-CHAMBER */
@@ -1008,35 +1061,102 @@ html[data-face="ashram"] { background: #05041a; }
     opacity: 0;
     transition: opacity 1.4s, visibility 0s linear 1.4s;
   }
-  & .ash-chamber.is-present { visibility: visible; opacity: 1; transition: opacity 1.4s; }
+  /* While it is there it keeps the hand: a click on the chamber closes it (any movement does) and never
+     falls through to a bowl or a wheel hidden beneath it. */
+  & .ash-chamber.is-present { visibility: visible; opacity: 1; pointer-events: auto; transition: opacity 1.4s; }
   & .ash-chamber-glow {
     position: absolute;
     inset: 0;
     background:
-      radial-gradient(circle at 50% 21%, #fff4d6 0, #ffc36a 1.2vmin, rgba(255, 170, 70, 0.55) 4vmin, transparent 16vmin),
+      radial-gradient(ellipse 36% 30% at 50% 24%, rgba(255, 170, 70, 0.2), transparent 70%),
       radial-gradient(ellipse 70% 60% at 50% 42%, #5a1024 0%, #2b0a22 45%, #0f0620 80%);
   }
   & .ash-chamber-inner {
     position: absolute;
     inset: 0;
     display: grid;
-    place-content: center;
-    gap: 14px;
-    max-width: 640px;
+    place-content: safe center;
+    justify-items: center;
+    gap: clamp(8px, 1.6vh, 14px);
+    max-width: 660px;
     margin: 0 auto;
-    padding: 30vh 24px 24px;
+    padding: 20px 20px 56px;
     text-align: center;
-    font: 18px/1.55 var(--ash-text);
+    font: clamp(15px, 0.7vw + 10px, 18px)/1.5 var(--ash-text);
     color: var(--sandal);
     opacity: 0;
     transition: opacity 1.2s;
   }
+  & .ash-shrine { position: relative; display: grid; place-items: end center; width: 150px; height: clamp(96px, 17vh, 150px); }
+  & .ash-lamp {
+    position: relative;
+    width: 50px;
+    height: 17px;
+    margin-bottom: 8px;
+    border-radius: 4px 4px 50% 50% / 4px 4px 100% 100%;
+    background: linear-gradient(180deg, #d38a4a, #8a4418 55%, #4f220a);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6);
+  }
+  & .ash-lamp::before {
+    /* the spout, where the wick rests */
+    content: '';
+    position: absolute;
+    right: -9px;
+    top: 1px;
+    width: 16px;
+    height: 9px;
+    border-radius: 0 60% 60% 0 / 0 100% 100% 0;
+    background: linear-gradient(180deg, #c27a3c, #6d3414);
+  }
+  & .ash-lamp-flame {
+    position: absolute;
+    right: -6px;
+    bottom: 7px;
+    width: 12px;
+    height: 28px;
+    border-radius: 50% 50% 50% 50% / 64% 64% 36% 36%;
+    background: radial-gradient(ellipse 50% 62% at 50% 72%, #fffdf2 0 22%, #ffe08a 42%, #ff9a2e 66%, rgba(255, 110, 20, 0) 72%);
+    box-shadow: 0 0 30px 12px rgba(255, 170, 70, 0.4), 0 0 90px 40px rgba(255, 140, 50, 0.16);
+    transform-origin: 50% 90%;
+  }
+  & .ash-chamber.is-present .ash-lamp-flame { animation: ash-flicker 3.4s ease-in-out infinite alternate; }
+  /* The sheath of bliss, drawn around an element that has no size. It takes up nothing. */
+  & .ash-nothing {
+    position: absolute;
+    left: calc(50% + 19px);
+    top: calc(100% - 42px);
+    width: 0;
+    height: 0;
+    outline: 1px dashed var(--lotus);
+    outline-offset: 50px;
+  }
+  & .ash-chamber.is-present .ash-nothing { animation: ash-nothing 14s ease-in-out infinite; }
+  & .ash-nothing-measure { margin-top: 26px; font: 11px/1.4 var(--ash-mono); letter-spacing: 0.04em; color: var(--lotus); opacity: 0.8; }
+  & .ash-chamber-tally { font: italic 15px/1.5 var(--ash-text); color: var(--ash); }
   & .ash-chamber.is-open .ash-chamber-inner { opacity: 1; transition: opacity 2.4s 2.6s; }
-  & .ash-chamber-deva { font: 400 clamp(40px, 7vw, 64px)/1.1 var(--ash-deva); color: var(--accent-hi); text-shadow: 0 0 30px rgba(255, 180, 90, 0.45); }
+  & .ash-chamber-deva { font: 400 clamp(36px, 6vw, 60px)/1.1 var(--ash-deva); color: var(--accent-hi); text-shadow: 0 0 30px rgba(255, 180, 90, 0.45); }
   & .ash-chamber-iast { font: 300 12px/1.4 var(--ash-label); letter-spacing: 0.3em; text-transform: uppercase; color: var(--lotus); margin-bottom: 8px; }
-  & .ash-chamber-teaching { font: italic 19px/1.55 var(--ash-text); color: #ffe2b0; }
+  & .ash-chamber-teaching { font: italic clamp(16px, 0.7vw + 11px, 19px)/1.5 var(--ash-text); color: #ffe2b0; }
   & .ash-chamber-times { font: 300 12px/1.5 var(--ash-label); letter-spacing: 0.16em; color: var(--ash); }
   & .ash-chamber-leave { font: italic 15px/1.5 var(--ash-text); color: var(--ash); }
+  /* A short or narrow window keeps only what must be said: the lamp, the name of the room and its two
+     teachings. (Nothing in here may scroll: a scroll is a movement, and a movement closes the doors.) */
+  @media (max-height: 760px), (max-width: 560px) and (max-height: 960px) {
+    & .ash-chamber-gates, & .ash-chamber-tally { display: none; }
+    & .ash-nothing-measure { margin-top: 18px; }
+  }
+  @media (max-width: 560px) and (max-height: 780px) {
+    & .ash-chamber-still, & .ash-chamber-times { display: none; }
+    & .ash-shrine { height: 96px; }
+  }
+  @media (max-height: 600px), (max-width: 560px) and (max-height: 700px) {
+    & .ash-chamber-still, & .ash-chamber-times, & .ash-nothing-measure { display: none; }
+    & .ash-shrine { height: 84px; margin: 10px 0 16px; } /* room for the sheath of bliss, which takes none */
+  }
+  @media (max-width: 560px) {
+    & .ash-chamber-inner { padding-bottom: 88px; } /* the altar keeps the corner */
+    & .ash-chamber-teaching { font-size: 15.5px; }
+  }
   & .ash-door {
     position: absolute;
     top: 0;
@@ -1085,10 +1205,218 @@ html[data-face="ashram"] { background: #05041a; }
   }
   & .ashram.is-eclipsed .ash-y-bindu circle { fill: #000; }
 
+  /* ---------------------------------------------------------------- THE LOTUS OF LETTERS */
+  /* Taught on palm leaves strung on one cord, the way the old primers were bound. */
+  & .ash-letters-sec {
+    position: relative;
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 58px 0 50px;
+    border-top: 1px solid rgba(245, 158, 43, 0.12);
+  }
+  & .ash-letters-head { max-width: 40em; margin-bottom: 30px; }
+  & .ash-letters-head h2 { font: 400 clamp(36px, 4vw, 52px)/0.95 var(--ash-display); color: var(--sandal); margin-bottom: 14px; }
+  & .ash-letters {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
+    gap: 26px 34px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  & .ash-letter {
+    --leaf: #d8b574;
+    position: relative;
+    top: 0;
+    display: grid;
+    grid-template-columns: 74px minmax(0, 1fr);
+    grid-template-rows: auto auto 1fr;
+    column-gap: 16px;
+    align-items: start;
+    min-height: 128px;
+    padding: 14px 20px 14px 44px;
+    border-radius: 16px / 50%;
+    color: #2d1606;
+    background:
+      radial-gradient(circle at 21px 50%, #0b0930 0 4.5px, rgba(60, 30, 8, 0.55) 5.5px, transparent 7px),
+      repeating-linear-gradient(180deg, rgba(90, 50, 12, 0.12) 0 1px, transparent 1px 5px, rgba(255, 245, 210, 0.1) 5px 6px, transparent 6px 9px),
+      linear-gradient(90deg, rgba(90, 50, 12, 0.35), transparent 7%, transparent 93%, rgba(90, 50, 12, 0.35)),
+      linear-gradient(180deg, #e6c98f, var(--leaf) 45%, #c49a55);
+    box-shadow: 0 1px 0 rgba(255, 240, 200, 0.35) inset, 0 -2px 0 rgba(80, 40, 8, 0.25) inset, 0 14px 30px rgba(0, 0, 0, 0.45);
+    transition: top 0.5s cubic-bezier(.3, .7, .3, 1), box-shadow 0.5s;
+  }
+  /* (No transforms on the leaves: a transform would make each leaf its own Sphere, and the cord would
+     have to pass in front of it instead of behind.) */
+  & .ash-letter:nth-child(even) { --leaf: #d4ae6a; border-radius: 18px / 50%; }
+  & .ash-letter:nth-child(3n) { --leaf: #dcbc7e; }
+  /* The cord passes through every leaf's hole and on past the ends of the bundle. */
+  & .ash-letter::before {
+    content: '';
+    position: absolute;
+    left: 20px;
+    top: -14px;
+    bottom: -14px;
+    width: 2px;
+    z-index: -1;
+    background: linear-gradient(180deg, #9c1f2e, #e0344a 50%, #9c1f2e);
+  }
+  & .ash-letter::after {
+    /* the cord, seen again through the hole */
+    content: '';
+    position: absolute;
+    left: 20px;
+    top: calc(50% - 5px);
+    width: 2px;
+    height: 10px;
+    background: #e0344a;
+  }
+  & .ash-letter:hover { top: -4px; box-shadow: 0 1px 0 rgba(255, 240, 200, 0.35) inset, 0 -2px 0 rgba(80, 40, 8, 0.25) inset, 0 20px 36px rgba(0, 0, 0, 0.5), 0 0 30px rgba(245, 158, 43, 0.18); }
+  & .ash-letter-num { position: absolute; right: 18px; top: 10px; font: 400 15px/1 var(--ash-deva); color: rgba(90, 26, 12, 0.55); }
+  & .ash-letter-glyph {
+    grid-row: 1 / -1;
+    align-self: center;
+    justify-self: center;
+    font-size: 56px;
+    line-height: 1;
+    color: #6a160f;
+    text-shadow: 0 1px 0 rgba(255, 240, 200, 0.5);
+  }
+  & .ash-letter-eq { font: 400 26px/1.05 var(--ash-display); color: #2d1606; padding-right: 22px; }
+  & .ash-letter-eq b {
+    display: inline-grid;
+    place-items: center;
+    width: 1.3em;
+    height: 1.3em;
+    margin-right: 0.2em;
+    border: 1px solid rgba(106, 22, 15, 0.6);
+    border-radius: 50%;
+    font: 500 0.62em/1 var(--ash-label);
+    color: #6a160f;
+    vertical-align: 0.12em;
+  }
+  & .ash-letter-sign { margin-top: 3px; font: 400 11px/1.3 var(--ash-label); letter-spacing: 0.22em; text-transform: uppercase; color: #7a3a10; }
+  & .ash-letter-gloss { margin-top: 6px; font: italic 15px/1.45 var(--ash-text); color: #3b1d07; text-wrap: pretty; }
+  & .ash-strokes { margin-top: 34px; font: 14px/1.7 var(--ash-text); color: var(--ash); text-align: center; }
+  & .ash-strokes .ash-kicker { display: block; margin-bottom: 4px; }
+  & .ash-strokes i { color: var(--sandal); }
+
+  /* ---------------------------------------------------------------- THE SAṄKALPA, THE SCROLL */
+  & .ash-sankalpa { display: grid; justify-items: center; gap: 4px; max-width: 36em; margin: 0 auto 26px; }
+  & .ash-sankalpa .ash-kicker { margin: 0; }
+  & .ash-sankalpa .ash-deva { font-size: 15px; letter-spacing: 0; text-transform: none; color: var(--kumkum); margin-right: 0.4em; }
+  & .ash-sankalpa-text { font: italic 20px/1.45 var(--ash-text); color: var(--accent-hi); text-wrap: balance; }
+
+  & .ash-scroll { margin-top: 16px; border-top: 1px solid rgba(245, 158, 43, 0.18); }
+  & .ash-scroll summary {
+    padding: 12px 0 4px;
+    font: 300 12px/1.4 var(--ash-label);
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--accent);
+    cursor: pointer;
+    list-style: none;
+  }
+  & .ash-scroll summary::-webkit-details-marker { display: none; }
+  & .ash-scroll summary::before { content: '॰ '; color: var(--kumkum); }
+  & .ash-scroll[open] summary::before { content: '॥ '; }
+  & .ash-scroll summary:hover { color: var(--accent-hi); }
+  & .ash-scroll-body { display: grid; gap: 12px; padding-top: 10px; font: 15px/1.55 var(--ash-text); color: var(--ash); }
+  & .ash-scroll-paper {
+    display: grid;
+    gap: 1px;
+    padding: 10px 0;
+    overflow: hidden;
+    white-space: nowrap;
+    color: #4a2410;
+    font-size: 14px;
+    line-height: 1.35;
+    background:
+      linear-gradient(90deg, rgba(60, 28, 6, 0.4), transparent 6%, transparent 94%, rgba(60, 28, 6, 0.4)),
+      linear-gradient(180deg, #caa465, #ecd7a4 18%, #e1c68c 82%, #b58c4c);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+    mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent);
+  }
+  & .ash-scroll-line { display: block; padding-left: 14px; }
+  & .ash-scroll-line:nth-child(even) { padding-left: 0; margin-left: -1.7em; }
+  & .ash-scroll-line.is-middle { color: #8a1420; }
+  & .ash-scroll-css code { font-size: 12.5px; overflow-wrap: anywhere; }
+  & .ash-scroll-note { font-style: italic; font-size: 14px; }
+
+  /* ---------------------------------------------------------------- FLOAT, THE ASHRAM CAT */
+  & .has-cat { position: relative; }
+  & .ash-cat-perch { position: absolute; z-index: 3; width: 68px; transition: opacity 0.9s; }
+  & .ash-cat-perch[data-perch="plinth"] { right: 26px; bottom: calc(100% - 7px); }
+  & .ash-cat-perch[data-perch="root"] { left: calc(var(--col) / 2 + 46px); bottom: 8px; }
+  & .ash-cat-perch[data-perch="margin"] { left: calc(50% - 150px); top: -30px; }
+  & .ash-cat-perch[data-perch="wheel"] { right: 4px; top: 4px; }
+  & .ash-cat-perch[data-perch="rules"] { right: 0; top: -2px; }
+  & .ash-cat-perch[data-perch="letters"] { right: 0; top: 16px; }
+  & .ash-cat {
+    display: block;
+    width: 100%;
+    padding: 2px;
+    border: 0;
+    border-radius: 12px;
+    background: none;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  & .ash-cat { position: relative; }
+  & .ash-cat-breath { display: block; transform-origin: 50% 88%; transform: scaleY(0.995); will-change: transform; }
+  & .ash-cat-svg { display: block; width: 100%; height: auto; overflow: visible; }
+  & .ash-cat-fill { fill: #120e3e; stroke: var(--accent-hi); stroke-width: 1.4; stroke-linejoin: round; }
+  & .ash-cat-line { fill: none; stroke: rgba(255, 200, 117, 0.35); stroke-width: 1; stroke-linecap: round; }
+  & .ash-cat-tail-o { fill: none; stroke: var(--accent-hi); stroke-width: 7.6; stroke-linecap: round; }
+  & .ash-cat-tail-i { fill: none; stroke: #120e3e; stroke-width: 4.8; stroke-linecap: round; }
+  & .ash-cat-inner { fill: none; stroke: var(--lotus); stroke-width: 0.9; opacity: 0.7; }
+  & .ash-cat-nose { fill: var(--lotus); stroke: none; }
+  & .ash-cat-whisker { fill: none; stroke: rgba(241, 227, 198, 0.55); stroke-width: 0.6; }
+  & .ash-cat-shut path { fill: none; stroke: var(--accent-hi); stroke-width: 1.1; stroke-linecap: round; transition: opacity 0.4s; }
+  & .ash-cat-open { opacity: 0; transition: opacity 0.4s; }
+  & .ash-cat-iris { fill: #ffd14a; stroke: none; }
+  & .ash-cat-slit { fill: none; stroke: #120e3e; stroke-width: 1.1; }
+  & .ash-cat-z {
+    position: absolute;
+    left: 36%;
+    top: 4%;
+    font: italic 13px/1 var(--ash-display);
+    color: var(--ash);
+    pointer-events: none;
+    opacity: 0;
+    animation: ash-cat-z 5.5s ease-in-out infinite;
+  }
+  & .ash-cat-perch.is-awake .ash-cat-open { opacity: 1; }
+  & .ash-cat-perch.is-awake .ash-cat-shut { opacity: 0; }
+  & .ash-cat-perch.is-awake .ash-cat-z { visibility: hidden; }
+  & .ash-cat-perch.is-leaving { opacity: 0; }
+  & .ash-cat-say {
+    position: absolute;
+    right: 0;
+    bottom: calc(100% + 4px);
+    width: max-content;
+    max-width: min(240px, 70vw);
+    padding: 7px 11px;
+    border: 1px solid rgba(245, 158, 43, 0.35);
+    border-radius: 12px 12px 2px 12px;
+    background: rgba(11, 9, 48, 0.94);
+    font: italic 14px/1.4 var(--ash-text);
+    color: var(--sandal);
+    opacity: 0;
+    translate: 0 4px;
+    pointer-events: none;
+    transition: opacity 0.6s, translate 0.6s;
+  }
+  & .ash-cat-perch:is([data-perch="root"], [data-perch="margin"]) .ash-cat-say { right: auto; left: 0; border-radius: 12px 12px 12px 2px; }
+  & .ash-cat-perch[data-perch="rules"] .ash-cat-say { bottom: auto; top: calc(100% + 4px); border-radius: 12px 2px 12px 12px; }
+  & .ash-cat-perch.is-saying .ash-cat-say { opacity: 1; translate: 0 0; }
+
   /* ---------------------------------------------------------------- NARROWER HALLS */
   @media (max-width: 1080px) {
     & .ash-stage { grid-template-columns: minmax(0, 1fr); justify-items: center; min-height: 0; padding-top: 18px; }
-    & .ash-center { order: -1; }
+    /* One column: the yantra, then straight away the guide who counts, then the carved plinth. */
+    & .ash-center { display: contents; }
+    & .ash-mandala { order: -2; }
+    & .ash-guide { order: -1; }
     & .ash-guide { justify-self: center; text-align: center; max-width: 520px; }
     & .ash-phase-line, & .ash-ticks, & .ash-ratio { justify-content: center; }
     & .ash-whisper { min-height: 3em; margin-top: 18px; }
@@ -1102,21 +1430,31 @@ html[data-face="ashram"] { background: #05041a; }
     & .ash-kosha { grid-template-columns: minmax(0, 1fr); }
   }
   @media (max-width: 560px) {
-    & .ash-threshold { align-items: flex-start; }
+    & .ash-threshold { align-items: flex-start; padding: 14px 0 10px; row-gap: 8px; }
     & .ash-mark { gap: 12px; }
     & .ash-title { letter-spacing: 0.22em; }
+    & .ash-subtitle { font-size: 13.5px; line-height: 1.35; }
+    & .ash-sitting { gap: 3px 16px; font-size: 10.5px; }
+    & .ash-stage { padding-top: 12px; }
     & .ash-mandala { --size: min(92vw, 70svh); }
     & .ash-plinth { padding: 8px 12px; gap: 8px; }
     & .ash-inscription { font-size: 15px; }
     & .ash-ladder-sec { --plate: 100px; --col: 142px; --row: 68px; }
     & .ash-plate-bija { font-size: 21px; }
     & .ash-rung-name { font-size: 23px; }
-    & .ash-rung-sub, & .ash-rung-teach { font-size: 12.5px; }
-    & .ash-verse-grid { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+    & .ash-rung-sub { font-size: 12.5px; }
+    & .ash-verse-grid { grid-template-columns: minmax(0, 1fr); gap: 4px; padding-left: 22px; }
+    & .ash-sutra::before { left: 4px; }
+    & .ash-sutra-verse::before { left: 1px; top: 5px; }
     & .ash-sutra-verse > :not(.ash-verse-grid) { margin-left: 0; }
     & .ash-vnum { text-align: left; }
     & .ash-sutra-verse p { font-size: 18px; }
     & .ash-wheel-scene { transform: scale(0.92); transform-origin: 50% 0; margin-bottom: -30px; }
+  }
+  /* The Highest Heaven's number is too long for the narrowest phones: its rung is given a little more sky. */
+  @media (max-width: 400px) {
+    & .ash-rung[data-wheel="6"] { height: calc(var(--row) + 18px); }
+    & .ash-rung-sub code { white-space: nowrap; }
   }
 }
 
@@ -1124,6 +1462,23 @@ html[data-face="ashram"] { background: #05041a; }
 @keyframes ash-fade-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 @keyframes ash-ripple { 0% { transform: scale(0.3); opacity: 0.9; } 100% { transform: scale(4); opacity: 0; } }
 @keyframes ash-breathe-soft { from { opacity: 0.6; } to { opacity: 1; } }
+@keyframes ash-flicker {
+  0% { transform: rotate(-2deg) scaleY(0.97); }
+  45% { transform: rotate(1.5deg) scaleY(1.03); }
+  100% { transform: rotate(-0.5deg) scaleY(1); }
+}
+/* The sheath breathes with the yantra's count: four in, four held, six out. */
+@keyframes ash-nothing {
+  0% { outline-offset: 44px; }
+  28.6% { outline-offset: 56px; }
+  57.1% { outline-offset: 56px; }
+  100% { outline-offset: 44px; }
+}
+@keyframes ash-cat-z {
+  0% { opacity: 0; translate: 0 4px; }
+  30% { opacity: 0.8; }
+  100% { opacity: 0; translate: 6px -10px; }
+}
 @keyframes ash-syl {
   0% { color: inherit; transform: none; }
   35% { color: #fff; text-shadow: 0 0 40px rgba(255, 200, 110, 0.9); transform: translateY(-6px); }
@@ -1136,7 +1491,7 @@ html[data-face="ashram"] { background: #05041a; }
 
 /* Mercy: nothing moves by itself. Rung sounds, ripples and chants become still glows. */
 [data-mercy="on"] .face--ashram {
-  & .ash-breather { will-change: auto; }
+  & .ash-breather, & .ash-aura, & .ash-ghost, & .ash-yantra .ash-y-sheet { will-change: auto; }
   & .ash-bowl.is-ringing .ash-ripple { animation: none; opacity: 0.45; }
   & .ash-bowl.is-ringing .ash-ripple:nth-of-type(1) { transform: scale(1.4); }
   & .ash-bowl.is-ringing .ash-ripple:nth-of-type(2) { transform: scale(2.4); }
@@ -1145,5 +1500,8 @@ html[data-face="ashram"] { background: #05041a; }
   & .ash-mantra-deva.is-chanting .ash-syl { animation: none; }
   & .ash-mantra-deva.is-chanting { text-shadow: 0 0 44px rgba(255, 200, 110, 0.7); }
   & .ash-whisper.is-new { animation: none; }
+  & .ash-cat-z { animation: none; opacity: 0.6; }
+  & .ash-chamber.is-present .ash-lamp-flame { animation: none; }
+  & .ash-chamber.is-present .ash-nothing { animation: none; outline-offset: 50px; }
 }
 }
