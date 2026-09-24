@@ -104,6 +104,22 @@ export function specials(words) {
   }
 }
 
+// The full name of a hexagon: 3,200 characters, of which the address prints the first sixteen.
+const B36 = '0123456789abcdefghijklmnopqrstuvwxyz'
+export function hexagonName(path) {
+  const r = makeRng(`hexagon-name:${shelfKey(path)}`)
+  let s = address(path).hexagon.replace(/·/g, '')
+  while (s.length < 3200) s += B36[Math.floor(r() * 36)]
+  return s
+}
+
+// The copyists' corrections. The commandments are addressed to "ye", so a sin that "styles itself inline"
+// is forbidden to ye as "style yourselves inline". Nothing else in a verse is ever touched.
+export function amend(text) {
+  if (!/^Ye shall not /.test(text)) return text
+  return text.replace(/\bitself\b/g, 'yourselves').replace(/\bits\b/g, 'your').replace(/\bcalls it\b/g, 'call it')
+}
+
 function safeFromPath(path) {
   try { return fromPath(path) } catch { return fromPath(String(path).replace(/%/g, '%25')) }
 }
@@ -130,7 +146,7 @@ export function readChapter(path) {
     book,
     chapter,
     ref: `${book} ${chapter}`,
-    verses: verses.map((v) => ({ ...v, book, chapter, ref: `${book} ${chapter}:${v.number}` })),
+    verses: verses.map((v) => ({ ...v, text: amend(v.text), book, chapter, ref: `${book} ${chapter}:${v.number}` })),
     address: address(path),
     kinds,
   }
@@ -210,6 +226,14 @@ export function onward(path) {
   }
 }
 
+// The wall of the gallery. Every spine painted behind the leaves is a volume, and every volume has a path
+// of its own: column `col` (one spine each) and row `row` (one shelf each) of the wall seen from `key`.
+export function volumeAt(key, col, row) {
+  const r = makeRng(`wall:${shelfKey(key)}:${col}:${row}`)
+  const phrase = PHRASES[Number(r.weighted({ 0: 3, 1: 2, 2: 2, 3: 2, 4: 2, 5: 2, 6: 0.5, 7: 0.6, 8: 0.4 }))](r)
+  return versePath(phrase)
+}
+
 // The mirror in the hallway, "which faithfully duplicates all appearances". It shows a path with its
 // words in the opposite order; a path of one word, with its letters reversed. Returns null for the
 // catalogue, and the path itself when the path is its own reflection.
@@ -240,6 +264,10 @@ export function stairStep(path, turn = 0) {
   return { move, path: ways[move] }
 }
 
+export const escapeRe = (s) => String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+// A word as the concordance finds it: at the start of a word, in any case ("margin" finds "Margins").
+export const wordRe = (w, flags = 'iu') => new RegExp(`(^|[^\\p{L}\\p{N}])(${escapeRe(w)})`, flags)
+
 // Where the path words stand in the chapter: the concordance printed at its foot.
 export function concordance(ch) {
   const out = []
@@ -248,11 +276,38 @@ export function concordance(ch) {
     const lw = w.toLowerCase()
     if (STOP.has(lw) || seen.has(lw) || !/\p{L}/u.test(lw) || lw.length < 2) continue
     seen.add(lw)
-    const re = new RegExp(`(^|[^\\p{L}])${lw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'iu')
+    const re = wordRe(lw)
     out.push({ word: w, hits: ch.verses.filter((v) => re.test(v.text)).map((v) => v.number) })
     if (out.length >= 6) break
   }
   return out
+}
+
+// The margin of a chapter: every word of its path is given its sigil beside one verse. Where the word
+// stands in a verse, its sigil stands beside that verse; where it stands in none, the chapter's own rng
+// finds the sigil a place, and it keeps the margin for a word that is not there. Common words are
+// crowned only when the path has nothing else. Returns Map(verse index -> {word, present}).
+export function marginPlan(ch, limit = Infinity) {
+  const n = Math.min(ch.verses.length, limit)
+  const all = [...new Set(ch.words.map((w) => w.toLowerCase()).filter((w) => /[\p{L}\p{N}]/u.test(w)))]
+  const strong = all.filter((w) => !STOP.has(w))
+  const words = (strong.length ? strong : all).slice(0, Math.min(6, n))
+  const r = ch.rng.fork('margin')
+  const plan = new Map()
+  for (const word of words) {
+    const re = wordRe(word)
+    let at = -1
+    for (let i = 0; i < n; i++) if (!plan.has(i) && re.test(ch.verses[i].text)) { at = i; break }
+    const present = at >= 0
+    if (!present) {
+      const free = []
+      for (let i = 0; i < n; i++) if (!plan.has(i)) free.push(i)
+      if (!free.length) break
+      at = r.pick(free)
+    }
+    plan.set(at, { word, present })
+  }
+  return plan
 }
 
 // Printer's signature for leaf k: A, A2, A3, A4, B, B2 ... (no J, U or W, as the old printers counted).

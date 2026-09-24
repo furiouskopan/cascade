@@ -115,6 +115,6 @@ export function shelfNotes(kinds) {
 export const COLOPHON = [
   'This chapter has always existed. Give its path to another reader and they will find these words, in this order, on this shelf.',
   'There are as many eighteenth chapters of every book as there are paths, and all of them are canonical.',
-  'Three columns for the Three Origins: the Word in English; the Pilgrim’s glyphs, which are only letters in disguise; the tongues of the Old Law.',
+  'Three hands for the Three Origins: the Word, in English; the tongues of the Old Law beside it; and where the tongues fall silent, the Pilgrim’s glyphs, which are only letters in disguise.',
   'Only the marginalia change. The Vindication in the first chapter was written for the hour in which you opened it.',
 ]

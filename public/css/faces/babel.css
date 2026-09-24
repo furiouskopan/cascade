@@ -1,7 +1,8 @@
 /* BABEL: THE INFINITE SCRIPTURE. A polyglot Bible printed on thin paper, shelved in Borges' Library.
-   Leaves of cool Bible paper float down an endless wall of identical volumes. Three columns for the
-   Three Origins (the Word, the Pilgrim's glyphs, the tongues of the Old Law), verse numbers in lapis,
-   marginalia in pencil, and the next chapter showing through the paper, mirrored.
+   Leaves of cool Bible paper float down an endless wall of identical volumes. Three hands for the
+   Three Origins (the Word; beside it the tongues of the Old Law, or where they are silent the Pilgrim's
+   glyphs), verse numbers in lapis, marginalia in pencil, and the next chapter showing through the paper,
+   mirrored.
    Everything lives in @layer face and under .face--babel (Canon §3). Motion is CSS only; mercy
    (base.css, @layer reset) neutralises it, and scroll-driven effects are switched off explicitly below. */
 @layer face {
@@ -22,11 +23,15 @@
     --bb-stone: #1b1a17;
     --bb-lamp: 246, 226, 170;
 
-    --bb-serif: 'Sitka Text', 'Sitka', Constantia, 'Iowan Old Style', Georgia, serif;
-    --bb-display: 'Sitka Banner', 'Sitka Display', 'Sitka Heading', Constantia, Georgia, serif;
-    --bb-head: 'Sitka Heading', 'Sitka Subheading', Constantia, Georgia, serif;
-    --bb-small: 'Sitka Small', 'Sitka Text', Constantia, Georgia, serif;
-    --bb-hand: 'Ink Free', 'Segoe Print', 'Bradley Hand', 'Comic Neue', cursive;
+    /* Every stack ends in the glyph hand before its generic: Latin is always found earlier, so only
+       letters displaced into the private place (a path copied from the Inscription) fall through to it,
+       and are drawn as glyphs instead of empty boxes. */
+    --bb-serif: 'Sitka Text', 'Sitka', Constantia, 'Iowan Old Style', Georgia, 'Cascade Glyphs', serif;
+    --bb-display: 'Sitka Banner', 'Sitka Display', 'Sitka Heading', Constantia, Georgia, 'Cascade Glyphs', serif;
+    --bb-head: 'Sitka Heading', 'Sitka Subheading', Constantia, Georgia, 'Cascade Glyphs', serif;
+    --bb-small: 'Sitka Small', 'Sitka Text', Constantia, Georgia, 'Cascade Glyphs', serif;
+    --bb-hand: 'Ink Free', 'Segoe Print', 'Bradley Hand', 'Comic Neue', 'Cascade Glyphs', cursive;
+    --bb-mono: 'Cascadia Mono', Consolas, 'Courier New', 'Cascade Glyphs', monospace;
 
     --bb-leaf-w: 1120px;
     --bb-mark: 3.4rem;
@@ -180,12 +185,12 @@
     unicode-bidi: bidi-override;
     font: 1.06rem/1.62 var(--bb-serif);
     text-align: justify;
-    color: rgba(27, 26, 23, 0.026);
+    color: rgba(27, 26, 23, 0.03);
     pointer-events: none;
     user-select: none;
     transition: color 5s ease;
   }
-  .face--babel .bb[data-still] .bb-chapter::before { color: rgba(27, 26, 23, 0.056); }
+  .face--babel .bb[data-still] .bb-chapter::before { color: rgba(27, 26, 23, 0.075); }
 
   /* ----------------------------------------------------------------------------- the frontispiece */
   .face--babel .bb-kicker {
@@ -198,7 +203,7 @@
   .face--babel .bb-kicker::before { order: -1; flex: 0 0 2rem; }
   .face--babel .bb-kicker-path {
     order: 2; max-width: 50%;
-    font: 0.72rem/1.3 var(--font-mono); letter-spacing: 0.02em; text-transform: none;
+    font: 0.72rem/1.3 var(--bb-mono); letter-spacing: 0.02em; text-transform: none;
     color: var(--bb-ink-soft);
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   }
@@ -247,6 +252,12 @@
   }
   .face--babel .bb-subtitle em { font-style: normal; color: var(--bb-ink); }
 
+  .face--babel .bb-displaced-note {
+    max-width: 34em; margin: -1.2rem auto 2rem;
+    text-align: center;
+    font: 1.05rem/1.4 var(--bb-hand); color: var(--bb-pencil);
+    transform: rotate(-0.8deg);
+  }
   .face--babel .bb-front-slot { display: grid; justify-items: center; gap: 0.8rem; }
   .face--babel .bb-front-slot:not(:empty) { margin: -1rem 0 2rem; }
   .face--babel .bb-front-slot .bb-pencil { text-align: center; justify-self: center; transform-origin: center; margin: 0; }
@@ -274,16 +285,35 @@
   .face--babel .hx-vol { fill: var(--bb-lapis); stroke: var(--bb-paper); stroke-width: 2; }
   .face--babel .hx-shaft { stroke-width: 1; fill: rgba(27, 26, 23, 0.07); }
   .face--babel .hx-rail { stroke-width: 1; stroke-dasharray: 1.5 3; opacity: 0.8; }
-  .face--babel .hx-glow { stroke: none; color: rgb(var(--bb-lamp)); animation: bb-lamp 7s ease-in-out infinite alternate; }
+  .face--babel .hx-glow { stroke: none; color: rgb(var(--bb-lamp)); opacity: 0.7; }
   .face--babel .hx-lamp { fill: #c9a24a; stroke: none; }
-  @keyframes bb-lamp { from { opacity: 0.55; } to { opacity: 1; } }
+  /* The flames: HTML spans laid over the two lamps of the plan (viewBox -200 -140 360 280; lamps at
+     (-47, 16) and (47, -16)). Only their opacity moves, on a layer of its own, so the plan is never
+     repainted for them; and they rest while the plan is out of sight. */
+  .face--babel .bb-plan-svg { position: relative; }
+  .face--babel .bb-lamp {
+    position: absolute;
+    width: 11%; aspect-ratio: 1;
+    translate: -50% -50%;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(var(--bb-flame, 255, 206, 110), 0.9), rgba(var(--bb-flame, 255, 206, 110), 0.28) 36%, rgba(var(--bb-flame, 255, 206, 110), 0) 70%);
+    opacity: 0.45;
+    pointer-events: none;
+    animation: bb-flame 5.3s ease-in-out infinite alternate;
+  }
+  .face--babel .bb-lamp--a { left: 42.5%; top: 55.71%; }
+  .face--babel .bb-lamp--b { left: 68.61%; top: 44.29%; animation-duration: 7.1s; animation-delay: -2.9s; }
+  @keyframes bb-flame { 0% { opacity: 0.25; } 38% { opacity: 0.7; } 61% { opacity: 0.5; } 100% { opacity: 0.85; } }
+  .face--babel .bb[data-lamplight="off"] .bb-lamp { animation-play-state: paused; }
+  .face--babel .bb[data-crimson] .bb-lamp { --bb-flame: 214, 60, 70; }
+  html[data-eclipse] .face--babel .bb-lamp { opacity: 0; animation: none; }
   .face--babel .hx-label { font: 13px var(--bb-small); fill: var(--bb-ink-soft); stroke: none; letter-spacing: 0.08em; }
   .face--babel .hx-label--here { fill: var(--bb-lapis); font-weight: 700; }
   .face--babel .hx-label--small { font-size: 10px; font-style: italic; }
   .face--babel .bb[data-crimson] .bb-front .hx-here,
   .face--babel .bb[data-crimson] .bb-front .hx-wall { stroke: var(--bb-crimson); }
   .face--babel .bb[data-crimson] .bb-front .hx-vol { fill: var(--bb-crimson); }
-  html[data-eclipse] .face--babel .hx-glow { opacity: 0.05; animation: none; }
+  html[data-eclipse] .face--babel .hx-glow { opacity: 0.05; }
 
   .face--babel .bb-addr {
     display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -294,14 +324,14 @@
   .face--babel .bb-addr dt { font: 0.6rem/1.2 var(--bb-small); letter-spacing: 0.2em; text-transform: uppercase; color: var(--bb-ink-soft); }
   .face--babel .bb-addr dd { margin: 0.1rem 0 0; font: 1.35rem/1.1 var(--bb-display); font-variant-numeric: oldstyle-nums; color: var(--bb-ink); }
   .face--babel .bb-addr dd small { font: 0.7rem var(--bb-small); color: var(--bb-ink-soft); }
-  .face--babel .bb-addr > div:first-child dd { font: 1.05rem/1.2 var(--font-mono); letter-spacing: 0.04em; color: var(--bb-lapis); cursor: help; }
+  .face--babel .bb-addr > div:first-child dd { font: 1.05rem/1.2 var(--bb-mono); letter-spacing: 0.04em; color: var(--bb-lapis); cursor: help; }
 
   .face--babel .bb-mirror-note {
     margin: 1.1rem 0 0; padding-top: 0.8rem;
     border-top: 1px solid var(--bb-rule);
     font: italic 0.84rem/1.5 var(--bb-serif); color: var(--bb-ink-soft);
   }
-  .face--babel .bb-mirror-note a { font: normal 0.8rem/1.4 var(--font-mono); overflow-wrap: anywhere; }
+  .face--babel .bb-mirror-note a { font: normal 0.8rem/1.4 var(--bb-mono); overflow-wrap: anywhere; }
   .face--babel .bb-mirror-mark { font-style: normal; color: var(--bb-lapis); font-family: 'Segoe UI Symbol', var(--bb-serif); }
   .face--babel .bb-mirror-note.is-own { color: var(--bb-lapis); }
 
@@ -333,6 +363,8 @@
   }
   .face--babel .bb-pencil-inline { margin: 0 0 0.35rem; font-size: 1.02rem; line-height: 1.35; }
   .face--babel .bb-prophecy { color: #43413c; transform: rotate(-0.6deg); transform-origin: left; }
+  .face--babel .bb-again { color: #3f3d39; transform: rotate(0.45deg); transform-origin: left; }
+  .face--babel .bb-minute { color: var(--bb-crimson); transform: rotate(0.5deg); transform-origin: left; }
 
   /* The key, as a reader copied it out of a primer: glyph, letter, and the letter's name. */
   .face--babel .bb-rosetta {
@@ -457,7 +489,7 @@
   .face--babel .bb-cc th { font: 0.6rem/1.2 var(--bb-small); letter-spacing: 0.18em; text-transform: uppercase; text-align: left; color: var(--bb-ink-soft); padding: 0.4rem 0.6rem 0.4rem 0; border-bottom: 3px double var(--bb-rule); }
   .face--babel .bb-cc td { padding: 0.35rem 0.6rem 0.35rem 0; border-bottom: 1px solid rgba(27, 26, 23, 0.12); vertical-align: baseline; }
   .face--babel .bb-cc-no { color: var(--bb-lapis); font-variant-numeric: oldstyle-nums; }
-  .face--babel .bb-cc-addr, .face--babel .bb-cc-when { font: 0.74rem var(--font-mono); color: var(--bb-ink-soft); white-space: nowrap; }
+  .face--babel .bb-cc-addr, .face--babel .bb-cc-when { font: 0.74rem var(--bb-mono); color: var(--bb-ink-soft); white-space: nowrap; }
 
   /* ------------------------------------------------------------------------------- chapter head */
   .face--babel .bb-chead { text-align: center; margin-bottom: 1.6rem; }
@@ -529,9 +561,9 @@
   }
   .face--babel .bb-vmark, .face--babel .bb-vnum, .face--babel .bb-vtext, .face--babel .bb-tongue { grid-row: 1; }
   .face--babel .bb-vmark { grid-column: mark; display: flex; flex-direction: column; align-items: center; gap: 0.15rem; padding-top: 0.2rem; color: var(--bb-lapis); cursor: help; }
-  .face--babel .bb-vmark-sigil { display: block; width: 2.3rem; height: 2.3rem; }
+  .face--babel .bb-vmark-sigil { display: block; width: 2.9rem; height: 2.9rem; }
   .face--babel .bb-vmark-sigil svg { width: 100%; height: 100%; overflow: visible; }
-  .face--babel .bb-vmark-word { font: 0.56rem/1 var(--bb-small); letter-spacing: 0.12em; text-transform: uppercase; color: var(--bb-lapis-soft); max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+  .face--babel .bb-vmark-word { font: 0.56rem/1 var(--bb-small); letter-spacing: 0.12em; text-transform: uppercase; color: var(--bb-lapis-soft); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .face--babel .bb-vnum {
     grid-column: num;
     justify-self: end;
@@ -548,6 +580,9 @@
     font-variant-numeric: lining-nums;
     letter-spacing: -0.02em;
   }
+  /* Long chapter numbers (404, a book read to its 1996th chapter) are set smaller, so they keep to the margin. */
+  .face--babel .bb-vnum--chapter[data-digits="3"] { font-size: 2.7rem; letter-spacing: -0.04em; }
+  .face--babel .bb-vnum--chapter[data-digits="4"] { font-size: 2.05rem; letter-spacing: -0.05em; }
   .face--babel .bb-vtext {
     grid-column: text;
     margin: 0;
@@ -661,7 +696,7 @@
   }
   .face--babel .bb-xway { color: var(--bb-lapis); font-family: 'Segoe UI Symbol', var(--bb-serif); }
   .face--babel .bb-xlabel { font: 0.64rem/1.2 var(--bb-small); letter-spacing: 0.18em; text-transform: uppercase; color: var(--bb-ink-soft); }
-  .face--babel .bb-xref-list a { font: 0.8rem/1.4 var(--font-mono); overflow-wrap: anywhere; }
+  .face--babel .bb-xref-list a { font: 0.8rem/1.4 var(--bb-mono); overflow-wrap: anywhere; }
   .face--babel .bb-xref { font-style: italic; color: var(--bb-ink-soft); text-align: right; }
   .face--babel .bb-xref-list li.is-taken { background: rgba(36, 65, 143, 0.07); }
   .face--babel .bb-xtaken { grid-column: 3 / -1; font: 0.98rem/1.2 var(--bb-hand); color: var(--bb-pencil); }
@@ -695,7 +730,7 @@
       radial-gradient(circle at 22% 88%, rgba(120, 84, 40, 0.14) 0 1rem, transparent 3rem),
       linear-gradient(to right, rgba(90, 60, 30, 0.2), transparent 3rem, transparent calc(100% - 3rem), rgba(90, 60, 30, 0.2));
   }
-  .face--babel .bb-chapter.is-lost .bb-vnum--chapter { color: var(--bb-crimson); font-size: 3rem; }
+  .face--babel .bb-chapter.is-lost .bb-vnum--chapter { color: var(--bb-crimson); }
 
   /* ---------------------------------------- 1996: the Nativity. A leaf that obeys only the Old Law. */
   .face--babel .bb-chapter.is-old-law {
@@ -723,9 +758,14 @@
   .face--babel .bb-chapter.is-old-law .bb-verses::before, .face--babel .bb-chapter.is-old-law .bb-verses::after { content: none; }
   .face--babel .bb-chapter.is-old-law .bb-verse { display: list-item; padding: 0; }
   .face--babel .bb-chapter.is-old-law .bb-vnum, .face--babel .bb-chapter.is-old-law .bb-vmark, .face--babel .bb-chapter.is-old-law .bb-tongue { display: none; }
-  .face--babel .bb-chapter.is-old-law .bb-vtext { font-size: 16px; line-height: 1.15; hyphens: manual; }
-  .face--babel .bb-chapter.is-old-law .bb-pencil { display: block; justify-self: auto; max-width: none; transform: none; text-align: left; font-size: 16px; margin: 0; }
-  .face--babel .bb-chapter.is-old-law .bb-pencil::before { content: none; }
+  /* In 1996 a verse, its note and whatever else followed it ran on one line, as text in an <LI> does; so
+     a rubric left at the end of the item runs on after them, unseen, instead of opening a blank line. */
+  .face--babel .bb-chapter.is-old-law .bb-vtext { display: inline; font-size: 16px; line-height: 1.15; hyphens: manual; }
+  .face--babel .bb-chapter.is-old-law .bb-pencil { display: inline; justify-self: auto; max-width: none; transform: none; text-align: left; font-size: 16px; margin: 0; }
+  .face--babel .bb-chapter.is-old-law .bb-pencil::before { content: ' ['; opacity: 1; }
+  .face--babel .bb-chapter.is-old-law .bb-pencil::after { content: ']'; }
+  .face--babel .bb-chapter.is-old-law .bb-pencil-text, .face--babel .bb-chapter.is-old-law .bb-pencil-hand { text-shadow: none; opacity: 1; }
+  .face--babel .bb-chapter.is-old-law .bb-verse > .rubric { margin: 0; font-size: 16px; }
   .face--babel .bb-chapter.is-old-law .bb-cfoot { border-top: 2px inset #fff; font-size: 16px; margin-top: 1em; }
   .face--babel .bb-chapter.is-old-law .bb-xref-list li { display: list-item; list-style: disc; margin-left: 40px; padding: 0; }
   .face--babel .bb-chapter.is-old-law .bb-xref-list li.is-taken { background: none; }
@@ -745,6 +785,103 @@
     color: #000; text-decoration: none; padding: 0; font-size: 16px;
   }
   .face--babel .bb-chapter.is-old-law .bb-verse--vindication .bb-vnum::after { content: '.'; }
+
+  /* A sigil kept for a word that no verse holds: drawn in a dotted ring, in a paler ink, as if traced
+     from a page that is not this one. */
+  .face--babel .bb-vmark.is-absent { color: var(--bb-ink-soft); }
+  .face--babel .bb-vmark.is-absent .bb-vmark-sigil {
+    border: 1px dotted rgba(87, 83, 75, 0.55);
+    border-radius: 50%;
+    padding: 0.18rem;
+    box-sizing: border-box;
+  }
+  .face--babel .bb-vmark.is-absent .bb-vmark-word { color: var(--bb-ink-soft); font-style: italic; text-transform: none; letter-spacing: 0.04em; font-size: 0.62rem; }
+
+  /* The verse the reader was sent to (a deep link, a verse number, the concordance): found, washed in
+     lapis, and its full reference written above it, as a concordance would cite it. A class, not :target,
+     because the address bar's fragment names the verse by its own leaf's path, not by the DOM. */
+  .face--babel .bb-verse.is-target { background: linear-gradient(to right, transparent, rgba(36, 65, 143, 0.07) 12%, rgba(36, 65, 143, 0.07) 88%, transparent); }
+  .face--babel .bb-verse.is-target:focus { outline: none; }
+  .face--babel .bb-verse.is-target:focus-visible { outline: 1px dotted var(--bb-lapis); outline-offset: 2px; }
+  .face--babel .bb-verse.is-target .bb-vtext::before {
+    content: attr(data-verse);
+    display: block;
+    margin-bottom: 0.1rem;
+    font: 0.62rem/1.3 var(--bb-small); letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--bb-lapis);
+  }
+
+  /* Pencil crosses the column rules the way pencil does, but the rule never crosses the pencil. */
+  .face--babel .bb-pencil-text, .face--babel .bb-pencil-hand {
+    text-shadow: 0 0 2px var(--bb-paper), 0 0 3px var(--bb-paper), 0 0 5px var(--bb-paper);
+  }
+
+  /* The librarian's bell answers in pencil. */
+  .face--babel .bb-bell-reply {
+    min-height: 1.3em;
+    margin: 0.6rem 0 0;
+    font: 1rem/1.35 var(--bb-hand);
+    color: var(--bb-pencil);
+  }
+  .face--babel .bb-bell-reply:empty { display: none; }
+
+  /* ------------------------------------------------------------- the Library listens (typed words) */
+  .face--babel .bb-heard {
+    position: absolute; top: calc(100% + 0.6rem); left: 50%;
+    width: max-content; max-width: min(40rem, calc(100vw - 2rem));
+    margin: 0;
+    padding: 0.5rem 0.9rem 0.55rem;
+    background: var(--bb-paper);
+    border-top: 3px solid var(--bb-lapis);
+    box-shadow: 0 12px 26px -12px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(27, 26, 23, 0.18);
+    font: italic 0.9rem/1.4 var(--bb-serif);
+    letter-spacing: 0; text-transform: none;
+    color: var(--bb-ink);
+    text-align: center;
+    translate: -50% 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.6s ease, translate 0.6s ease;
+  }
+  .face--babel .bb-heard:empty { padding: 0; border: 0; box-shadow: none; }
+  .face--babel .bb-heard[data-on] { opacity: 1; translate: -50% 0.2rem; pointer-events: auto; }
+  .face--babel .bb-heard-kicker { font: normal 0.6rem/1 var(--bb-small); letter-spacing: 0.24em; text-transform: uppercase; color: var(--bb-lapis); }
+  .face--babel .bb-heard-word { font-style: normal; font-variant: small-caps; letter-spacing: 0.05em; }
+  .face--babel .bb-heard-link { font: normal 0.8rem/1.4 var(--bb-mono); overflow-wrap: anywhere; }
+  .face--babel ::highlight(bb-heard) {
+    background-color: rgba(36, 65, 143, 0.16);
+    color: #10204a;
+    text-decoration: underline 2px rgba(36, 65, 143, 0.7);
+    text-underline-offset: 0.2em;
+  }
+
+  /* ------------------------------------------------------------------ the ribbon that kept your place */
+  .face--babel .bb-verse { position: relative; }
+  .face--babel .bb-ribbon {
+    grid-column: text / -1;
+    margin: 0.2rem 0 0.3rem;
+    font: 1rem/1.3 var(--bb-hand);
+    color: var(--bb-lapis);
+  }
+  .face--babel .bb-ribbon-note { text-shadow: 0 0 2px var(--bb-paper), 0 0 4px var(--bb-paper); }
+  .face--babel .bb-ribbon-silk {
+    position: absolute; z-index: 1;
+    top: -0.2rem;
+    left: calc(-1 * clamp(1rem, 5vw, 4.4rem) + 0.55rem);
+    width: 0.8rem; height: calc(100% + 2.2rem);
+    background:
+      linear-gradient(to right, rgba(255, 255, 255, 0.22), transparent 35%, rgba(0, 0, 0, 0.22)),
+      repeating-linear-gradient(to bottom, rgba(255, 255, 255, 0.06) 0 1px, transparent 1px 3px),
+      #8a1f2c;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 50% calc(100% - 0.55rem), 0 100%);
+    box-shadow: 1px 0 2px rgba(0, 0, 0, 0.25);
+    transform-origin: top center;
+    animation: bb-ribbon 2.4s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+  @keyframes bb-ribbon {
+    0% { clip-path: polygon(0 0, 100% 0, 100% 0, 50% 0, 0 0); }
+    100% { clip-path: polygon(0 0, 100% 0, 100% 100%, 50% calc(100% - 0.55rem), 0 100%); }
+  }
 
   /* ------------------------------------------------------------------ scroll-driven marginalia */
   @supports (animation-timeline: view()) {
@@ -766,9 +903,153 @@
   html[data-mercy="on"] .face--babel .bb-vmark-sigil circle,
   html[data-mercy="on"] .face--babel .bb-iw-sigil path,
   html[data-mercy="on"] .face--babel .bb-iw-sigil circle,
-  html[data-mercy="on"] .face--babel .bb-chapter .bb-chead,
-  html[data-mercy="on"] .face--babel .hx-glow { animation-name: none; stroke-dashoffset: 0; opacity: 1; translate: none; }
-  html[data-mercy="on"] .face--babel .hx-glow { opacity: 0.8; }
+  html[data-mercy="on"] .face--babel .bb-chapter .bb-chead { animation-name: none; stroke-dashoffset: 0; opacity: 1; translate: none; }
+  html[data-mercy="on"] .face--babel .bb-lamp { animation-name: none; opacity: 0.55; }
+
+  /* The Old Law does not rise to meet the reader; it was simply there, in 1996. */
+  .face--babel .bb-chapter.is-old-law .bb-chead { animation: none; }
+
+  /* ------------------------------------------------------------ the sigil in the margin is a door */
+  .face--babel a.bb-vmark { text-decoration: none; cursor: pointer; border-radius: 3px; }
+  .face--babel a.bb-vmark:hover .bb-vmark-word, .face--babel a.bb-vmark:focus-visible .bb-vmark-word { color: var(--bb-lapis); }
+  .face--babel a.bb-vmark:hover .bb-vmark-sigil { filter: drop-shadow(0 0 3px rgba(36, 65, 143, 0.35)); }
+
+  /* ------------------------------------------------------ the wall: every painted spine is a volume */
+  .face--babel .bb[data-wall] { cursor: pointer; }
+  .face--babel .bb-wall-lit {
+    position: absolute; left: 0; top: 0; z-index: 6;
+    width: 14px; height: 120px;
+    pointer-events: none;
+    background: linear-gradient(to right, rgba(255, 236, 190, 0.3), rgba(255, 236, 190, 0.12) 65%, rgba(0, 0, 0, 0.18));
+    box-shadow: 0 0 22px 6px rgba(246, 226, 170, 0.16), inset 0 0 0 1px rgba(255, 240, 200, 0.28);
+    mix-blend-mode: screen;
+  }
+  .face--babel .bb-wall-slip {
+    position: absolute; left: 0; top: 0; z-index: 7;
+    display: grid; gap: 0.18rem;
+    width: max-content; max-width: 17rem;
+    padding: 0.45rem 0.75rem 0.5rem;
+    background: #efe9d8;
+    color: var(--bb-ink);
+    box-shadow: 0 10px 20px -8px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(0, 0, 0, 0.4);
+    pointer-events: none;
+    rotate: -1.2deg;
+  }
+  .face--babel .bb-wall-slip[hidden], .face--babel .bb-wall-lit[hidden] { display: none; }
+  .face--babel .bb-wall-slip-where { font: 0.58rem/1.3 var(--bb-small); letter-spacing: 0.16em; text-transform: uppercase; color: var(--bb-ink-soft); }
+  .face--babel .bb-wall-slip-path { font: 0.8rem/1.3 var(--bb-mono); color: var(--bb-lapis); overflow-wrap: anywhere; }
+  .face--babel .bb-wall-slip-do { font: 0.92rem/1.2 var(--bb-hand); color: var(--bb-pencil); }
+
+  /* ------------------------------------------------------------------ the true name of the hexagon */
+  .face--babel .bb-hexname {
+    padding: 0; border: 0; background: none;
+    font: inherit; color: inherit; letter-spacing: inherit;
+    cursor: pointer;
+    text-decoration: underline dotted rgba(36, 65, 143, 0.45);
+    text-underline-offset: 0.28em;
+  }
+  .face--babel .bb-hexname:hover { text-decoration-style: solid; }
+  .face--babel .bb-hexname[aria-expanded="true"] .bb-hexname-more { opacity: 0.25; }
+  .face--babel .bb-hexfull {
+    max-height: 11.5rem; overflow: auto;
+    margin: 0.55rem 0 0; padding: 0.6rem 0.75rem;
+    border: 1px solid var(--bb-rule);
+    background: rgba(27, 26, 23, 0.035);
+    font: 0.64rem/1.55 var(--bb-mono); letter-spacing: 0.05em;
+    color: var(--bb-ink-soft);
+    word-break: break-all;
+    scrollbar-color: rgba(36, 65, 143, 0.4) transparent;
+    scrollbar-width: thin;
+  }
+  .face--babel .bb-hexfull[hidden] { display: none; }
+
+  /* --------------------------------------------------- the volumes without a title (the noise) */
+  .face--babel .bb-noise {
+    position: relative;
+    max-width: calc(var(--bb-leaf-w) - 7rem);
+    margin: 0 auto 3.6rem;
+    padding: 0 clamp(0px, 1.5vw, 1rem);
+  }
+  .face--babel .bb-noise-head {
+    width: fit-content; max-width: 100%;
+    margin: 0 auto 1.1rem;
+    padding: 0.55rem 1.1rem 0.6rem;
+    background: rgba(10, 9, 8, 0.8);
+    box-shadow: 0 0 0 1px rgba(216, 195, 138, 0.18), 0 10px 24px -10px rgba(0, 0, 0, 0.9);
+    text-align: center;
+    color: #d9cfb4;
+  }
+  .face--babel .bb-noise-head p { margin: 0; }
+  .face--babel .bb-noise-kicker { font: 0.62rem/1.4 var(--bb-small); letter-spacing: 0.24em; text-transform: uppercase; color: #d8c38a; }
+  .face--babel .bb-noise-head .bb-noise-addr { margin-top: 0.2rem; font: italic 0.78rem/1.4 var(--bb-serif); color: rgba(233, 226, 204, 0.72); }
+  .face--babel .bb-noise-spread {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    rotate: -0.35deg;
+    filter: drop-shadow(0 26px 30px rgba(0, 0, 0, 0.7));
+  }
+  .face--babel .bb-noise--mcv .bb-noise-spread, .face--babel .bb-noise--seed .bb-noise-spread { rotate: 0.3deg; }
+  .face--babel .bb-noise-page {
+    position: relative;
+    display: flex; flex-direction: column;
+    min-width: 0;
+    padding: 1.7rem 2.4rem 1.2rem;
+    background-color: #e8e0cc;
+    background-image:
+      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .2  0 0 0 0 .16  0 0 0 0 .1  0 0 0 .09 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>"),
+      radial-gradient(ellipse at 30% 20%, rgba(255, 250, 235, 0.35), transparent 60%);
+  }
+  /* The gutter: both pages bend down into the sewing, and the shadow gathers there. */
+  .face--babel .bb-noise-page--verso {
+    padding-right: 2.9rem;
+    border-radius: 3px 0 0 3px;
+    box-shadow: inset -2.6rem 0 2.2rem -1.6rem rgba(70, 52, 24, 0.34), -3px 3px 0 -1px #d6ccb2, -6px 6px 0 -2px #c5b999, -8px 8px 0 -3px #b6a987;
+  }
+  .face--babel .bb-noise-page--recto {
+    padding-left: 2.9rem;
+    border-radius: 0 3px 3px 0;
+    box-shadow: inset 2.6rem 0 2.2rem -1.6rem rgba(70, 52, 24, 0.34), 3px 3px 0 -1px #d6ccb2, 6px 6px 0 -2px #c5b999, 8px 8px 0 -3px #b6a987;
+  }
+  .face--babel .bb-noise-rh {
+    margin: 0 0 0.9rem;
+    text-align: center;
+    font: 0.6rem/1 var(--bb-small); letter-spacing: 0.34em; text-transform: uppercase;
+    color: rgba(87, 83, 75, 0.8);
+  }
+  .face--babel .bb-noise-text {
+    margin: 0;
+    font: 0.84rem/1.74 var(--bb-small);
+    letter-spacing: 0.05em;
+    color: #6a6457;
+    hyphens: none;
+  }
+  .face--babel .bb-nl { display: block; text-align: justify; text-align-last: justify; overflow-wrap: anywhere; }
+  .face--babel .bb-nl--seed { text-align: center; text-align-last: center; }
+  .face--babel .bb-noise--mcv .bb-noise-text { letter-spacing: 0.14em; color: #625c50; }
+  /* The one line. Printed in the same ink as the rest; only the reader's pencil ring tells it apart. */
+  .face--babel .bb-noise mark {
+    display: inline-block; /* one piece: the justification of the noise around it does not stretch it */
+    padding: 0.08em 0.4em;
+    margin: 0 -0.1em;
+    background: none;
+    color: #1b1a17;
+    border-radius: 46% 54% 50% 50% / 60% 46% 54% 40%;
+    box-shadow: 0 0 0 1.4px rgba(79, 76, 70, 0.55), 0.25em -0.08em 0 1.2px rgba(79, 76, 70, 0.2);
+  }
+  .face--babel .bb-noise--seed mark { padding: 0.1em 0.55em 0.3em; font-size: 1.3em; }
+  .face--babel .bb-noise-pencil {
+    display: block; align-self: flex-end;
+    max-width: 22em;
+    margin: 0.8rem 0.2rem 0 auto;
+    font-size: 0.98rem;
+  }
+  .face--babel .bb-noise-pencil .bb-pencil-text, .face--babel .bb-noise-pencil .bb-pencil-hand { text-shadow: 0 0 2px #e8e0cc, 0 0 4px #e8e0cc; }
+  .face--babel .bb-noise-folio {
+    margin: auto 0 0; padding-top: 0.9rem;
+    font: 0.72rem/1 var(--bb-small); font-variant-numeric: oldstyle-nums;
+    color: rgba(87, 83, 75, 0.85);
+  }
+  .face--babel .bb-noise-page--recto .bb-noise-folio { text-align: right; }
 
   /* ------------------------------------------------------------------------------ the mercy knob */
   html[data-face="babel"] #mercy {
@@ -784,7 +1065,7 @@
   @media (max-width: 1000px) {
     .face--babel { --bb-mark: 2.6rem; --bb-num: 2.2rem; --bb-tongue: 10.5rem; --bb-gap: 0.9rem; }
     .face--babel .bb-rh-meta { display: none; }
-    .face--babel .bb-vmark-sigil { width: 1.9rem; height: 1.9rem; }
+    .face--babel .bb-vmark-sigil { width: 2.35rem; height: 2.35rem; }
   }
   @media (max-width: 760px) {
     .face--babel { --bb-num: 1.9rem; --bb-gap: 0.7rem; }
@@ -797,9 +1078,11 @@
     .face--babel .bb-verses::before, .face--babel .bb-verses::after { content: none; }
     .face--babel .bb-verse { grid-template-columns: [num] var(--bb-num) [text] minmax(0, 1fr); row-gap: 0.25rem; padding-bottom: 0.9rem; }
     .face--babel .bb-vmark { grid-column: num; grid-row: 2 / span 2; padding-top: 0.1rem; }
-    .face--babel .bb-vmark-sigil { width: 1.6rem; height: 1.6rem; }
+    .face--babel .bb-vmark-sigil { width: 1.85rem; height: 1.85rem; }
     .face--babel .bb-vmark-word { display: none; }
     .face--babel .bb-vnum--chapter { grid-row: 1; font-size: 2.5rem; }
+    .face--babel .bb-vnum--chapter[data-digits="3"] { font-size: 1.5rem; }
+    .face--babel .bb-vnum--chapter[data-digits="4"] { font-size: 1.12rem; }
     .face--babel .bb-tongue { grid-column: text; grid-row: 2; padding: 0.1rem 0 0 0.7rem; border-left: 3px double var(--bb-rule); }
     .face--babel .bb-tongue--glyph { display: none; }
     .face--babel .bb-pencil { grid-column: text; }
@@ -807,7 +1090,16 @@
     .face--babel .bb-xref-list li { grid-template-columns: 1.2rem minmax(0, 1fr); }
     .face--babel .bb-xref-list li > .bb-xlabel { grid-column: 2; }
     .face--babel .bb-xref-list li > a, .face--babel .bb-xref-list li > .bb-xref, .face--babel .bb-xtaken { grid-column: 2; text-align: left; }
-    .face--babel .bb-chapter::before { inset: 12rem 1rem 5rem calc(1rem + var(--bb-num)); font-size: 1rem; color: rgba(27, 26, 23, 0.022); }
+    .face--babel .bb-chapter::before { inset: 12rem 1rem 5rem calc(1rem + var(--bb-num)); font-size: 1rem; color: rgba(27, 26, 23, 0.026); }
+    /* A volume opened on a narrow desk: the two pages lie one above the other, the sewing between. */
+    .face--babel .bb-noise { padding: 0 6px; }
+    .face--babel .bb-noise-spread { grid-template-columns: minmax(0, 1fr); rotate: none; }
+    .face--babel .bb-noise--mcv .bb-noise-spread, .face--babel .bb-noise--seed .bb-noise-spread { rotate: none; }
+    .face--babel .bb-noise-page { padding: 1.2rem 1.1rem 0.9rem; }
+    .face--babel .bb-noise-page--verso { padding-right: 1.1rem; padding-bottom: 1.6rem; border-radius: 3px 3px 0 0; box-shadow: inset 0 -2.2rem 1.8rem -1.5rem rgba(70, 52, 24, 0.34), -3px 3px 0 -1px #d6ccb2; }
+    .face--babel .bb-noise-page--recto { padding-left: 1.1rem; padding-top: 1.6rem; border-radius: 0 0 3px 3px; box-shadow: inset 0 2.2rem 1.8rem -1.5rem rgba(70, 52, 24, 0.34), 3px 3px 0 -1px #d6ccb2; }
+    .face--babel .bb-noise-text { font-size: 0.72rem; letter-spacing: 0.02em; line-height: 1.7; }
+    .face--babel .bb-noise--mcv .bb-noise-text { letter-spacing: 0.06em; }
     /* On a narrow page the lamps stand closer: the dark keeps to the very edges of the leaf. */
     .face--babel .bb::before {
       background:
@@ -832,5 +1124,8 @@
     .face--babel .bb-intone { padding: 0.3rem 0.5rem; }
     .face--babel .bb-spine { width: 2.45rem; }
     .face--babel .bb-kicker-path { display: none; }
+    .face--babel .bb-plan { max-width: 19rem; }
+    .face--babel .bb-front-grid { padding-top: 1rem; gap: 1.2rem; }
+    .face--babel .bb-heard { font-size: 0.84rem; padding: 0.45rem 0.7rem; }
   }
 }
