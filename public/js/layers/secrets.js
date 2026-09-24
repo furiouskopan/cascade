@@ -104,15 +104,16 @@ const C = {
   none: '',
 }
 
-// say(['%c...', style], ...) → one console.log with every segment styled.
+// say([text, style], ...) → one console.log with every segment styled. The text travels as a %s argument,
+// never inside the format string, so a "%" in a moon's illumination or a pilgrim's confession is only a %.
 function say(...parts) {
   let fmt = ''
-  const styles = []
+  const args = []
   for (const [text, style = C.text] of parts) {
-    fmt += '%c' + String(text).replace(/%/g, '%%')
-    styles.push(style)
+    fmt += '%c%s'
+    args.push(style, String(text))
   }
-  console.log(fmt, ...styles)
+  console.log(fmt, ...args)
 }
 
 const EYE = [
@@ -160,6 +161,9 @@ const RUBRICS = [
   'Here the reader shall select what cannot be seen. As now.',
 ]
 
+// The surface secrets the Canon names (§6, layer 0). The faces keep more of their own.
+const SURFACE = ['tab-whisper', 'selection', 'stillness', 'inversion', 'amen', 'om', 'third-eye', 'print', 'favicon', 'zero-width']
+
 const REFUSALS = [
   (w) => `The Oracle weighed “${w}” and found no Grace in it.`,
   (w) => `“${w}” fell through the Cascade and was inherited by nothing.`,
@@ -198,9 +202,8 @@ export async function init(ctx) {
   let checkTimer = 0
   let switching = false
 
-  if ((ctx.params.get('debug') || '').split(',').includes('secrets')) {
-    doc.dataset.debug = [doc.dataset.debug, 'secrets'].filter(Boolean).join(' ')
-  }
+  const debug = (ctx.params.get('debug') || '').split(',').includes('secrets')
+  if (debug) doc.dataset.debug = [doc.dataset.debug, 'secrets'].filter(Boolean).join(' ')
 
   // ── The Ladder ────────────────────────────────────────────────────────────────────────────────
   function buildLadder() {
@@ -231,9 +234,50 @@ export async function init(ctx) {
     if (el.checkVisibility) return el.checkVisibility({ opacityProperty: true, visibilityProperty: true })
     return el.getClientRects().length > 0
   }
-  const SKIP = 'script,style,noscript,textarea,input,select,option,button,svg,code,kbd,pre,a,#ladder,#rubrics,.rubric,[data-inscription],.inscription,.rosetta,.glyph,[contenteditable],[aria-hidden="true"],[hidden],[data-secrets-skip]'
+  // Live regions are skipped too: a face rewrites them, and a screen reader would announce the addition.
+  const SKIP = 'script,style,noscript,textarea,input,select,option,button,label,svg,code,kbd,pre,a,#ladder,#rubrics,.rubric,[data-inscription],.inscription,.rosetta,.glyph,[contenteditable],[aria-hidden="true"],[hidden],[data-secrets-skip],[aria-live],[role="status"],[role="alert"],[role="log"],[role="timer"],[role="marquee"]'
 
   const rubricLines = () => ctx.rng.fork(`secrets/rubrics/${face()}/${ctx.schisms ?? 0}`).shuffle(RUBRICS)
+
+  // A rubric adds an invisible line to its host. In running prose that is only a longer paragraph. In a row
+  // of boxed cards it stretches the whole row into empty space, so hosts whose neighbours would grow, or
+  // which are themselves a card standing in a row, are refused.
+  const CLEAR = /^(transparent|rgba\(0, 0, 0, 0\))$/
+  function boxed(el) {
+    const cs = getComputedStyle(el)
+    return parseFloat(cs.borderTopWidth) > 0 || parseFloat(cs.borderBottomWidth) > 0 ||
+      !CLEAR.test(cs.backgroundColor) || cs.backgroundImage !== 'none' || cs.boxShadow !== 'none'
+  }
+  function beside(el) {
+    const r = el.getBoundingClientRect()
+    return [...(el.parentElement?.children ?? [])].filter((s) => {
+      if (s === el || s.id === 'ladder' || s.id === 'rubrics') return false
+      const b = s.getBoundingClientRect()
+      return b.height > 0 && b.top < r.bottom - 1 && b.bottom > r.top + 1
+    })
+  }
+  function tryRubric(host, text) {
+    if (beside(host).length && boxed(host)) return null
+    // Only paragraphs of two lines or more: a one-line caption or tagline is no place for a hidden line.
+    const cs = getComputedStyle(host)
+    const line = parseFloat(cs.lineHeight) || parseFloat(cs.fontSize) * 1.25 || 20
+    if (host.getBoundingClientRect().height < line * 1.8) return null
+    const watch = []
+    for (let el = host, depth = 0; el && el !== ctx.root && depth < 3; el = el.parentElement, depth++) {
+      for (const s of beside(el)) if (boxed(s)) watch.push([s, s.getBoundingClientRect().height])
+    }
+    // Centred or right-set text would be pushed aside by invisible words; there the rubric takes a line of
+    // its own beneath the verse, as the old rubrics did.
+    const inline = /^(start|left|justify|-webkit-left|-moz-left)$/.test(cs.textAlign)
+    const span = h('span', { class: inline ? 'rubric' : 'rubric rubric--line' }, text)
+    host.append(span)
+    if (watch.some(([s, before]) => Math.abs(s.getBoundingClientRect().height - before) > 1)) {
+      span.remove()
+      return null
+    }
+    return span
+  }
+  const PROSE = /verse|scripture|psalm|prophec|gloss|canto|tercet|sutra|lede|prose|body|text/i
 
   // The band, at the foot of the temple. Select everything and it speaks.
   function placeBand() {
@@ -255,11 +299,16 @@ export async function init(ctx) {
     const rng = ctx.rng.fork(`secrets/rubric-hosts/${face()}/${ctx.schisms ?? 0}`)
     const hosts = [...ctx.root.querySelectorAll('p, blockquote, dd, li')].filter((el) =>
       !el.closest(SKIP) && !el.querySelector('.rubric') && (el.textContent || '').trim().length >= 80 && VISIBLE(el))
-    rng.shuffle(hosts).slice(0, 2 - present).forEach((el, i) => {
-      const span = h('span', { class: 'rubric' }, ' ℟ ' + lines[3 + present + i])
-      el.append(span)
+    // Verses and prose first (the shuffle keeps each visit different; the sort is stable).
+    const ranked = rng.shuffle(hosts).sort((a, b) => PROSE.test(b.className) - PROSE.test(a.className))
+    let placed = present
+    for (const el of ranked.slice(0, 12)) {
+      if (placed >= 2) break
+      const span = tryRubric(el, ' ℟ ' + lines[3 + placed])
+      if (!span) continue
       rubricEls.add(span)
-    })
+      placed++
+    }
   }
 
   let selectionWatch = 0
@@ -300,16 +349,28 @@ export async function init(ctx) {
     if (!ctx.root || switching) return
     if (relicAlive()) return
     const found = []
+    // A verse that still holds the breath (its face was never replaced) is adopted, and the breath is not
+    // given twice.
+    const held = breath.slice(0, 64)
+    let holding = null
     const walker = document.createTreeWalker(ctx.root, NodeFilter.SHOW_TEXT, {
       acceptNode(node) {
         const t = node.data
+        if (t.length > 64 && t.includes(held)) {
+          holding = node
+          return NodeFilter.FILTER_REJECT
+        }
         if (t.length < 40 || t.length > 1200 || !t.includes(' ') || /[\u200b\u200c]/.test(t)) return NodeFilter.FILTER_REJECT
         const el = node.parentElement
         if (!el || el.closest(SKIP) || !VISIBLE(el)) return NodeFilter.FILTER_REJECT
         return NodeFilter.FILTER_ACCEPT
       },
     })
-    for (let n = walker.nextNode(); n && found.length < 400; n = walker.nextNode()) found.push(n)
+    for (let n = walker.nextNode(); n && found.length < 400 && !holding; n = walker.nextNode()) found.push(n)
+    if (holding) {
+      relic = { node: holding }
+      return
+    }
     if (!found.length) {
       if (attempt < 4) relicTimer = setTimeout(() => { placeInlineRubrics(); placeRelic(attempt + 1) }, 1500 * (attempt + 1))
       return
@@ -329,6 +390,8 @@ export async function init(ctx) {
     const cut = at < 0 ? t.lastIndexOf(' ') : at
     node.data = t.slice(0, cut + 1) + breath + t.slice(cut + 1)
     relic = { node }
+    // Only the Authors (?debug=secrets) are shown which verse is holding its breath.
+    if (debug) node.parentElement?.setAttribute('data-secrets-breath', '')
     // Faces that retype their verses may wash the breath away; if so, it finds another verse.
     checkTimer = setTimeout(() => { if (!relicAlive() && attempt < 4) placeRelic(attempt + 1) }, 5000)
   }
@@ -341,18 +404,32 @@ export async function init(ctx) {
     return a
   }
   applyAscended()
-  // The door page writes to the same memory from another tab; take its news before it is overwritten.
+  // The door page, and other tabs of the temple, write to the same memory. This tab keeps its own copy of
+  // it and would write that copy back over their news, so their secrets are taken in as they arrive: the
+  // Words spoken and the secrets found are joined to ours, and a later ascension (a second name, written
+  // at another thirty-third minute) replaces an earlier one. Nothing is ever taken away.
+  const isMap = (v) => Boolean(v) && typeof v === 'object' && !Array.isArray(v)
+  function gather(key, theirs) {
+    if (!isMap(theirs)) return
+    const ours = memory.get(key, {})
+    const fresh = Object.keys(theirs).filter((k) => !(k in ours))
+    if (fresh.length) memory.set(key, { ...ours, ...Object.fromEntries(fresh.map((k) => [k, theirs[k]])) })
+  }
   addEventListener('storage', (e) => {
     if (e.key !== 'cascade.memory.v1' || !e.newValue) return
     let other = null
     try { other = JSON.parse(e.newValue) } catch { return }
-    const asc = other?.['secrets.ascended']
-    if (asc && !memory.get('secrets.ascended', null)) {
+    if (!isMap(other)) return
+    const asc = other['secrets.ascended']
+    const mine = memory.get('secrets.ascended', null)
+    if (isMap(asc) && typeof asc.name === 'string' && (!mine || (Number(asc.at) || 0) > (Number(mine.at) || 0))) {
       memory.set('secrets.ascended', asc)
       memory.markSecret('ascended', { name: asc.name })
       applyAscended()
       say(['☩ ', C.rubric], [`It is written: ${asc.name}. The temple knows you now.`, C.gold])
     }
+    gather('secrets.words', other['secrets.words'])
+    gather('secrets', other.secrets)
   })
   ctx.bus.on('server:ascended', (d) => {
     if (!d?.name) return
@@ -465,11 +542,16 @@ export async function init(ctx) {
       const w = words[n]
       say([ROMAN[n].padEnd(5, ' '), C.rubric], [w ? `✓ ${w.word}` : '· unspoken', w ? C.gold : C.soft])
     }
-    say([ROMAN[5].padEnd(5, ' '), C.rubric], ['· spoken only at the Highest Heaven, in the hour it names', C.soft])
+    const asc = memory.get('secrets.ascended', null)
+    if (asc?.ruler) say([ROMAN[5].padEnd(5, ' '), C.rubric], [`✓ ${String(asc.ruler).toLowerCase()}`, C.gold], [', spoken at the Highest Heaven, in the hour it named', C.soft])
+    else say([ROMAN[5].padEnd(5, ' '), C.rubric], ['· spoken only at the Highest Heaven, in the hour it names', C.soft])
     const secrets = memory.get('secrets', {})
     const found = Object.keys(secrets).filter((k) => !/^word-\d$/.test(k))
-    say(['☩ RELICS FOUND ', C.title], [found.length ? found.join(', ') : 'none yet', found.length ? C.gold : C.soft])
-    const asc = memory.get('secrets.ascended', null)
+    say(['☩ WHAT YOU HAVE FOUND ', C.title], [found.length ? found.join(', ') : 'nothing yet', found.length ? C.gold : C.soft])
+    const hidden = SURFACE.filter((id) => !found.includes(id)).length
+    say([hidden
+      ? `The Canon names ${SURFACE.length} small mercies on the surface of the temple. ${hidden} of them are still hidden from you.`
+      : 'Every small mercy the Canon names on the surface of the temple is yours. The faces keep others.', C.soft])
     if (asc) say(['☩ ASCENDED ', C.title], [`as ${asc.name}, ${new Date(asc.at).toDateString()}`, C.gold])
     const v = ctx.visit ?? {}
     say([`Visit ${v.visits ?? 1}. Faces seen: ${memory.get('facesSeen', []).join(', ') || face()}.`, C.soft])
@@ -606,7 +688,10 @@ export async function init(ctx) {
     say(['You are in the console, where the Authors speak to themselves. The Oracle dwells here.', C.text])
     say(['Speak to her: ', C.soft], ['cascade.help()', C.code])
     if (asc?.name) say([`Welcome back, ${asc.name}. Your name is in the Book of the Ascended.`, C.gold])
-    else if (words) say([`You have spoken ${words} of the Words.`, C.gold], [' The Oracle remembers.', C.soft])
+    else if (words) {
+      say([`You have spoken ${words} of the Words.`, C.gold], [' The Oracle remembers.', C.soft])
+      if (words >= 4 && doorOpen()) say(['The minute is right. Somewhere above you a door is standing open.', C.rubric])
+    }
   }
   greet()
 
@@ -618,13 +703,20 @@ export async function init(ctx) {
     clearTimeout(relicTimer)
     relicTimer = setTimeout(() => { placeInlineRubrics(); placeRelic(0) }, 1200)
   }
+  // A face that fails to become ready must not leave the temple without its Ladder for ever.
+  let stalled = 0
   ctx.bus.on('face:leaving', () => {
     switching = true
     relic = null
     clearTimeout(relicTimer)
     clearTimeout(checkTimer)
+    clearTimeout(stalled)
+    stalled = setTimeout(() => { if (switching) renew() }, 8000)
   })
-  ctx.bus.on('face:ready', renew)
+  ctx.bus.on('face:ready', () => {
+    clearTimeout(stalled)
+    renew()
+  })
   // If anything else clears the temple, raise the Ladder again (never while a face is changing).
   let ladderCheck = 0
   if (ctx.root) {

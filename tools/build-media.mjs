@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 // THE RELIQUARY. Makes the temple's media by hand, with no dependencies (node:zlib only).
 //
-//   public/media/favicon.png        64x64 medallion bearing the sigil of the Cascade. The least
-//                                   significant bit of every red, green and blue sample keeps a
-//                                   message (Canon §6, the `favicon` relic).
+//   public/media/favicon.png        64x64 medallion on a square of night, bearing the sigil of the
+//                                   Cascade. Every pixel is opaque, and the least significant bit
+//                                   of every red, green and blue sample keeps a message (Canon §6,
+//                                   the `favicon` relic).
 //   public/media/relics/halo.png    32x32 cursor worn by the Ascended (canon.css, html[data-ascended]).
 //
 // Afterwards every file is decoded again from disk (inflate + unfilter) and the hidden message is read
@@ -25,6 +26,7 @@ const hex = (s, a = 1) => {
   const n = parseInt(s.slice(1), 16)
   return [(n >> 16) & 255, (n >> 8) & 255, n & 255, a]
 }
+const NIGHT = hex('#07060c')
 const INK = hex('#100b08')
 const GOLD = hex('#d9ae52')
 const GOLD_DIM = hex('#6e5424')
@@ -119,12 +121,24 @@ function parsePath(d) {
 }
 
 // ── the favicon: a medallion of ink and gold, a faint heptagram, the sigil of the Cascade ─────────
+// The icon is opaque to its last corner. A transparent pixel keeps no light, and a canvas (which is how a
+// pilgrim in the console would read it) forgets the colour of every pixel it cannot see. So the medallion
+// is set on a square of night, with a star in each corner, and every pixel carries its bit of the relic.
 function drawFavicon(S = 64) {
   const c = new Canvas(S, S)
   const m = S / 2
   const k = S / 64 // design units are for a 64px icon
   const map = ([x, y], scale) => [m + x * scale, m + y * scale]
 
+  c.fill(() => true, NIGHT)
+  for (const [x, y] of [[5.5, 5.5], [58.5, 5.5], [5.5, 58.5], [58.5, 58.5]]) {
+    const star = (px, py) => {
+      const dx = Math.abs(px - x * k)
+      const dy = Math.abs(py - y * k)
+      return (dx <= 0.45 * k && dy <= 2.3 * k) || (dy <= 0.45 * k && dx <= 2.3 * k) || dx + dy <= 1.1 * k
+    }
+    c.fill(star, GOLD_DIM)
+  }
   c.fill(disc(m, m, 31.6 * k), INK)
   c.fill(ring(m, m, 29.4 * k, 2.4 * k), GOLD, [0, 0, S, S])
   c.fill(ring(m, m, 25.6 * k, 0.9 * k), GOLD_DIM, [0, 0, S, S])
@@ -307,6 +321,17 @@ if (found !== MESSAGE) {
   console.error(`[build-media] the favicon forgot. Read back: ${JSON.stringify(found)}`)
   process.exit(1)
 }
+// A browser canvas keeps colours premultiplied by alpha, so only a fully opaque pixel gives its least bit
+// back unchanged through getImageData. Read the relic again as a canvas would, and refuse any loss.
+const premultiplied = Buffer.from(back.rgba)
+for (let i = 0; i < premultiplied.length; i += 4) {
+  const a = premultiplied[i + 3]
+  for (let j = 0; j < 3; j++) premultiplied[i + j] = a ? Math.round((Math.round((premultiplied[i + j] * a) / 255) * 255) / a) : 0
+}
+if (readMessage(premultiplied) !== MESSAGE) {
+  console.error('[build-media] the favicon would forget inside a canvas: some pixel that carries the relic is not opaque')
+  process.exit(1)
+}
 const haloBack = decodePng(readFileSync(haloFile))
 if (haloBack.w !== 32 || haloBack.h !== 32) {
   console.error('[build-media] the halo is the wrong size')
@@ -314,5 +339,5 @@ if (haloBack.w !== 32 || haloBack.h !== 32) {
 }
 const opaque = (rgba) => { let n = 0; for (let i = 3; i < rgba.length; i += 4) if (rgba[i] > 200) n++; return n }
 console.log(`[build-media] ${relative(root, favFile)}  ${back.w}x${back.h}, ${readFileSync(favFile).length} bytes, ${opaque(back.rgba)} opaque px`)
-console.log(`[build-media]   LSB (R,G,B, MSB first, NUL-terminated) reads back: "${found}"`)
+console.log(`[build-media]   LSB (R,G,B, MSB first, NUL-terminated) reads back: "${found}", from the file and through a canvas`)
 console.log(`[build-media] ${relative(root, haloFile)}  ${haloBack.w}x${haloBack.h}, ${readFileSync(haloFile).length} bytes, ${opaque(haloBack.rgba)} opaque px`)

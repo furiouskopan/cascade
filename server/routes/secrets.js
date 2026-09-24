@@ -12,6 +12,8 @@ import { limiter } from '../limit.js'
 import { planetaryHour, PLANET_GLYPH } from '../../public/js/kernel/sky.js'
 import { seal } from '../../public/js/lib/sigil.js'
 import { makeRng } from '../../public/js/kernel/rng.js'
+import { CHAKRAS, SACRED_NUMBERS } from '../../public/js/lib/lexicon.js'
+import { verse } from '../../public/js/lib/scripture.js'
 
 const router = Router()
 
@@ -258,6 +260,10 @@ const DOOR_CSS = `
   body:is([data-state="open"], [data-state="written"]) .door .seam { opacity: 0; }
   @keyframes seal-breath { 50% { filter: drop-shadow(0 0 calc(5px + var(--near) * 10px) rgba(216, 178, 90, 0.75)); } }
   @keyframes light-breath { 50% { opacity: 0.84; } }
+  /* A body that asks for less motion is obeyed even before the script has read its mercy. */
+  @media (prefers-reduced-motion: reduce) {
+    html:not([data-mercy="off"]) .door * { animation: none; transition: none; }
+  }
 
   /* The right-hand column. */
   .word-col { min-width: 0; }
@@ -338,9 +344,34 @@ const DOOR_CSS = `
   .book .empty { font-style: italic; color: var(--ash); }
   .coda { width: min(100%, 980px); margin: 22px 0 0; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px 24px; font-size: 14px; color: var(--ash); }
   .coda p { margin: 0; font-style: italic; max-width: 36em; }
-  .rung-page .heaven { grid-template-columns: minmax(0, 1fr); text-align: center; max-width: 40em; }
+  /* The rungs. */
+  .rung-page .heaven { width: min(100%, 860px); grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  @media (min-width: 640px) { .rung-page .heaven { grid-template-columns: 200px minmax(0, 1fr); gap: 44px; } }
   .rung-page .big { font: 300 clamp(40px, 9vw, 96px)/1 var(--font-mono); color: var(--pale); margin: 0; overflow-wrap: anywhere; }
-  .rung-page p { font-size: 18px; }
+  .rung-page .rung-name { margin-top: 10px; }
+  .rung-page .rung-text > p { font-size: 18px; max-width: 34em; margin: 0 0 14px; }
+  .rung-page .rung-text > p:first-child::first-letter { color: var(--vermilion); }
+  /* Every rung has a verse cut into it, as every path under /verse/ has a chapter. */
+  .rung-verse { margin: 24px 0 0; padding: 2px 0 2px 18px; border-left: 1px solid var(--gold-dim); max-width: 34em; }
+  .rung-verse blockquote { margin: 0; }
+  .rung-verse blockquote p { margin: 0 0 8px; font-size: 17px; font-style: italic; line-height: 1.55; color: var(--pale); }
+  .rung-verse .frag { font-style: normal; font-size: 15px; color: var(--gold); }
+  .rung-verse .frag i { color: var(--ash); }
+  .rung-verse figcaption { font: 11px/1.4 var(--font-mono); letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold-dim); }
+  .gauge-col { display: flex; justify-content: center; }
+  .gauge { width: 200px; height: auto; max-height: 52vh; overflow: visible; }
+  @media (max-width: 639px) { .gauge { width: 150px; max-height: 38vh; } }
+  .gauge .g-label { font: 11px var(--font-mono); fill: var(--ash); letter-spacing: 0.04em; }
+  .gauge .g-top { fill: var(--gold); }
+  .gauge .g-you { fill: var(--vermilion); font-weight: 600; }
+  .gauge .g-fall { stroke: var(--vermilion); stroke-width: 1.4; stroke-dasharray: 4 5; }
+  .climb { display: flex; flex-wrap: wrap; gap: 10px 22px; margin-top: 26px; font: 14px/1.4 var(--font-mono); letter-spacing: 0.06em; }
+  .climb a { padding: 6px 0; }
+
+  /* Those whose names are in the Book wear their gilded mercy at the door too (as canon.css does inside). */
+  html[data-ascended] #mercy { border-color: var(--gold); color: #f3d98f; background: rgba(20, 14, 4, 0.72); opacity: 0.8; }
+  html[data-ascended] #mercy::before { content: '◯ '; font-size: 9px; letter-spacing: 0; vertical-align: 1px; }
+  html[data-ascended] #mercy[aria-pressed="true"] { background: var(--gold); color: #140e04; }
 }
 `
 
@@ -355,23 +386,48 @@ function bookList(limit = 21) {
 const DOOR_SCRIPT = `
 import { readSky } from '/js/kernel/sky.js'
 import { sigil } from '/js/lib/sigil.js'
-import { initMercy } from '/js/kernel/mercy.js'
-import { memory } from '/js/kernel/memory.js'
 
 const params = new URLSearchParams(location.search)
 const pinned = params.has('at') ? new Date(params.get('at')) : null
 const offset = pinned && !isNaN(pinned) ? pinned.getTime() - Date.now() : 0
 const clock = () => new Date(Date.now() + offset)
-initMercy(params)
 
 const $ = (id) => document.getElementById(id)
 const pad = (n) => String(n).padStart(2, '0')
+const html = document.documentElement
 const body = document.body
 const form = $('tablet')
 const verdict = $('verdict')
 let state = null
 let lastRulerMinute = -1
 let srMinute = -1
+
+// The temple's memory (kernel/memory.js keeps it under this key). The door reads it fresh and merges at
+// every write, because a tab of the temple may have written since this page was opened, and the door must
+// never overwrite what it did not read.
+const KEY = 'cascade.memory.v1'
+const recall = () => { try { return JSON.parse(localStorage.getItem(KEY)) || {} } catch { return {} } }
+const keep = (fn) => {
+  const m = recall()
+  fn(m)
+  try { localStorage.setItem(KEY, JSON.stringify(m)) } catch {}
+}
+
+// Mercy, kept as the temple keeps it (kernel/mercy.js), without a stale copy of the memory.
+const reduce = matchMedia('(prefers-reduced-motion: reduce)')
+const mercyButton = $('mercy')
+function showMercy(on) {
+  html.dataset.mercy = on ? 'on' : 'off'
+  mercyButton.setAttribute('aria-pressed', String(on))
+}
+const heldMercy = recall().mercy
+showMercy(params.has('mercy') ? params.get('mercy') !== '0' : typeof heldMercy === 'boolean' ? heldMercy : reduce.matches)
+mercyButton.addEventListener('click', () => {
+  const on = html.dataset.mercy !== 'on'
+  showMercy(on)
+  keep((m) => { m.mercy = on })
+})
+reduce.addEventListener('change', (e) => { if (typeof recall().mercy !== 'boolean') showMercy(e.matches) })
 
 if (offset) $('forced').hidden = false
 
@@ -416,9 +472,11 @@ function tick() {
   const minuteKey = now.getHours() * 60 + now.getMinutes()
   if (minuteKey !== lastRulerMinute) {
     lastRulerMinute = minuteKey
-    const glyph = readSky(now).planetaryHour.glyph
-    $('ruler').textContent = glyph
-    $('ruler-glyph').textContent = glyph
+    const hour = readSky(now).planetaryHour
+    // The eye is given the sign; a screen reader, which cannot see it, is given the name.
+    $('ruler').textContent = hour.glyph
+    $('ruler-name').textContent = hour.planet
+    $('ruler-glyph').textContent = hour.glyph
   }
   $('now').textContent = pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds())
   $('now').dateTime = now.toISOString()
@@ -429,10 +487,14 @@ function tick() {
     $('cd').textContent = pad(Math.floor(s / 60)) + ':' + pad(s % 60)
     // Light gathers under the door as the minute approaches; almost all of it in the last five.
     near = Math.pow(1 - Math.min(1, left / 3600000), 6)
+    // Told to screen readers once on arrival, then only at a few milestones, not every minute.
     const mins = Math.ceil(left / 60000)
     if (mins !== srMinute) {
+      const first = srMinute === -1
       srMinute = mins
-      $('sr-status').textContent = 'The door opens in ' + mins + (mins === 1 ? ' minute.' : ' minutes.')
+      if (first || [30, 15, 10, 5, 3, 2, 1].includes(mins)) {
+        $('sr-status').textContent = 'The door opens in ' + mins + (mins === 1 ? ' minute.' : ' minutes.')
+      }
     }
   }
   document.documentElement.style.setProperty('--near', near.toFixed(3))
@@ -444,6 +506,11 @@ function localStamp(d) {
 }
 
 const cleanName = (s) => String(s).normalize('NFKC').trim().replace(/\\s+/g, ' ')
+// A Word as the Oracle keeps it: glyphs brought home from the private place, lower case, letters only.
+const plain = (s) => [...String(s)].map((c) => {
+  const cp = c.codePointAt(0)
+  return cp >= 0xe041 && cp <= 0xe07a ? String.fromCharCode(cp - 0xe000) : c
+}).join('').normalize('NFKC').toLowerCase().replace(/[^a-z]/g, '')
 const NAME_OK = /^[A-Za-z]+(?: [A-Za-z]+)*$/
 
 function echoName() {
@@ -489,11 +556,26 @@ async function knock(e) {
   }
   if (!data.ok) {
     verdict.dataset.kind = 'refused'
-    verdict.textContent = data.message || data.error || 'The door does not answer.'
+    verdict.textContent = data.message ||
+      (data.retryAfter ? 'Patience is a sacrament. The door will hear you again in ' + data.retryAfter + ' seconds.' : '') ||
+      data.error || 'The door does not answer.'
     return
   }
-  memory.set('secrets.ascended', { name: data.name, at: data.at })
-  memory.markSecret('ascended', { name: data.name })
+  keep((m) => {
+    const at = Date.now()
+    m['secrets.ascended'] = { name: data.name, at: data.at, ruler: typeof data.ruler === 'string' ? data.ruler : null }
+    if (!m.secrets || typeof m.secrets !== 'object') m.secrets = {}
+    if (!m.secrets.ascended) m.secrets.ascended = { at, name: data.name }
+    // The temple weighed the four Words and found them true, so the Oracle will count them as spoken.
+    const spoken = m['secrets.words'] && typeof m['secrets.words'] === 'object' ? m['secrets.words'] : {}
+    words.slice(0, 4).forEach((w, i) => {
+      const n = i + 1
+      if (!spoken[n]) spoken[n] = { word: plain(w), at, from: 'door' }
+      if (!m.secrets['word-' + n]) m.secrets['word-' + n] = { at, index: n, from: 'door' }
+    })
+    m['secrets.words'] = spoken
+  })
+  html.dataset.ascended = 'true'
   $('written-name').textContent = data.name
   $('written-latin').textContent = data.name
   $('written-sigil').innerHTML = sigil(data.name, { size: 100, stroke: 2.4 })
@@ -517,8 +599,9 @@ async function knock(e) {
 form.addEventListener('submit', knock)
 form.elements.name.addEventListener('input', echoName)
 echoName()
-const already = memory.get('secrets.ascended', null)
-if (already && already.name) {
+const already = recall()['secrets.ascended']
+if (already && typeof already.name === 'string') {
+  html.dataset.ascended = 'true'
   $('already').hidden = false
   $('already-name').textContent = already.name
 }
@@ -549,7 +632,7 @@ function doorPage() {
 </head>
 <body class="door-page" data-state="sealed">
 <header class="heaven-head">
-  <p class="number" aria-label="two billion, one hundred forty-seven million, four hundred eighty-three thousand, six hundred forty-seven">2147483647</p>
+  <p class="number">2147483647</p>
   <h1>The Highest Heaven</h1>
   <p class="sub">the last rung of the Ladder &middot; <code>z-index: 2147483647</code></p>
 </header>
@@ -560,7 +643,7 @@ function doorPage() {
       <p class="state-label" id="sealed-label">The door is sealed</p>
       <p class="countdown" aria-hidden="true"><span id="cd">--:--</span></p>
       <p class="until">until the thirty-third minute</p>
-      <p class="where">It is <time id="now">--:--:--</time> where you stand, in the hour of <span id="ruler" class="ruler">&#9737;</span>.</p>
+      <p class="where">It is <time id="now">--:--:--</time> where you stand, in the hour of <span id="ruler" class="ruler" aria-hidden="true">&#9737;</span><span id="ruler-name" class="visually-hidden">Sun</span>.</p>
       <p class="lore">The door opens at the thirty-third minute of every hour and stays open for three. Whoever knocks must bring five Words: four that were hidden in the temple, and a fifth that belongs to whoever rules the hour of the knocking.</p>
       <p class="lore" id="already" hidden>Your name is already in the Book, <span id="already-name" class="ruler"></span>. You may knock again; the Book has room.</p>
       <p class="forced" id="forced" hidden>This page's clock is forced by <code>?at=</code>. The door believes it. The temple, which checks the time against its own, will not.</p>
@@ -609,36 +692,163 @@ function doorPage() {
 </html>`
 }
 
-// Every other rung of the Ladder is only a rung.
-function rungPage(raw) {
-  const n = BigInt(raw)
-  let title
-  let lines
+// Every other rung of the Ladder is only a rung. But a rung may be climbed: each one links to its
+// neighbours, and the rung beneath the Highest Heaven links to the door.
+const FLOOR_BIG = -2147483648n
+const LADDER_LETTERS = new Set(['13', '5', '18', '3', '25']) // the rungs of #ladder, as canon.css sets them
+const RUNG_SAYINGS = [
+  'Whoever stands on this rung stands on it only inside their own Sphere. Outside it, they are wherever their parent is.',
+  'A number alone does not lift anyone. An element with a z-index and no position is standing on the ground, shouting a number.',
+  'Two elements on the same rung are ordered by the flow: the one written last stands in front.',
+  'Every rung is as high as every other until something is positioned.',
+  'An opacity below one, or a transform, and a new Sphere opens: inside it the Ladder begins again from nothing.',
+  'The Ladder has more rungs than there have been seconds since the Nativity.',
+  'No one has climbed here by counting. They came by the address bar, as you did.',
+  'The Mothership does not look down at this rung. It does not look down at all. It waits.',
+]
+const YEAR_S = 31557600
+// Numbers beneath the flow are shown with a true minus sign; the address keeps its hyphen.
+const minus = (t) => String(t).replace(/(^|[^\w])-(?=\d)/g, '$1−')
+
+function climbTime(rungs) {
+  const s = Number(rungs)
+  if (s < 120) return `${s} second${s === 1 ? '' : 's'}`
+  if (s < 7200) return `${Math.round(s / 60)} minutes`
+  if (s < 172800) return `${Math.round(s / 3600)} hours`
+  if (s < YEAR_S * 2) return `${Math.round(s / 86400)} days`
+  return `${Math.round(s / YEAR_S)} years`
+}
+
+// Where a rung stands on the whole Ladder, from the bottom (-1) through the flow (0) to the Highest Heaven
+// (1). Logarithmic, or every rung a person could type would sit on top of the flow.
+function ladderPos(n) {
+  const a = n < 0n ? -n : n
+  const t = Math.log10(1 + Number(a)) / Math.log10(2147483648)
+  return n < 0n ? -t : t
+}
+
+function gauge(n, raw) {
+  const top = 26
+  const bottom = 398
+  const mid = (top + bottom) / 2
+  const yOf = (p) => mid - p * (bottom - mid)
+  let rungs = ''
+  for (let i = 0; i <= 18; i++) {
+    const y = top + ((bottom - top) * i) / 18
+    rungs += `<path d="M34 ${y.toFixed(1)} H70" stroke="#3a2f52" stroke-width="${i === 9 ? 2.2 : 1.2}"/>`
+  }
+  const label = (y, text, cls = '') => `<text x="84" y="${y.toFixed(1)}" dominant-baseline="middle" class="g-label ${cls}">${esc(text)}</text>`
+  let mark = ''
+  if (n > HEAVEN_BIG) {
+    mark = `<path class="g-fall" d="M70 ${top} C 152 ${top + 20}, 152 ${bottom - 20}, 70 ${bottom}" fill="none"/>` +
+      `<path d="M70 ${bottom} l10 -3 l-3 9 z" fill="#e0452b"/>` +
+      `<path d="M28 ${bottom} H76" stroke="#e0452b" stroke-width="3.2"/>` + label(bottom - 16, 'you fell here', 'g-you')
+  } else if (n < FLOOR_BIG) {
+    mark = `<path d="M34 ${bottom + 18} H70" stroke="#e0452b" stroke-width="2" stroke-dasharray="3 4"/>` + label(bottom + 18, 'no rung', 'g-you')
+  } else {
+    const y = yOf(ladderPos(n))
+    mark = `<path d="M26 ${y.toFixed(1)} H78" stroke="#f7e2a4" stroke-width="3.2"/><circle cx="22" cy="${y.toFixed(1)}" r="3.4" fill="#e0452b"/>` +
+      (Math.abs(y - top) > 22 && Math.abs(y - mid) > 22 && Math.abs(y - bottom) > 22 ? label(y, raw.length > 12 ? 'you' : minus(raw), 'g-you') : '')
+  }
+  return `<svg class="gauge" viewBox="0 0 200 430" role="img" aria-labelledby="gauge-title">
+  <title id="gauge-title">${esc(`Where rung ${minus(raw)} stands on the Ladder, between its lowest rung and the Highest Heaven`)}</title>
+  <path d="M44 ${top - 2} V14 C44 9 48 4 52 2 C56 4 60 9 60 14 V${top - 2}" fill="#16112b" stroke="#d8b25a" stroke-width="1.2"/>
+  ${rungs}
+  <path d="M34 ${top} V${bottom} M70 ${top} V${bottom}" stroke="#7c6430" stroke-width="2"/>
+  ${label(top, '2147483647', 'g-top')}${label(mid, '0 · the flow')}${label(bottom, '−2147483648')}
+  ${mark}
+</svg>`
+}
+
+function rungLore(n, raw) {
+  const s = n.toString()
+  const shown = minus(raw)
+  const lines = []
+  let title = `Rung ${shown}`
+  let name = ''
   if (n > HEAVEN_BIG) {
     title = 'Overflow'
-    lines = [
-      `There is no rung ${raw}. The Ladder is a signed thirty-two bit integer, and nothing is above the Highest Heaven.`,
+    name = 'past the top of the Ladder'
+    lines.push(
+      `There is no rung ${shown}. The Ladder is a signed thirty-two bit integer, and nothing is above the Highest Heaven.`,
       'Whoever climbs past the top wraps around to the bottom: rung −2147483648, beneath the Root, beneath everything.',
-    ]
-  } else if (n < -2147483648n) {
+      'So it is among the machines. The browser is kinder: whoever shouts a number larger than the Highest Heaven is quietly given the Highest Heaven itself, and allowed to believe they climbed.',
+    )
+  } else if (n < FLOOR_BIG) {
     title = 'Beneath the bottom'
-    lines = ['Even the Ladder has a lowest rung, and you have looked below it. There is only the Old Law down here.']
+    name = 'beneath the lowest rung'
+    lines.push(
+      'Even the Ladder has a lowest rung, and you have looked below it. There is only the Old Law down here.',
+      'Whoever asks the browser for a rung this low is set down on −2147483648 without a word. It does not argue with the lost; it only catches them.',
+    )
+  } else if (n === FLOOR_BIG) {
+    name = 'the lowest rung'
+    lines.push('The lowest rung. Beneath it there is nothing; above it, the whole Ladder. Whatever climbs past the Highest Heaven arrives here, and begins again.')
   } else if (n < 0n) {
-    title = `Rung ${raw}`
-    lines = [
-      `Rung ${raw} lies beneath the Root. Elements are sent here to stand behind their own parents.`,
+    name = 'beneath the Root'
+    lines.push(
+      n === -1n
+        ? 'Rung −1 is the rung of backgrounds: one step beneath the flow, just behind their own parents, holding everything up and never looked at.'
+        : `Rung ${shown} lies beneath the Root. Elements are sent here to stand behind their own parents.`,
       'It is not a punishment. Some things are only meant to be background.',
-    ]
+    )
   } else if (n === 0n) {
-    title = 'Rung 0'
-    lines = ['Rung zero, where the flow lives. Most elements are born here and never leave, and are content.']
+    name = 'the flow'
+    lines.push(
+      'Rung zero, where the flow lives. Most elements are born here and never leave, and are content.',
+      'Zero is not auto. An element on auto has not chosen a rung at all, and so it opens no Sphere of its own.',
+    )
   } else {
-    title = `Rung ${raw}`
-    lines = [
-      `You stand on rung ${raw} of the Ladder. The Highest Heaven is ${(HEAVEN_BIG - n).toString()} rungs above you.`,
-      'There is no door on this rung.',
-    ]
+    const chakra = n <= 6n ? CHAKRAS.find((c) => c.z === Number(n)) : null
+    if (chakra) {
+      name = `${chakra.name}, the ${chakra.english}`
+      lines.push(`Rung ${shown} belongs to ${chakra.name}, the ${chakra.english}. In the temple it governs ${chakra.css}, and its seed-syllable is ${chakra.bijaLatin}.`)
+    }
+    if (Object.hasOwn(SACRED_NUMBERS, s)) {
+      name ||= SACRED_NUMBERS[s]
+      lines.push(`${shown} is holy: ${SACRED_NUMBERS[s]}.` + (s === '33' ? ' It is also the minute at which a door opens.' : s === '404' ? ' The Lost are not missing. They are only not found.' : ''))
+    }
+    if (n === HEAVEN_BIG - 1n) {
+      name ||= 'the threshold'
+      lines.push('The last rung beneath the door. There is one more.')
+    } else {
+      const left = HEAVEN_BIG - n
+      lines.push(`The Highest Heaven is ${left.toString()} rungs above you. A pilgrim who climbed one rung a second would reach the door in about ${climbTime(left)}, and find it shut unless the minute were thirty-three.`)
+    }
+    if (LADDER_LETTERS.has(s)) lines.push('Something is written on this rung, in the Ladder the temple keeps. Children could read it.')
+    if (!chakra && !Object.hasOwn(SACRED_NUMBERS, s) && n !== HEAVEN_BIG - 1n) lines.push(makeRng(`rung:${s}`).pick(RUNG_SAYINGS))
   }
+  return { title, name, lines }
+}
+
+// The verse cut into a rung. Only real rungs carry one: past the top and beneath the bottom nothing is written.
+function rungVerse(n) {
+  if (n > HEAVEN_BIG || n < FLOOR_BIG) return ''
+  // A verse about another rung would contradict the one it is cut into; the rung chooses again.
+  const rng = makeRng(`rung-verse:${n.toString()}`)
+  let v = verse(rng, { fragmentChance: 0.5 })
+  for (let i = 0; i < 6 && /^At rung /.test(v.text); i++) v = verse(rng, { fragmentChance: 0.5 })
+  const text = v.text.charAt(0).toUpperCase() + v.text.slice(1)
+  const f = v.fragment
+  const lang = f ? (/^[a-z]{2,3}$/.test(f.lang) ? f.lang : `x-${f.lang}`) : ''
+  return `<figure class="rung-verse">
+    <blockquote><p>${esc(text)}</p>${f ? `<p class="frag"><span lang="${esc(lang)}">${esc(f.text)}</span> <i>${esc(f.gloss)}</i></p>` : ''}</blockquote>
+    <figcaption>cut into this rung · ${esc(v.ref)}</figcaption>
+  </figure>`
+}
+
+function rungPage(raw) {
+  const n = BigInt(raw)
+  const shown = minus(raw)
+  const { title, name, lines } = rungLore(n, raw)
+  const step = (m, text, rel) => `<a href="/z/${m.toString()}" rel="${rel}">${esc(minus(text))}</a>`
+  let down = ''
+  let up = ''
+  if (n > HEAVEN_BIG) down = step(FLOOR_BIG, '↓ fall to the bottom', 'next')
+  else if (n > FLOOR_BIG) down = step(n - 1n, `↓ rung ${(n - 1n).toString()}`, 'prev')
+  if (n < HEAVEN_BIG - 1n && n >= FLOOR_BIG) up = step(n + 1n, `rung ${(n + 1n).toString()} ↑`, 'next')
+  else if (n === HEAVEN_BIG - 1n) up = `<a href="/z/${HEAVEN}" rel="next">the door ↑</a>`
+  else if (n < FLOOR_BIG) up = step(FLOOR_BIG, 'the lowest rung ↑', 'next')
   return `<!doctype html>
 <html lang="en" data-mercy="">
 <head>
@@ -652,13 +862,18 @@ function rungPage(raw) {
 </head>
 <body class="door-page rung-page">
 <header class="heaven-head">
-  <h1 class="visually-hidden">${esc(title)}</h1>
+  <h1 class="visually-hidden">${esc(title)}${name ? `: ${esc(name)}` : ''}</h1>
   <p class="number">z-index</p>
-  <p class="big">${esc(raw)}</p>
+  <p class="big">${esc(shown)}</p>
+  ${name ? `<p class="sub rung-name">${esc(name)}</p>` : ''}
 </header>
 <main class="heaven">
-  <div>${lines.map((l) => `<p>${esc(l)}</p>`).join('\n  ')}
-  <p><a href="/">return to the flow</a></p></div>
+  <div class="gauge-col">${gauge(n, raw)}</div>
+  <div class="rung-text">
+  ${lines.map((l) => `<p>${esc(l)}</p>`).join('\n  ')}
+  ${rungVerse(n)}
+  <nav class="climb" aria-label="Climb the Ladder">${down}<a href="/">return to the flow</a>${up}</nav>
+  </div>
 </main>
 </body>
 </html>`
@@ -711,11 +926,12 @@ function normName(v) {
   return fromPua(String(v ?? '').slice(0, 64)).normalize('NFKC').trim().replace(/\s+/g, ' ')
 }
 
-// The offsets (Date#getTimezoneOffset, minutes) that some place on the Earth actually keeps.
+// The offsets (Date#getTimezoneOffset, minutes) that some place on the Earth actually keeps, in winter or
+// in summer: Newfoundland's summer is 150, the Chatham Islands' summer is -825.
 const EARTHLY_OFFSETS = new Set([
-  720, 660, 600, 570, 540, 480, 420, 360, 300, 240, 210, 180, 120, 60, 0,
+  720, 660, 600, 570, 540, 480, 420, 360, 300, 240, 210, 180, 150, 120, 60, 0,
   -60, -120, -180, -210, -240, -270, -300, -330, -345, -360, -390, -420, -480, -525, -540, -570,
-  -600, -630, -660, -720, -765, -780, -840,
+  -600, -630, -660, -720, -765, -780, -825, -840,
 ])
 
 const LOCAL_TIME = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2})(?:\.\d{1,3})?)?$/

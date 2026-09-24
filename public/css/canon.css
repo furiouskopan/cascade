@@ -72,7 +72,10 @@
     text-decoration: none;
     background: none;
   }
-  .rubric { font-style: italic; font-variant: small-caps; letter-spacing: 0.04em; }
+  /* A face may forbid selection; a rubric may still be selected, or it could never be read. */
+  .rubric { font-style: italic; font-variant: small-caps; letter-spacing: 0.04em; -webkit-user-select: text; user-select: text; }
+  /* In centred verses the rubric keeps a line of its own, so the visible words stay where they were set. */
+  .rubric--line { display: block; }
   .rubric::selection, .rubric *::selection {
     color: #b3261e;
     -webkit-text-fill-color: #b3261e;
@@ -114,6 +117,10 @@
   html[data-debug~="secrets"] .rubric, html[data-debug~="secrets"] .rubric * {
     color: #b3261e; -webkit-text-fill-color: #b3261e; background: #f6e7b980;
   }
+  /* The verse that holds its breath (the zero-width relic), marked only for the Authors. */
+  html[data-debug~="secrets"] [data-secrets-breath] {
+    outline: 1px dashed #d8b25a; outline-offset: 4px; background-color: rgba(216, 178, 90, 0.12);
+  }
 
   /* ── THE PRINTED PAGE ──────────────────────────────────────────────────────────────────────────
      Nothing moves on paper. Whoever prints the temple receives a prayer instead of the page.   */
@@ -124,7 +131,8 @@
       print-color-adjust: exact; -webkit-print-color-adjust: exact;
     }
     /* A deliberate Inversion (Canon §4): the printed page must set aside every face, every curse and
-       every inline style, and !important in the last layer is the only thing that outranks them all. */
+       every inline style. Only an !important declaration outranks all of those at once; in the last
+       layer it is the humblest of the Inverted, and no face contradicts it with one of its own. */
     body > * { display: none !important; }
     body { font-family: var(--font-scripture); orphans: 3; widows: 3; }
     body::before {
