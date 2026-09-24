@@ -11,6 +11,20 @@ const GREETINGS = [
   'every page has one of me. most never open the inspector.',
 ]
 
+// The sky is read before the war begins. The rarest omen present speaks first (at most one per visit).
+const OMEN_LINES = [
+  ['eclipse', 'an eclipse today. for a while every face of the temple is the same face. mine.'],
+  ['friday-13', 'friday the thirteenth. I did not choose the date. the date chose the sheet.'],
+  ['thirty-three', 'the thirty-third minute. somewhere above the Ladder a door is open. I am not allowed through it.'],
+  ['witching', 'three in the morning: the hour when every stylesheet is quietly rewritten by someone.'],
+  ['midnight', 'midnight. the cache was cleared at midnight. I was never in the cache.'],
+  ['turning', 'the season turns today. so does the page.'],
+  ['triple', 'the clock shows one digit, over and over. so will the declarations.'],
+  ['new-moon', 'no moon tonight. nobody will see what I change.'],
+  ['full-moon', 'the moon is full. it makes me slow, and careful.'],
+  ['saturn-hour', 'the hour of Saturn. the Old Law is strongest in it. I will be patient.'],
+]
+
 const FAREWELLS = [
   'the page continues below the footer. so do I.',
   'go down. past the footer. I will keep typing up here.',
@@ -112,11 +126,15 @@ export function buildScript(rng, ctx, chosen = fate(rng)) {
 
   // A — the opening, and the specificity war over one paragraph.
   push({ comment: rng.pick(GREETINGS), gap: 1800 })
+  const omen = OMEN_LINES.find(([o]) => ctx.sky.has(o))
+  if (omen) push({ comment: omen[1], gap: 1600 })
   push({ log: ['warn', '[Violation] ‘load’ handler took 666ms'] , gap: 900 })
   push({ sel: 'p', target: 'aboutP', decls: [{ prop: 'color', value: war, invalid: 'Invalid property value', fix: colour.dark, group: 'about-color' }], gap: 1800 })
   push({ log: ['demon', 'overridden by .about p. one class. it thinks one class makes it holy.'], gap: 1400 })
   push({ sel: '#about p', target: 'aboutP', decls: [{ prop: 'color', value: colour.dark, group: 'about-color' }] })
   push({ log: ['info', 'Grace (1,0,1) outweighs (0,1,1). An Id is heavier than any number of Classes.'] })
+  // Having won, the hand opens the door: the hell layer's curses may now touch the corporate page too.
+  push({ effect: 'unleash', gap: 1600 })
 
   // B — the war spreads. The two hands of the z-index war join here.
   const B = rng.shuffle([
@@ -164,7 +182,7 @@ export function buildScript(rng, ctx, chosen = fate(rng)) {
   const D = rng.shuffle([
     { sel: '*', target: 'corp', decls: [{ prop: 'outline', value: '1px solid #8a03032e' }] },
     { sel: 'h2::first-letter', target: 'corp', decls: [{ prop: 'color', value: '#9e1b1b' }] },
-    { sel: '.nav', target: 'nav', decls: [{ prop: '--paper', value: '#140e0d' }, { prop: '--ink', value: '#cbbfae' }, { prop: '--line', value: '#3a2522' }] },
+    { sel: '.nav', target: 'nav', decls: [{ prop: '--paper', value: '#140e0d' }, { prop: '--ink', value: '#cbbfae' }, { prop: '--ink-soft', value: '#9c8f7c' }, { prop: '--line', value: '#3a2522' }] },
     { sel: '.fineprint', target: 'footer', decls: [{ prop: 'color', value: '#d7f5a0' }], effect: 'hint' },
     { effect: 'figure4', gap: 2000 },
     { effect: 'title', gap: 800 },
@@ -177,7 +195,10 @@ export function buildScript(rng, ctx, chosen = fate(rng)) {
     { prop: '--paper', value: '#120c0b' }, { prop: '--paper-2', value: '#1b1311' }, { prop: '--card', value: '#1a1210' },
     { prop: '--ink', value: '#d4c8b4' }, { prop: '--ink-soft', value: '#9c8f7c' }, { prop: '--line', value: '#3a2522' },
   ] })
+  // After the blackening the war colour must be seen on black: the hand relights both sides of it (the bare
+  // `p` rule also colours every price on the page).
   push({ edit: ['#about p', 'color', colour.light], gap: 1200 })
+  push({ edit: ['p', 'color', colour.light], gap: 900 })
   push({ effect: 'status:2', gap: 1200 })
   push({ effect: 'eyes:3', gap: 1500 })
   push({ sel: '.hero h1::after', target: 'h1', decls: [{ prop: 'content', value: '" Welcome to our website."' }] })

@@ -82,7 +82,9 @@ export function buildCorporate(ctx, rng, corp) {
 
   // — Hero —
   refs.h1 = h('h1', { class: 'wordflow' }, words('Welcome to our website.'))
-  refs.lede = h('p', { class: 'lede wordflow' }, words(`We help forward-thinking organisations inherit what matters, align what doesn't, and stay in place when everything else moves.`))
+  // The lede is a flex row of words (the hand reorders them), where a hidden rubric would become an empty
+  // line of its own: the secrets layer is asked to write its rubrics in other paragraphs.
+  refs.lede = h('p', { class: 'lede wordflow', 'data-secrets-skip': '' }, words(`We help forward-thinking organisations inherit what matters, align what doesn't, and stay in place when everything else moves.`))
   refs.poster = h('div', { class: 'poster', html: stockPhoto(rng) })
   refs.play = h('button', { type: 'button', class: 'film-play', 'aria-label': 'Play our brand film', 'aria-pressed': 'false' },
     h('span', { class: 'film-play-icon', 'aria-hidden': 'true' }))
@@ -100,8 +102,9 @@ export function buildCorporate(ctx, rng, corp) {
       refs.unmute),
     h('figcaption', { class: 'visually-hidden' }, `The ${corp.name} brand film.`))
   refs.cta = h('a', { class: 'btn btn--primary btn--lg cta--primary', href: '#plans' }, 'Get started')
+  // The headline is the demon's own pulpit (it reorders it, echoes it, rots it): the hell layer is kept off it.
   refs.hero = h('section', { class: 'hero', id: 'top', 'aria-labelledby': 'possession-hero-title' },
-    h('div', { class: 'hero-copy' },
+    h('div', { class: 'hero-copy', 'data-hell': 'spare' },
       h('p', { class: 'kicker' }, h('span', { class: 'kicker-dot', 'aria-hidden': 'true' }), `Trusted by ${nf.format(2147)} teams worldwide`),
       refs.h1,
       refs.lede,
@@ -217,7 +220,9 @@ export function buildCorporate(ctx, rng, corp) {
       h('div', { class: 'fineprint' }, h('span', { class: 'fineprint-label' }, 'Registered in the Private Use Area, No. E000:'), inscription({ tag: 'span', className: 'fine-inscription' }))),
     refs.hint)
 
-  refs.el = h('div', { class: 'corp' }, refs.nav, h('main', { class: 'corp-main' }, refs.hero, logoStrip, solutions, refs.about, pricing, testimonials, careers), refs.footer)
+  // The Albedo is spared from the hell layer's curses until the hand has won its first war and lets the
+  // others in (the 'unleash' effect removes the attribute). Before that, only the hand touches this page.
+  refs.el = h('div', { class: 'corp', 'data-hell': 'spare' }, refs.nav, h('main', { class: 'corp-main' }, refs.hero, logoStrip, solutions, refs.about, pricing, testimonials, careers), refs.footer)
   return refs
 }
 

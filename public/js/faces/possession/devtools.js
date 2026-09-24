@@ -73,7 +73,9 @@ export function createDevtools(ctx, life, opts) {
   // — Status —
   const typingDot = h('span', { class: 'dt-typing-dot', 'aria-hidden': 'true' })
   const statusText = h('span', { class: 'dt-status-text' }, 'Ready')
-  const status = h('div', { class: 'dt-status' }, typingDot, statusText)
+  // A second line, as a status bar keeps: the state of the file being written (the demon keeps it current).
+  const metaText = h('span', { class: 'dt-status-meta' })
+  const status = h('div', { class: 'dt-status' }, typingDot, h('span', { class: 'dt-status-lines' }, statusText, metaText))
 
   // data-hell="spare": the hell layer's own curses leave the Inspector alone; it is the demon's instrument.
   const el = h('aside', { class: 'dt', 'aria-label': 'Developer tools (possessed)', 'data-open': 'false', 'data-hell': 'spare' }, bar, h('div', { class: 'dt-body' }, elementsPanel, consolePanel, sourcesPanel), status)
@@ -338,9 +340,20 @@ export function createDevtools(ctx, life, opts) {
   chip.addEventListener('click', () => (isOpen ? close('user') : open('user')))
   speakerBtn.addEventListener('click', () => onSummon?.(speakerBtn))
 
+  // The status line: who is typing, unless something holds the hand (Mercy, the Apology), which is said instead.
+  let typing = false
+  let typist = demonName
+  let hold = null
   function setTyping(on, who = demonName) {
-    el.classList.toggle('is-typing', on)
-    statusText.textContent = on ? `${who} is typing…` : 'Ready'
+    typing = on
+    typist = who
+    el.classList.toggle('is-typing', on && !hold)
+    el.classList.toggle('is-held', Boolean(hold))
+    statusText.textContent = hold ?? (on ? `${who} is typing…` : 'Ready')
+  }
+  function setHold(text) {
+    hold = text || null
+    setTyping(typing, typist)
   }
 
   function setSource(text) {
@@ -352,8 +365,8 @@ export function createDevtools(ctx, life, opts) {
     el, chip, overlay, counts,
     get isOpen() { return isOpen },
     get tab() { return tab },
-    open, close, setTab, log, addRule, setTree, select, markPossessed, highlight, setTyping, setSource,
-    setStatus(text) { statusText.textContent = text },
+    open, close, setTab, log, addRule, setTree, select, markPossessed, highlight, setTyping, setHold, setSource,
+    setMeta(text) { if (metaText.textContent !== text) metaText.textContent = text },
     clear() { logList.replaceChildren() },
     showChip() { chip.hidden = false },
     speakerBtn,

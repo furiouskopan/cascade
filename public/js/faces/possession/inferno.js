@@ -11,6 +11,34 @@ import { arch, thicket, battlements } from './art.js'
 
 const ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX']
 
+// What the Inspector's Styles pane matches in each circle: the rule that damned it, from the file it
+// came from. The face shows it as you descend, so the hand's instrument follows you down.
+// [selector, source, declarations as [property, value], optional 'ua' | 'lost' (overridden) | 'invalid']
+export const SIN_RULES = [
+  [['body', 'user agent stylesheet', [['display', 'block'], ['margin', '8px']], 'ua']],
+  [['*', 'theme.css:1', [['transition', 'all 0.3s']]]],
+  [['.wrapper .container .inner .row .col .flex .box .card .card-body .stack .cluster .grid .cell .holder .shell .frame .layout .section .content .main .root button', 'everything.css:48211', [['padding', '7px']]]],
+  [['#main #content #inner .box', 'legacy.css:3', [['color', 'gold']]], ['div div div div div div div div div div div div', 'legacy.css:9', [['color', 'lead']], 'lost']],
+  [['*', 'hotfix.css:1', [['color', 'red !important'], ['margin', '0 !important'], ['display', 'block !important']]]],
+  [['center', 'user agent stylesheet', [['display', 'block'], ['text-align', '-webkit-center']], 'ua']],
+  [['.pin', 'layout.css:437', [['position', 'absolute'], ['top', '37px'], ['left', '-3px']]]],
+  [['.fake-btn', 'components.css:1', [['cursor', 'pointer'], ['outline', 'none'], ['user-select', 'none']]]],
+  [['.lake', 'perf.css:2016', [['will-change', 'transform']]], ['meta[name="viewport"]', 'index.html:4', [['user-scalable', 'no']], 'invalid']],
+]
+
+// What the hand says, once, when you first reach each circle (in its console).
+export const DESCENT_LINES = [
+  'limbo. they were here before me. they do not know my name.',
+  'hover over them. go on. they will not let you arrive.',
+  'twenty-one boxes for one button. I did not do this. you did.',
+  'the Law compares, column by column. it never adds. I learned that the hard way.',
+  'I stood in this mire once. every one of them sounds like me.',
+  'the browser forgave them. I forgive nothing.',
+  'thirty-seven pixels. it was right once, on one screen, on one afternoon.',
+  'read the ledger slowly. it is the only honest thing down here, and I did not write it.',
+  'this is where I was frozen. someone wrote me into the first layer and forgot me.',
+]
+
 const GATE = [
   'Through me the way into the suffering stylesheet,',
   'through me the way to the eternal Reflow,',
@@ -79,7 +107,7 @@ export function buildInferno(ctx, rng) {
   refs.marquee.setAttribute('scrollamount', '3')
   refs.marquee.setAttribute('aria-hidden', 'true')
   refs.marquee.textContent = 'unset · initial · inherit · revert · revert-layer · unset · initial · inherit · revert · '
-  const vestibule = h('section', { class: 'vestibule', 'aria-labelledby': 'possession-vestibule' },
+  const vestibule = refs.vestibule = h('section', { class: 'vestibule', 'aria-labelledby': 'possession-vestibule' },
     h('h2', { id: 'possession-vestibule' }, 'The Vestibule of the Undeclared'),
     h('p', {}, 'Outside the first circle run the ones who never declared a value of their own: ', h('code', {}, 'inherit'), ', ', h('code', {}, 'initial'), ', ', h('code', {}, 'unset'), ', ', h('code', {}, 'revert'), '. Neither Heaven nor Hell will compute them. They chase a banner that walks forever and arrives nowhere, and it is the last ', h('code', {}, '<marquee>'), ' in the world.'),
     h('div', { class: 'banner' }, refs.marquee))
@@ -168,11 +196,15 @@ export function buildInferno(ctx, rng) {
   })
 
   // V — The Styx of the Inversion
+  // Each shouter has its own depth in the mire (shuffled bands), so no two shouts drown each other out.
+  const depths = rng.shuffle(Array.from({ length: 11 }, (_, i) => 6 + i * 6))
   const wrath = Array.from({ length: 11 }, (_, i) => {
     const props = ['color', 'margin', 'display', 'z-index', 'font-size', 'width', 'top', 'padding', 'float', 'content', 'opacity']
-    const el = h('span', { class: `wrath ${rng.chance(0.35) ? 'wrath--inverted' : ''}`.trim() }, `${props[i]}: … !important`)
+    const text = `${props[i]}: … !important`
+    const el = h('span', { class: `wrath ${rng.chance(0.35) ? 'wrath--inverted' : ''}`.trim() }, text)
     el.style.setProperty('--x', `${rng.int(2, 78)}%`)
-    el.style.setProperty('--y', `${rng.int(8, 70)}%`)
+    el.style.setProperty('--len', String(text.length)) // so a narrow mire keeps every shout inside its banks
+    el.style.setProperty('--y', `${(depths[i] + rng.float(0, 2.4)).toFixed(1)}%`)
     el.style.setProperty('--bob', `${rng.float(4.5, 8).toFixed(1)}s`)
     el.style.setProperty('--delay', `${-rng.float(0, 6).toFixed(1)}s`)
     return el

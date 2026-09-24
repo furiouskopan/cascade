@@ -133,10 +133,11 @@
 .face--possession .corp .film-caption:empty { display: none; }
 .face--possession .corp .film-controls { display: flex; align-items: center; gap: 12px; padding: 8px 10px 8px 14px; background: #0f141b; color: #cbd5e1; font-size: .78rem; }
 .face--possession .corp .film-bar { flex: 1; height: 4px; border-radius: 2px; background: #334155; overflow: hidden; }
-.face--possession .corp .film-bar-fill { display: block; height: 100%; width: 100%; background: var(--brand); transform-origin: left; scale: .002 1; }
-.face--possession .corp .film.playing .film-bar-fill { animation: possession-film 66s linear infinite; }
-@keyframes possession-film { from { scale: .002 1; } to { scale: 1 1; } }
+/* The bar follows the timecode (possession.js sets --film once a second); past the end it stays full and turns. */
+.face--possession .corp .film-bar-fill { display: block; height: 100%; width: 100%; background: var(--brand); transform-origin: left; scale: max(.002, var(--film, 0)) 1; }
+.face--possession .corp .film.overrun .film-bar-fill { background: #b91c1c; }
 .face--possession .corp .film-time { font-variant-numeric: tabular-nums; }
+.face--possession .corp .film.overrun .film-time { color: #f28b82; }
 .face--possession .corp .film-unmute { display: inline-flex; align-items: center; gap: 6px; border: 1px solid #334155; background: #111821; color: #cbd5e1; border-radius: 6px; padding: 3px 8px 3px 4px; cursor: pointer; font: 600 .74rem var(--corp-font); }
 .face--possession .corp .film-unmute:hover { color: #fff; border-color: #64748b; }
 .face--possession .corp .film-grille { display: inline-grid; }
@@ -290,6 +291,7 @@
 .face--possession.nigredo .corp .kicker-dot { background: #b91c1c; box-shadow: 0 0 0 3px #b91c1c33; }
 .face--possession.nigredo .corp .zbadge { background: #2a0c0c; border-color: #6b0f0f; color: #f3b0b0; }
 .face--possession.nigredo .corp .avatar { color: #c9dc8a; }
+.face--possession.nigredo .corp .status--bad { color: #e0736a; }
 
 /* cookies, toast */
 .face--possession .cookie {
@@ -320,6 +322,31 @@
   box-shadow: 0 16px 40px -10px #0008;
 }
 .face--possession .toast p { margin: 0; }
+/* The Apology (33 s of stillness): the Management withdraws every declaration and says so, in its own
+   white. If you stay, the hand corrects the apology one letter at a time, and the toast curdles too. */
+.face--possession .toast--apology {
+  background: #ffffff; color: #1a202c; border: 1px solid #e2e8f0; padding: 14px 18px 14px 44px;
+  box-shadow: 0 18px 44px -14px #0f172a40;
+  transition: background-color 2.4s ease, color 2.4s ease, border-color 2.4s ease;
+}
+.face--possession .toast--apology::before {
+  content: '\2139'; position: absolute; left: 16px; top: 13px; width: 18px; height: 18px; border-radius: 50%;
+  display: grid; place-items: center; font: 700 12px/1 var(--corp-font); color: #fff; background: #2563eb;
+  transition: background-color 2.4s ease;
+}
+.face--possession .toast-verb { font-weight: 700; }
+.face--possession .toast-verb.is-edited { color: #9e1b1b; box-shadow: inset 0 -1px #9e1b1b; }
+.face--possession .toast-verb.is-edited::after { content: ''; display: inline-block; width: 1.5px; height: 1.05em; margin-left: 1px; vertical-align: text-bottom; background: currentColor; animation: possession-caret 1.05s steps(1) infinite; }
+.face--possession .toast--relapse { background: #120c0b; color: #d4c8b4; border-color: #3a2522; }
+.face--possession .toast--relapse::before { background: #7a1010; }
+.face--possession .toast--relapse .toast-verb.is-edited { color: #e0736a; box-shadow: inset 0 -1px #e0736a; }
+.face--possession .toast--relapse .toast-verb.is-edited::after { display: none; }
+/* While the hand is held (by Mercy, or by the Management's apology) the Inspector is paused, as a debugger
+   pauses: amber, and holding. */
+.face--possession .dt.is-held .dt-status { background: #3b3218; color: #f5d488; }
+.face--possession .dt.is-held .dt-typing-dot { background: #f2ab26; border-radius: 1px; }
+.face--possession .dt.is-held .dt-status-text { color: #f5d488; }
+.face--possession.apologising .corp .status-dot { background: #22c55e; }
 
 /* ————————————————————————————— the Inspector ————————————————————————————— */
 .face--possession .dt {
@@ -401,6 +428,13 @@
 .face--possession .dt-rule--ua .dt-src { text-decoration: none; }
 .face--possession .dt-rule--ua .dt-sel { color: var(--dt-dim); }
 .face--possession .dt-rule--offering .dt-sel { color: #e2c275; }
+/* Below the footer the Styles pane matches the circle you are in: the rule that damned it, marked in ember. */
+.face--possession .dt-rule--circle { box-shadow: inset 2px 0 #b3261e; background: color-mix(in srgb, #b3261e 8%, transparent); }
+.face--possession .dt-rule--circle .dt-src { color: color-mix(in srgb, #e0736a 70%, var(--dt-dim)); }
+.face--possession .dt-rule--circle.dt-rule--ua { box-shadow: inset 2px 0 var(--dt-dim); background: none; }
+.face--possession .dt-rule--circle.dt-rule--ua .dt-src { color: var(--dt-dim); }
+.face--possession .dt-rule--circle .dt-decl.is-invalid .dt-val { text-decoration: none; }
+.face--possession .dt-rule--circle .dt-decl.is-invalid .dt-prop { text-decoration: line-through wavy #f2ab26; }
 .face--possession .dt-rule--demon { animation: possession-rule-in 1.2s ease-out; }
 @keyframes possession-rule-in { from { background: color-mix(in srgb, #e5484d 22%, transparent); } }
 .face--possession .dt-caret { display: inline-block; width: 1.5px; height: 1.15em; margin-left: 1px; background: var(--dt-fg); vertical-align: text-bottom; animation: possession-caret 1.05s steps(1) infinite; }
@@ -432,6 +466,10 @@
 .face--possession .dt-source code { white-space: pre-wrap; overflow-wrap: anywhere; color: var(--dt-fg); }
 .face--possession .dt-status { display: flex; align-items: flex-start; gap: 7px; min-height: 84px; padding: 6px 10px; background: var(--dt-bar); border-top: 1px solid var(--dt-line); color: var(--dt-dim); font-size: 11px; }
 .face--possession .dt-typing-dot { flex: none; width: 7px; height: 7px; border-radius: 50%; background: #5f6368; margin-top: 4px; }
+.face--possession .dt-status-lines { display: grid; gap: 3px; min-width: 0; }
+.face--possession .dt-status-meta { font: 10.5px/1.35 var(--mono); color: var(--dt-dim); opacity: .85; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-variant-numeric: tabular-nums; }
+.face--possession .dt-status-meta:empty { display: none; }
+.face--possession .dt.is-apology .dt-status-meta { color: #f5d488; opacity: 1; }
 .face--possession .dt.is-typing .dt-typing-dot { background: #e5484d; animation: possession-pulse 1.6s ease-in-out infinite; }
 .face--possession .dt.is-typing .dt-status-text { color: var(--dt-fg); }
 :root[data-ascended] .face--possession .dt-status-text::after { content: ' \00B7 an Ascended soul is present; the hand trembles'; color: #e2c275; }
@@ -566,12 +604,16 @@
 
 /* II — the Tempest */
 .face--possession .tempest {
-  position: relative; height: 340px; border-radius: 50% / 34%; overflow: hidden;
-  background: radial-gradient(ellipse at center, #3a1322 0%, #1d0a1200 70%), repeating-linear-gradient(170deg, #ffffff00 0 40px, #c9587a0d 40px 42px, #ffffff00 42px 90px);
-  background-size: 100% 100%, 400px 400px;
+  position: relative; isolation: isolate; height: 340px; border-radius: 50% / 34%; overflow: hidden;
+  background: radial-gradient(ellipse at center, #3a1322 0%, #1d0a1200 70%);
+}
+/* The wind: a sheet of streaks larger than the storm, carried across it (transform only). */
+.face--possession .tempest::before {
+  content: ''; position: absolute; z-index: -1; left: 0; top: -70px; width: calc(100% + 400px); height: calc(100% + 140px);
+  background: repeating-linear-gradient(170deg, #ffffff00 0 40px, #c9587a0d 40px 42px, #ffffff00 42px 90px) 0 0 / 400px 400px;
   animation: possession-wind 40s linear infinite;
 }
-@keyframes possession-wind { to { background-position: 0 0, -400px 70px; } }
+@keyframes possession-wind { to { transform: translateX(-400px); } }
 .face--possession .soul {
   position: absolute; left: var(--x); top: var(--y);
   font: 600 13px/1 var(--corp-font); padding: 8px 12px; border-radius: 7px; white-space: nowrap;
@@ -647,8 +689,15 @@
 .face--possession .ferry-boat::before { content: ''; position: absolute; left: 22px; bottom: 20px; width: 2px; height: 46px; background: #5a4a38; rotate: -14deg; transform-origin: bottom; }
 .face--possession .ferry-label { font-style: italic; color: #cbdba8; }
 .face--possession .ferry-label code { font-style: normal; color: #b5c95a; background: #00000066; padding: 2px 6px; }
-.face--possession .mire { position: absolute; inset: 12% -20px 0; border-radius: 45% 55% 0 0 / 5% 5% 0 0; background: repeating-linear-gradient(178deg, #8aa6340a 0 1px, transparent 1px 22px), repeating-linear-gradient(181deg, #00000033 0 2px, transparent 2px 37px), linear-gradient(#1b2a0e00, #1b2a0e 10%, #0f1a0b 55%, #060a05); box-shadow: inset 0 30px 60px -30px #8aa63455; }
-.face--possession .wrath { position: absolute; left: var(--x); top: var(--y); font: 700 clamp(.85rem, 2vw, 1.2rem) var(--mono); color: #d7e8a0; text-shadow: 0 0 14px #000; white-space: nowrap; animation: possession-bob var(--bob) ease-in-out var(--delay) infinite alternate; }
+/* The mire is only a frame for the shouters; its surface (::before) bleeds to both edges of the circle. */
+.face--possession .mire { position: absolute; inset: 12% -20px 0; }
+.face--possession .mire::before {
+  content: ''; position: absolute; z-index: -1; inset: 0 -50vw; border-radius: 50% 50% 0 0 / 3.5% 3.5% 0 0;
+  background: repeating-linear-gradient(178deg, #8aa6340a 0 1px, transparent 1px 22px), repeating-linear-gradient(181deg, #00000033 0 2px, transparent 2px 37px), linear-gradient(#1b2a0e00, #1b2a0e 10%, #0f1a0b 55%, #060a05);
+  box-shadow: inset 0 30px 60px -30px #8aa63455;
+}
+/* However narrow the mire, a shout stays inside its banks (the circle clips 20px in from the mire's edge). */
+.face--possession .wrath { position: absolute; left: max(8px, min(var(--x), calc(100% - var(--len, 20) * 1ch - 30px))); top: var(--y); font: 700 clamp(.85rem, 2vw, 1.2rem) var(--mono); color: #d7e8a0; text-shadow: 0 0 14px #000; white-space: nowrap; animation: possession-bob var(--bob) ease-in-out var(--delay) infinite alternate; }
 .face--possession .wrath--inverted { rotate: 180deg; color: #b5c95a; }
 @keyframes possession-bob { from { transform: translateY(-7px); } to { transform: translateY(9px); } }
 .face--possession .sullen { position: absolute; left: 0; right: 0; bottom: 7%; margin: 0; padding: 0 16px; text-align: center; font: italic 1.2rem var(--hell-serif); color: #5d7430; filter: blur(1.4px); opacity: .8; }
@@ -663,10 +712,12 @@
 .face--possession .tomb {
   display: grid; grid-template-rows: auto 1fr auto; gap: 8px; padding: 14px 14px 12px; min-height: 180px;
   background: linear-gradient(#34100a, #1a0504); border: 1px solid #6a2012; border-radius: 3px 3px 26px 26px;
-  box-shadow: inset 0 -24px 44px #ff4a1a24, 0 0 26px #ff4a1a14; animation: possession-smoulder 6s ease-in-out infinite alternate;
+  position: relative; box-shadow: inset 0 -24px 44px #ff4a1a24, 0 0 26px #ff4a1a14;
 }
-.face--possession .tomb:nth-child(2n) { animation-delay: -3s; }
-@keyframes possession-smoulder { to { box-shadow: inset 0 -30px 54px #ff4a1a3a, 0 0 34px #ff4a1a22; } }
+/* The smoulder is a second glow that swells and sinks (opacity only, so it costs no repaint). */
+.face--possession .tomb::after { content: ''; position: absolute; inset: -1px; border-radius: inherit; pointer-events: none; box-shadow: inset 0 -34px 60px #ff4a1a30, 0 0 40px #ff4a1a1c; opacity: 0; animation: possession-smoulder 6s ease-in-out infinite alternate; }
+.face--possession .tomb:nth-child(2n)::after { animation-delay: -3s; }
+@keyframes possession-smoulder { to { opacity: 1; } }
 .face--possession .tomb-lid { margin: 0; }
 .face--possession .tomb-lid code { display: block; padding: 6px 8px; background: #00000066; color: #ffb49a; font-size: 11px; transform: rotate(-2deg) translateY(-4px); overflow-wrap: anywhere; }
 .face--possession .tomb-body { display: grid; place-items: center; text-align: center; color: #f2d6c4; min-width: 0; }
@@ -778,6 +829,12 @@
   .face--possession .circle { padding-left: max(64px, calc(50% - 540px)); }
 }
 
+/* Far from the screen, the circles rest: their animations pause until the visitor comes near (possession.js
+   marks .is-near with an IntersectionObserver). The souls do not wait for you; they only wait near you. */
+.face--possession :is(.circle, .vestibule, .gate, .exit):not(.is-near) *,
+.face--possession :is(.circle, .vestibule, .gate, .exit):not(.is-near) *::before,
+.face--possession :is(.circle, .vestibule, .gate, .exit):not(.is-near) *::after { animation-play-state: paused; }
+
 /* ————————————————————————————— mercy ————————————————————————————— */
 /* Mercy stops motion (base.css) and, here, also calms the curses that harm reading. The selectors carry
    an id so that no ordinary demon rule can outrank them. */
@@ -790,6 +847,19 @@ html[data-mercy="on"] #temple.face--possession .mirror { transform: none; }
 html[data-mercy="on"] #temple.face--possession .wrath--inverted,
 html[data-mercy="on"] #temple.face--possession .inv-face { rotate: none; }
 
+/* Focus stays visible whatever the hand writes. Its `* { outline }` (and the escalations of it, up to Grace
+   (1,2,0), or the Inversion) would swallow the focus ring, so the ring outranks every ordinary rule the hand
+   can write and is drawn a second time as a shadow, which the hand never touches. */
+html #temple.face--possession :is(.corp, .abyss) :focus-visible,
+html #temple.face--possession > .cookie :focus-visible {
+  outline: 2px solid currentColor; outline-offset: 3px;
+  box-shadow: 0 0 0 2px #0b0b0b, 0 0 0 4px #d7f5a0;
+  /* The page's slow creep (2.8 s on outline-color and box-shadow) must not reach the ring: it appears at once. */
+  transition: none;
+}
+/* The hand hides "Reject all" from the pointer. A keyboard can still find it, and then it can be seen. */
+html #temple.face--possession > .cookie .btn--ghost:focus-visible { opacity: 1; pointer-events: auto; }
+
 /* The laying on of hands: hovering a rotted word restores it. */
 .face--possession .corp .rot:hover { font-family: inherit; }
 
@@ -798,7 +868,9 @@ html[data-mercy="on"] #temple.face--possession .inv-face { rotate: none; }
   .face--possession .dt { top: auto; left: 0; width: auto; height: var(--dt-h); border-left: 0; border-top: 1px solid var(--dt-line); translate: 0 100%; box-shadow: 0 -20px 40px -20px #0008; }
   .face--possession .dt-panel--elements { grid-template-rows: minmax(0, 1fr); }
   .face--possession .dt-dom { display: none; }
-  .face--possession .dt-status { min-height: 0; padding: 5px 84px 5px 84px; }
+  /* The dock's floor: its status line on top, and room beneath for mercy and hush (bottom-left) and the
+     altar (bottom-right), so none of them ever sits on a rule or a checkbox. */
+  .face--possession .dt-status { min-height: 76px; padding: 7px 84px 7px 12px; }
   .face--possession .dt-body { padding-bottom: 0; }
   .face--possession .dt { grid-template-rows: auto minmax(0, 1fr) auto; }
   .face--possession .dt-panel { padding-bottom: 0; }
@@ -832,8 +904,8 @@ html[data-mercy="on"] #temple.face--possession .inv-face { rotate: none; }
   .face--possession .corp .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .face--possession .corp .stat b { font-size: 1.5rem; }
   .face--possession .corp .job { padding-inline: 14px; }
-  .face--possession { --dt-h: min(38vh, 340px); }
-  .face--possession .cookie { bottom: 50px; padding: 12px 14px; font-size: 13px; }
+  .face--possession { --dt-h: min(42vh, 360px); }
+  .face--possession .cookie { bottom: 84px; padding: 12px 14px; font-size: 13px; } /* above the altar (bottom-right, ~72px) */
   .face--possession .cookie-text { margin-bottom: 8px; }
   .face--possession .cookie .btn { padding: .62em .9em; font-size: .85rem; }
   .face--possession .circle { padding: 12vh 16px 10vh; }

@@ -28,7 +28,7 @@ export function realSelector(display) {
 
 const isColor = (v) => /^(#[0-9a-f]{3,8}|rgba?\(|hsla?\()/i.test(v)
 
-export function createDemon({ ctx, rng, life, dt, styleEl, speed, effects, targets, name }) {
+export function createDemon({ ctx, rng, life, dt, styleEl, speed, effects, targets, name, mayReopen = () => true }) {
   const rules = []
   const queue = []
   const baselines = new Map() // group -> {spec, view, order}
@@ -76,10 +76,29 @@ export function createDemon({ ctx, rng, life, dt, styleEl, speed, effects, targe
     return out.join('\n')
   }
 
+  // The tally in the Inspector's status bar: how much of the file is in force. The Apology reads as 0.
+  function tally() {
+    let count = 0, total = 0, live = 0, inverted = 0
+    for (const r of rules) {
+      if (r.comment) continue
+      const typed = r.decls.filter((d) => d.typed)
+      if (!typed.length) continue
+      count++
+      total += typed.length
+      for (const d of typed) {
+        if (!d.enabled || d.invalid || apology) continue
+        live++
+        if (d.important) inverted++
+      }
+    }
+    dt.setMeta?.(`possessed.css · ${count} rule${count === 1 ? '' : 's'} · ${live}/${total} applied${inverted ? ` · ${inverted} !important` : ''}`)
+  }
+
   let sourceDirty = true
   function commit() {
     styleEl.textContent = cssText()
     resolveGroups()
+    tally()
     sourceDirty = true
     if (dt.tab === 'sources') renderSource()
     for (const fn of hooks.commit) fn()
@@ -243,6 +262,7 @@ export function createDemon({ ctx, rng, life, dt, styleEl, speed, effects, targe
     const view = r.view.addDecl({})
     const decl = { prop: d.prop, value: d.value, important: !!d.important, group: d.group ?? null, enabled: true, typed: false, invalid: null, order: ++order, rule: r, spec: r.spec, selLabel: r.sel, view, family: d.family ?? r.family ?? { level: 0, prop: d.prop }, rechecked: 0 }
     view.check.setAttribute('aria-label', `Disable ${d.prop} on ${r.sel}`)
+    view.check.disabled = true // it cannot be unchecked before it has been written
     r.decls.push(decl)
     view.check.addEventListener('change', () => toggle(decl, view.check.checked, 'visitor'))
     hand.place(view.prop)
@@ -257,6 +277,7 @@ export function createDemon({ ctx, rng, life, dt, styleEl, speed, effects, targe
     view.semi.hidden = false
     hand.place(view.semi)
     decl.typed = true
+    view.check.disabled = false
     if (d.invalid) markInvalid(decl, d.invalid)
     swatch(decl)
     commit()
@@ -331,6 +352,13 @@ export function createDemon({ ctx, rng, life, dt, styleEl, speed, effects, targe
   }
 
   // The answer to an uncheck: check it again, then more Grace, then the Inversion, then Mercy.
+  // Answers do not wait their turn in the script: a second hand writes them at once, beside the first
+  // ("… and 1 other is typing"), one answer after another.
+  const answerer = makeHand()
+  let answering = Promise.resolve()
+  function answer(fn) {
+    answering = answering.then(() => (life.dead ? null : fn())).catch((e) => console.error('[possession:demon]', e))
+  }
   function counter(decl) {
     if (apology || still) return
     const fam = decl.family
@@ -338,33 +366,35 @@ export function createDemon({ ctx, rng, life, dt, styleEl, speed, effects, targe
     const sel = decl.rule.sel
     const hasReal = decl.rule.real !== realSelector(sel)
     if (level === 0) {
-      queue.unshift({ run: async () => {
+      answer(async () => {
         await life.wait(1600 / pace())
         if (decl.enabled) return
         dt.log('demon', `you unchecked ${decl.prop}. I checked it again.`)
-        main.place(decl.view.semi)
+        answerer.place(decl.view.semi)
         await life.wait(700)
-        main.lift()
+        answerer.lift()
         toggle(decl, true, 'demon')
-      } })
+      })
     } else if (level === 1 && !hasReal) {
       const more = sel.startsWith('#temple') ? `#temple${sel}` : `#temple ${sel}`
-      queue.unshift({ run: async () => {
+      answer(async () => {
+        await life.wait(900 / pace())
         dt.log('demon', `(${decl.spec.join(',')}) was not enough. Grace can be taken.`)
-        await writeRule({ sel: more, family: fam, decls: [{ prop: decl.prop, value: decl.value, group: decl.group, family: fam }], target: null })
-      } })
+        await writeRule({ sel: more, family: fam, decls: [{ prop: decl.prop, value: decl.value, group: decl.group, family: fam }], target: null }, answerer)
+      })
     } else if (level <= 2) {
-      queue.unshift({ run: async () => {
-        await writeComment(rng.pick(['you made me say it.', 'then I will invert the Origins.', 'this is on you.']))
-        await writeRule({ sel, real: decl.rule.real, family: fam, decls: [{ prop: decl.prop, value: decl.value, group: decl.group, important: true, family: fam }] })
-      } })
+      answer(async () => {
+        await life.wait(900 / pace())
+        await writeComment(rng.pick(['you made me say it.', 'then I will invert the Origins.', 'this is on you.']), answerer)
+        await writeRule({ sel, real: decl.rule.real, family: fam, decls: [{ prop: decl.prop, value: decl.value, group: decl.group, important: true, family: fam }] }, answerer)
+      })
     } else {
-      queue.unshift({ run: async () => {
+      answer(async () => {
         dt.log('demon', `fine. keep ${decl.prop}. Mercy is the only righteous Inversion, and you know where it is.`)
         ctx.root.classList.add('point-at-mercy')
         await life.sleep(6000)
         ctx.root.classList.remove('point-at-mercy')
-      } })
+      })
     }
   }
 
@@ -388,6 +418,34 @@ export function createDemon({ ctx, rng, life, dt, styleEl, speed, effects, targe
   whisperer.instant = true
   async function whisperRule(spec) {
     await writeRule(spec, whisperer)
+  }
+
+  // The Aftermath. For a visitor who arrives already holding Mercy: everything the hand would have written
+  // is written at once, before the page is looked at, and then nothing moves. No typing, no waiting;
+  // effects ask `settling` and settle into their final state instead of playing out.
+  let settling = false
+  async function settle() {
+    const hand = makeHand()
+    hand.instant = true
+    settling = true
+    try {
+      while (queue.length && !life.dead) {
+        const a = queue.shift()
+        if (a.run) continue // interactive runs (the cookie fate) are settled by their own effect
+        try {
+          if (a.comment) await writeComment(a.comment, hand)
+          else if (a.log) dt.log(a.log[0], a.log[1], a.log[2] ?? '')
+          else if (a.sel) await writeRule(a, hand)
+          else if (a.edit) {
+            const d = findDecl(a.edit[0], a.edit[1])
+            if (d) await editValue(d, a.edit[2], hand)
+          }
+          if (a.effect && !life.dead) effects(a.effect)
+        } catch (e) { console.error('[possession:demon]', e) }
+      }
+    } finally {
+      settling = false
+    }
   }
 
   let running = false
@@ -414,10 +472,11 @@ export function createDemon({ ctx, rng, life, dt, styleEl, speed, effects, targe
 
   function idle() {
     const choices = []
+    // The headline keeps being worked on, within bounds: a phone must still be able to hold it.
     const h1ls = findDecl('.hero h1', 'letter-spacing')
-    if (h1ls && parseFloat(h1ls.value) < 0.3) choices.push(() => editValue(h1ls, `${(parseFloat(h1ls.value) + 0.03).toFixed(2)}em`))
+    if (h1ls && parseFloat(h1ls.value) < 0.18) choices.push(() => editValue(h1ls, `${(parseFloat(h1ls.value) + 0.03).toFixed(2)}em`))
     const echo = findDecl('.hero h1::after', 'content')
-    if (echo && (echo.value.match(/Welcome/g) || []).length < 3) choices.push(() => editValue(echo, echo.value.replace(/"$/, ' Welcome to our website."')))
+    if (echo && (echo.value.match(/Welcome/g) || []).length < 2) choices.push(() => editValue(echo, echo.value.replace(/"$/, ' Welcome to our website."')))
     const off = rules.flatMap((r) => r.decls).filter((d) => d.typed && !d.enabled && d.rechecked < 1)
     if (off.length) choices.push(async () => {
       const d = rng.pick(off)
@@ -425,7 +484,7 @@ export function createDemon({ ctx, rng, life, dt, styleEl, speed, effects, targe
       dt.log('demon', `${d.prop} was unchecked. I have checked it again. I have all night.`)
       toggle(d, true, 'demon')
     })
-    if (!dt.isOpen && reopened < 3) choices.push(async () => {
+    if (!dt.isOpen && reopened < 3 && mayReopen()) choices.push(async () => {
       reopened++
       dt.open('demon')
       dt.log('demon', 'you closed me. I was still typing.')
@@ -445,12 +504,17 @@ export function createDemon({ ctx, rng, life, dt, styleEl, speed, effects, targe
   }
 
   return {
-    rules, act, run, perform, writeRule, writeComment, editValue, makeHand, whisperRule, baseline, commit, renderSource, findDecl,
+    rules, act, run, settle, perform, writeRule, writeComment, editValue, makeHand, whisperRule, baseline, commit, renderSource, findDecl,
     hooks,
+    // True while the Aftermath is being written (see settle()).
+    get settling() { return settling },
     get unchecks() { return unchecks },
     get busy() { return hands.size > 0 },
-    // Stillness: the demon stops and waits for you to move.
+    // Stillness: the demon stops and waits for you to move (the face lets it go on after a while).
     setStill(on) { still = on },
+    get still() { return still },
+    // True while a ?possess= jump is still being written out instantly.
+    get hurried() { return ff > 0 },
     // The Apology: every declaration is withdrawn at once, until the visitor stirs.
     setApology(on) {
       apology = on
@@ -463,11 +527,11 @@ export function createDemon({ ctx, rng, life, dt, styleEl, speed, effects, targe
       const live = rules.flatMap((r) => r.decls).filter((d) => d.typed && d.enabled)
       for (const d of live) toggle(d, false, 'exorcism')
       unchecks += live.length ? 1 : 0
-      queue.unshift({ run: async () => {
+      answer(async () => {
         await life.wait(7000 / pace())
-        await writeComment(rng.pick(['did you think that would work?', 'every one of them is still in the file.', 'the Cascade does not forget a declaration.']))
+        await writeComment(rng.pick(['did you think that would work?', 'every one of them is still in the file.', 'the Cascade does not forget a declaration.']), answerer)
         for (const d of live) { if (!d.enabled) toggle(d, true, 'demon'); await life.wait(140) }
-      } })
+      })
       return live.length
     },
   }
