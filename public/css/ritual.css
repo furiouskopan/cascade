@@ -1,0 +1,938 @@
+/* THE ALTAR. The look of the shared ritual (docs/CANON.md §7), in @layer ritual.
+
+   The altar stands OUTSIDE #temple, beside the mercy button, so no offering, curse or schism can touch it.
+   It wears the colours of whichever face is showing through [data-face] on <html>: a wax seal on the
+   Codex, a devtools pane in Hell, a Windows 95 dialog on the 1997 homepage, a breathing saffron lamp in the
+   Ashram, a radar relay on the Mothership, a library card in Babel.
+
+   The Eclipse (every 108th prayer) is drawn here too: #eclipse, and [data-eclipse] on <html> for 33 seconds.
+   The Living Canon itself is not in this file; it is composed at runtime into <style id="living-canon">. */
+
+@layer ritual {
+  /* The altar begins from the Old Law: faces may style [data-face] broadly, and none of it may leak in. */
+  :where(#altar, #eclipse) :where(:not(svg, svg *)) {
+    all: revert;
+    box-sizing: border-box;
+  }
+  #altar [hidden][hidden] { display: none; }
+
+  /* ── The default vestments (dark glass and gold) ─────────────────────────────────────────────────── */
+  #altar {
+    --al-bg: linear-gradient(180deg, rgba(26, 23, 36, 0.975), rgba(12, 11, 18, 0.975));
+    --al-solid: #121019;
+    --al-ink: #ece6d6;
+    --al-dim: #a79f8e;
+    --al-faint: rgba(236, 230, 214, 0.07);
+    --al-rule: rgba(236, 230, 214, 0.16);
+    --al-accent: #d9b55f;
+    --al-accent-ink: #1b1406;
+    --al-alt: #a9bfff;
+    --al-good: #a6dca5;
+    --al-bad: #f2a58f;
+    --al-font: var(--font-scripture, Georgia, serif);
+    --al-display: var(--font-scripture, Georgia, serif);
+    --al-mono: var(--font-mono, Consolas, monospace);
+    --al-glyph: var(--font-glyph, Georgia, serif);
+    --al-radius: 16px;
+    --al-field: rgba(255, 255, 255, 0.055);
+    --al-field-ink: var(--al-ink);
+    --al-field-rule: rgba(236, 230, 214, 0.24);
+    --al-code: rgba(0, 0, 0, 0.3);
+    --al-shadow: 0 22px 70px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(236, 230, 214, 0.09);
+    --al-bead: rgba(236, 230, 214, 0.22);
+    --al-bead-lit: #d9b55f;
+    --al-btn-bg: radial-gradient(circle at 50% 34%, #302840 0%, #121019 74%);
+    --al-btn-ink: #d9b55f;
+    --al-btn-ring: rgba(217, 181, 95, 0.42);
+    --al-scheme: dark;
+
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    width: 0;
+    height: 0;
+    z-index: 2147483100; /* five hundred and forty-seven rungs below the Mothership */
+    color: var(--al-ink);
+    font: 14px/1.5 var(--al-font);
+  }
+
+  /* ── The altar button: a sigil, a ring of beads, a count of souls ────────────────────────────────── */
+  #altar .altar-btn {
+    position: fixed;
+    right: max(14px, env(safe-area-inset-right));
+    bottom: max(14px, env(safe-area-inset-bottom));
+    width: 60px;
+    height: 60px;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    place-items: center;
+    border: 0;
+    border-radius: 50%;
+    background: var(--al-btn-bg);
+    color: var(--al-btn-ink);
+    box-shadow: 0 8px 26px rgba(0, 0, 0, 0.45), inset 0 0 0 1px var(--al-btn-ring);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform 0.25s ease;
+  }
+  #altar .altar-btn:hover { transform: translateY(-2px); }
+  #altar .altar-btn:active { transform: scale(0.95); }
+  #altar .altar-btn > * { grid-area: 1 / 1; }
+  #altar .altar-btn:focus-visible { outline: 2px solid var(--al-btn-ink); outline-offset: 4px; }
+  #altar .altar-btn::after {
+    content: '';
+    position: absolute;
+    inset: -5px;
+    border-radius: inherit;
+    pointer-events: none;
+    box-shadow: 0 0 20px 3px var(--al-btn-ink);
+    opacity: 0;
+    animation: altar-breathe 7s ease-in-out infinite;
+  }
+  #altar .altar-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    border: 2px solid var(--al-btn-ink);
+    opacity: 0;
+    pointer-events: none;
+  }
+  #altar .altar-btn.glint::before { animation: altar-glint 1.2s ease-out; }
+  #altar svg { display: block; overflow: visible; }
+  #altar .altar-ring { width: 60px; height: 60px; transform: rotate(-90deg); }
+  #altar .ring-track { fill: none; stroke: currentColor; stroke-width: 1.4; opacity: 0.22; }
+  #altar .ring-beads { fill: none; stroke: currentColor; stroke-width: 3; stroke-linecap: round; }
+  #altar .altar-sigil { display: block; width: 30px; height: 30px; }
+  #altar .altar-sigil svg { width: 100%; height: 100%; }
+  #altar .altar-souls {
+    position: absolute;
+    top: -3px;
+    left: -3px;
+    min-width: 19px;
+    height: 19px;
+    padding: 0 5px;
+    border-radius: 10px;
+    background: var(--al-accent);
+    color: var(--al-accent-ink);
+    font: 700 10px/19px var(--al-mono);
+    text-align: center;
+    box-shadow: 0 0 0 2px var(--al-solid);
+  }
+  #altar[data-offline="true"] .altar-souls { background: var(--al-dim); }
+  #altar[data-sky-eclipse="true"] .altar-btn {
+    box-shadow: 0 0 0 2px #000, 0 0 16px 5px rgba(255, 236, 190, 0.55), 0 8px 26px rgba(0, 0, 0, 0.45);
+  }
+
+  @keyframes altar-breathe { 0%, 100% { opacity: 0; } 50% { opacity: 0.36; } }
+  @keyframes altar-glint { from { opacity: 0.85; transform: scale(1); } to { opacity: 0; transform: scale(1.5); } }
+
+  /* ── The panel ───────────────────────────────────────────────────────────────────────────────────── */
+  #altar .altar-panel {
+    position: fixed;
+    right: max(14px, env(safe-area-inset-right));
+    bottom: calc(max(14px, env(safe-area-inset-bottom)) + 72px);
+    width: min(400px, calc(100vw - 28px));
+    max-height: min(660px, calc(100vh - 104px));
+    max-height: min(660px, calc(100dvh - 104px));
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--al-bg);
+    color: var(--al-ink);
+    color-scheme: var(--al-scheme);
+    border-radius: var(--al-radius);
+    box-shadow: var(--al-shadow);
+    font: 14px/1.5 var(--al-font);
+    text-align: left;
+    transform-origin: calc(100% - 30px) calc(100% + 40px);
+    animation: altar-rise 0.32s cubic-bezier(0.2, 0.9, 0.25, 1) both;
+  }
+  @keyframes altar-rise { from { opacity: 0; transform: translateY(12px) scale(0.97); } to { opacity: 1; transform: none; } }
+
+  #altar .altar-head { position: relative; padding: 16px 50px 10px 18px; }
+  #altar .altar-kicker {
+    margin: 0;
+    font: 11px/1.3 var(--al-mono);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--al-dim);
+  }
+  #altar .altar-title { margin: 3px 0 5px; font: 400 23px/1.15 var(--al-display); letter-spacing: 0.01em; color: var(--al-ink); }
+  #altar .altar-presence {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    margin: 0;
+    font-size: 12.5px;
+    color: var(--al-dim);
+  }
+  #altar .altar-dot {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    margin-right: 8px;
+    border-radius: 50%;
+    background: var(--al-good);
+    box-shadow: 0 0 8px var(--al-good);
+  }
+  #altar[data-offline="true"] .altar-dot { background: var(--al-dim); box-shadow: none; }
+  #altar .altar-sep { white-space: pre; opacity: 0.6; }
+  #altar .altar-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 34px;
+    height: 34px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--al-dim);
+    font: 24px/34px var(--al-font);
+    text-align: center;
+    cursor: pointer;
+  }
+  #altar .altar-close:hover { color: var(--al-ink); background: var(--al-faint); }
+
+  #altar .altar-tabs { display: flex; gap: 4px; padding: 0 12px; border-bottom: 1px solid var(--al-rule); }
+  #altar .altar-tab {
+    flex: 1 1 0;
+    min-width: 0;
+    margin: 0 0 -1px;
+    padding: 11px 2px 9px;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    background: none;
+    color: var(--al-dim);
+    font: 600 11.5px/1 var(--al-font);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+  #altar .altar-tab:hover { color: var(--al-ink); }
+  #altar .altar-tab:focus-visible { outline-offset: -3px; }
+  #altar .altar-tab[aria-selected="true"] { color: var(--al-ink); border-bottom-color: var(--al-accent); }
+
+  #altar .altar-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 14px 18px 16px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--al-rule) transparent;
+  }
+  #altar p { margin: 0 0 10px; }
+  #altar strong { font-weight: 700; }
+  #altar :focus-visible { outline: 2px solid var(--al-accent); outline-offset: 2px; }
+  #altar .altar-intro { font-size: 13px; line-height: 1.55; color: var(--al-dim); }
+  #altar .altar-sub {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 20px 0 8px;
+    font: 600 11px/1.2 var(--al-mono);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--al-dim);
+  }
+  #altar .altar-sub::after { content: ''; flex: 1; height: 1px; background: var(--al-rule); }
+
+  /* Pray: the world's mala */
+  #altar .altar-mala { position: relative; width: min(210px, 60vw); aspect-ratio: 1; margin: 2px auto 8px; }
+  #altar .altar-mala svg { width: 100%; height: 100%; }
+  #altar .thread { fill: none; stroke: var(--al-rule); stroke-width: 0.8; }
+  #altar .bead { fill: var(--al-bead); transition: fill 0.5s ease; }
+  #altar .bead.lit { fill: var(--al-bead-lit); }
+  #altar .bead.new { animation: bead-new 1.4s ease-out; }
+  #altar .guru { fill: var(--al-accent); stroke: var(--al-solid); stroke-width: 1.2; }
+  #altar .tassel { fill: none; stroke: var(--al-accent); stroke-width: 1.3; stroke-linecap: round; }
+  #altar .mala-center {
+    position: absolute;
+    inset: 20%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    text-align: center;
+  }
+  #altar .mala-count { font: 400 38px/1 var(--al-display); font-variant-numeric: tabular-nums lining-nums; letter-spacing: -0.01em; }
+  #altar .mala-label { font: 10.5px/1 var(--al-mono); letter-spacing: 0.32em; text-transform: uppercase; color: var(--al-dim); padding-left: 0.32em; }
+  #altar .altar-until { margin-bottom: 12px; text-align: center; font-style: italic; color: var(--al-dim); }
+  #altar .altar-mine { text-align: center; font-size: 12px; color: var(--al-dim); text-wrap: balance; }
+  @keyframes bead-new { from { r: 6; } to { r: 2.75; } }
+
+  /* Rites and small controls */
+  #altar .altar-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 12px 0 6px; }
+  #altar .altar-actions--center { justify-content: center; }
+  #altar .altar-actions .altar-rite:last-child:not(:first-child) { margin-left: auto; }
+  #altar .altar-rite {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    margin: 0;
+    padding: 8px 22px;
+    border: 0;
+    border-radius: 999px;
+    background: var(--al-accent);
+    color: var(--al-accent-ink);
+    font: 700 12.5px/1 var(--al-font);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    cursor: pointer;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 6px 18px rgba(0, 0, 0, 0.22);
+    transition: transform 0.15s ease, filter 0.15s ease;
+  }
+  #altar .altar-rite:hover { filter: brightness(1.08); }
+  #altar .altar-rite:active, #altar .altar-rite.pressed { transform: scale(0.95); }
+  #altar .altar-rite:disabled { opacity: 0.45; cursor: not-allowed; filter: grayscale(0.6); transform: none; }
+  #altar .altar-pray { min-width: 170px; min-height: 48px; font-size: 13.5px; }
+  #altar .altar-minor {
+    margin: 0;
+    padding: 8px 13px;
+    border: 1px dashed var(--al-field-rule);
+    border-radius: 999px;
+    background: none;
+    color: var(--al-ink);
+    font: 12px/1 var(--al-font);
+    cursor: pointer;
+  }
+  #altar .altar-minor:hover { background: var(--al-faint); }
+  #altar .altar-tryon { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; color: var(--al-dim); cursor: pointer; }
+  #altar .altar-check { width: 15px; height: 15px; margin: 0; accent-color: var(--al-accent); cursor: pointer; }
+  #altar .altar-verdict { min-height: 1.45em; margin: 8px 0 4px; font-size: 12.5px; line-height: 1.5; color: var(--al-dim); overflow-wrap: anywhere; }
+  #altar .altar-verdict[data-verdict="yes"] { color: var(--al-good); }
+  #altar .altar-verdict[data-verdict="no"] { color: var(--al-bad); }
+  #altar .altar-pane--pray .altar-verdict { text-align: center; font-style: italic; }
+  #altar .altar-hint { margin: 8px 0 0; font-size: 12px; line-height: 1.5; color: var(--al-dim); }
+  #altar .altar-hint[data-over="true"] { color: var(--al-bad); }
+  #altar .altar-wait { margin: 0; font: 12px/1.4 var(--al-mono); color: var(--al-alt); }
+  #altar .altar-wait:empty, #altar .altar-verdict:empty { margin-top: 0; }
+
+  /* Offer: the form is itself a rule */
+  #altar .altar-rule {
+    margin: 12px 0 0;
+    padding: 8px 12px;
+    border: 1px solid var(--al-rule);
+    border-radius: 10px;
+    background: var(--al-code);
+    font: 13px/1.6 var(--al-mono);
+  }
+  #altar .rule-line { display: flex; align-items: center; gap: 7px; min-height: 36px; }
+  #altar .rule-decl { padding-left: 16px; }
+  #altar .tok-temple { color: var(--al-alt); }
+  #altar .tok-brace, #altar .tok-colon, #altar .tok-semi { color: var(--al-dim); }
+  #altar .altar-field {
+    min-width: 0;
+    min-height: 32px;
+    margin: 0;
+    padding: 5px 8px;
+    border: 1px solid var(--al-field-rule);
+    border-radius: 6px;
+    background: var(--al-field);
+    color: var(--al-field-ink);
+    font: 13px/1.2 var(--al-mono);
+  }
+  #altar .altar-field:focus-visible { outline: 2px solid var(--al-accent); outline-offset: 1px; }
+  #altar select.altar-field { cursor: pointer; }
+  #altar option { background: var(--al-solid); color: var(--al-ink); }
+  #altar .altar-prop { flex: 0 1 auto; max-width: 52%; }
+  #altar .altar-value { flex: 1 1 60px; width: 60px; }
+
+  /* Code: the Living Canon, shown as CSS */
+  #altar .altar-code {
+    margin: 0;
+    padding: 10px 12px;
+    max-height: 270px;
+    overflow: auto;
+    border: 1px solid var(--al-rule);
+    border-radius: 10px;
+    background: var(--al-code);
+    color: var(--al-ink);
+    font: 11.5px/1.6 var(--al-mono);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    text-align: left;
+  }
+  #altar .altar-code--mini { max-height: 160px; }
+  #altar .c-cmt { color: var(--al-dim); font-style: italic; }
+  #altar .c-at { color: var(--al-bad); }
+  #altar .c-sel { color: var(--al-alt); }
+  #altar .c-prop { color: var(--al-accent); }
+  #altar .c-val { color: var(--al-good); }
+  #altar .c-punct { color: var(--al-dim); }
+  #altar .cl--overruled :is(.c-sel, .c-prop, .c-val) { text-decoration: line-through; opacity: 0.55; }
+  #altar .altar-mercy-note {
+    padding: 8px 10px;
+    border-left: 2px solid var(--al-accent);
+    background: var(--al-faint);
+    font-size: 12.5px;
+    color: var(--al-ink);
+  }
+
+  /* Inscribe: the Wall of Strangers, in the glyph script */
+  #altar .glyph { font-family: var(--al-glyph); font-style: normal; text-transform: none; }
+  #altar .altar-label {
+    display: block;
+    margin: 14px 0 7px;
+    font: 600 11px/1 var(--al-mono);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--al-dim);
+  }
+  #altar .altar-row { display: flex; align-items: stretch; gap: 8px; }
+  #altar .altar-words { flex: 1 1 auto; width: 100px; padding: 8px 10px; font: 14px/1.2 var(--al-font); }
+  #altar .altar-preview {
+    min-height: 1.5em;
+    margin: 10px 0 0;
+    font-size: 21px;
+    line-height: 1.3;
+    letter-spacing: 0.04em;
+    color: var(--al-accent);
+    overflow-wrap: anywhere;
+  }
+  #altar .altar-wall, #altar .altar-book { margin: 0; padding: 0; list-style: none; }
+  #altar .altar-wall li, #altar .altar-book li {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 8px 0;
+    border-bottom: 1px dashed var(--al-rule);
+  }
+  #altar .altar-wall .glyph, #altar .altar-book .glyph { font-size: 18px; line-height: 1.35; color: var(--al-ink); overflow-wrap: anywhere; }
+  #altar .altar-book .glyph { color: var(--al-accent); }
+  #altar time { flex: none; font: 10.5px/1 var(--al-mono); letter-spacing: 0.06em; white-space: nowrap; color: var(--al-dim); }
+  #altar .altar-empty { font-size: 13px; font-style: italic; color: var(--al-dim); }
+
+  #altar .altar-verse {
+    margin: 20px 0 0;
+    padding-top: 12px;
+    border-top: 1px solid var(--al-rule);
+    font-size: 12.5px;
+    font-style: italic;
+    line-height: 1.5;
+    color: var(--al-dim);
+    text-align: center;
+    text-wrap: balance;
+  }
+  #altar .altar-verse cite {
+    display: block;
+    margin-top: 5px;
+    font: normal 10.5px/1.3 var(--al-mono);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  /* Whispers: what strangers are doing, quietly, above the altar */
+  #altar .altar-whispers {
+    position: fixed;
+    right: max(14px, env(safe-area-inset-right));
+    bottom: calc(max(14px, env(safe-area-inset-bottom)) + 72px);
+    width: min(320px, calc(100vw - 28px));
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+    pointer-events: none;
+  }
+  #altar[data-open="true"] .altar-whispers {
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  #altar .altar-whisper {
+    max-width: 100%;
+    margin: 0;
+    padding: 9px 13px;
+    border: 0;
+    border-radius: 12px;
+    background: var(--al-solid);
+    color: var(--al-ink);
+    font: 12.5px/1.45 var(--al-font);
+    text-align: left;
+    box-shadow: var(--al-shadow);
+    cursor: pointer;
+    pointer-events: auto;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+  #altar .altar-whisper.in { opacity: 1; transform: none; }
+  #altar .altar-whisper code { font: 11px/1.4 var(--al-mono); color: var(--al-alt); overflow-wrap: anywhere; }
+  #altar .altar-whisper .glyph { font-size: 16px; color: var(--al-accent); }
+  #altar .altar-whisper--eclipse { border: 1px solid rgba(255, 230, 170, 0.5); }
+
+  /* During an eclipse the altar itself is eclipsed */
+  html[data-eclipse] #altar .altar-btn {
+    background: radial-gradient(circle, #040406 0 54%, #fff4d2 58%, rgba(255, 226, 160, 0.35) 64%, rgba(255, 226, 160, 0) 74%), #050507;
+    color: #fff1c9;
+    box-shadow: 0 0 22px 6px rgba(255, 232, 180, 0.35);
+  }
+  html[data-eclipse] #altar .altar-mala svg { filter: drop-shadow(0 0 6px var(--al-accent)); }
+
+  /* ── sanctum: the Codex. Vellum, iron-gall ink, vermilion and gold; the altar is a wax seal ─────── */
+  [data-face="sanctum"] #altar {
+    --al-bg: radial-gradient(120% 80% at 12% 0%, rgba(255, 251, 238, 0.85), transparent 55%),
+      radial-gradient(70% 60% at 100% 100%, rgba(139, 94, 38, 0.22), transparent 70%),
+      radial-gradient(90px 60px at 88% 34%, rgba(150, 104, 40, 0.1), transparent),
+      radial-gradient(140px 90px at 6% 78%, rgba(150, 104, 40, 0.09), transparent),
+      #eee1c0;
+    --al-solid: #f2e7cc;
+    --al-ink: #2a1b0f;
+    --al-dim: #6e553a;
+    --al-faint: rgba(110, 70, 25, 0.08);
+    --al-rule: rgba(110, 72, 28, 0.3);
+    --al-accent: #a3281b;
+    --al-accent-ink: #fbf1dc;
+    --al-alt: #7d5f14;
+    --al-good: #365f25;
+    --al-bad: #a3281b;
+    --al-font: 'Palatino Linotype', 'Book Antiqua', Palatino, Georgia, serif;
+    --al-display: 'Palatino Linotype', 'Book Antiqua', Palatino, Georgia, serif;
+    --al-radius: 2px;
+    --al-field: rgba(255, 250, 236, 0.7);
+    --al-field-rule: rgba(110, 72, 28, 0.42);
+    --al-code: rgba(255, 249, 232, 0.6);
+    --al-shadow: 0 24px 60px rgba(40, 20, 5, 0.55), 0 0 0 1px #b08d4a, 0 0 0 4px #eee1c0, 0 0 0 5px #b08d4a;
+    --al-bead: rgba(90, 58, 22, 0.34);
+    --al-bead-lit: #a3281b;
+    --al-btn-bg: radial-gradient(circle at 36% 30%, #d0513c 0%, #9a2415 42%, #62100a 100%);
+    --al-btn-ink: #f4d88c;
+    --al-btn-ring: rgba(80, 10, 0, 0.6);
+    --al-scheme: light;
+  }
+  [data-face="sanctum"] #altar .altar-btn {
+    border-radius: 48% 52% 45% 55% / 54% 46% 54% 46%;
+    box-shadow: 0 5px 14px rgba(50, 10, 0, 0.55), inset 0 -4px 7px rgba(40, 0, 0, 0.45), inset 0 3px 4px rgba(255, 190, 150, 0.35);
+  }
+  [data-face="sanctum"] #altar .altar-kicker { font: italic 13px/1.3 var(--al-font); letter-spacing: 0.04em; text-transform: none; }
+  [data-face="sanctum"] #altar .altar-title { font-variant: small-caps; letter-spacing: 0.06em; color: #a3281b; }
+  [data-face="sanctum"] #altar .altar-title::first-letter { color: #8a6a1c; font-size: 1.35em; }
+  [data-face="sanctum"] #altar .altar-tab { font: 400 15px/1 var(--al-font); font-variant: small-caps; text-transform: lowercase; letter-spacing: 0.1em; }
+  [data-face="sanctum"] #altar .altar-tab[aria-selected="true"] { color: #a3281b; border-bottom-color: #8a6a1c; }
+  [data-face="sanctum"] #altar .altar-rite {
+    border-radius: 2px;
+    background: linear-gradient(#b43322, #8d1f13);
+    box-shadow: inset 0 0 0 1px #d8a24a, 0 2px 0 #5a0f08;
+    letter-spacing: 0.22em;
+  }
+  [data-face="sanctum"] #altar .altar-sub { font: 400 15px/1.2 var(--al-font); font-variant: small-caps; letter-spacing: 0.1em; text-transform: lowercase; color: #a3281b; }
+  [data-face="sanctum"] #altar .altar-sub::before { content: '❧'; color: #8a6a1c; font-size: 16px; }
+  [data-face="sanctum"] #altar .mala-count { color: #a3281b; font-variant: oldstyle-nums; }
+  [data-face="sanctum"] #altar .altar-verse { border-top-style: double; border-top-width: 3px; }
+
+  /* ── possession: the demon's devtools. Blood, bile and monospace ─────────────────────────────────── */
+  [data-face="possession"] #altar {
+    --al-bg: linear-gradient(180deg, #150707, #090303);
+    --al-solid: #0d0505;
+    --al-ink: #e6dbd1;
+    --al-dim: #978178;
+    --al-faint: rgba(195, 22, 28, 0.1);
+    --al-rule: rgba(195, 22, 28, 0.32);
+    --al-accent: #c3161c;
+    --al-accent-ink: #fff1ee;
+    --al-alt: #9bd13a;
+    --al-good: #9bd13a;
+    --al-bad: #ff6a5e;
+    --al-font: var(--font-mono, Consolas, monospace);
+    --al-display: var(--font-mono, Consolas, monospace);
+    --al-radius: 0;
+    --al-field: #060202;
+    --al-field-rule: rgba(195, 22, 28, 0.5);
+    --al-code: #060202;
+    --al-shadow: 0 0 0 1px #4a0f0f, 0 30px 90px rgba(120, 0, 0, 0.38);
+    --al-bead: rgba(155, 209, 58, 0.14);
+    --al-bead-lit: #9bd13a;
+    --al-btn-bg: radial-gradient(circle at 50% 60%, #2a0404, #050202 70%);
+    --al-btn-ink: #e0242a;
+    --al-btn-ring: rgba(195, 22, 28, 0.75);
+  }
+  [data-face="possession"] #altar .altar-panel { font-size: 12.5px; }
+  [data-face="possession"] #altar .altar-head { padding-top: 10px; background: #1b0909; border-bottom: 1px solid #4a0f0f; }
+  [data-face="possession"] #altar .altar-kicker { color: #ff6a5e; letter-spacing: 0.04em; text-transform: none; }
+  [data-face="possession"] #altar .altar-kicker::before { content: '⨯ '; }
+  [data-face="possession"] #altar .altar-title { font-size: 15px; font-weight: 700; letter-spacing: 0.1em; }
+  [data-face="possession"] #altar .altar-title::before { content: '▸ '; color: var(--al-alt); }
+  [data-face="possession"] #altar .altar-tabs { gap: 0; padding: 0; background: #120606; }
+  [data-face="possession"] #altar .altar-tab {
+    padding: 9px 2px;
+    border-bottom: 0;
+    border-top: 2px solid transparent;
+    font: 400 12px/1 var(--al-mono);
+    letter-spacing: 0;
+    text-transform: none;
+  }
+  [data-face="possession"] #altar .altar-tab[aria-selected="true"] { background: #090303; border-top-color: var(--al-accent); color: #fff; }
+  [data-face="possession"] #altar .altar-rite { border-radius: 0; font-family: var(--al-mono); letter-spacing: 0.02em; text-transform: none; }
+  [data-face="possession"] #altar .altar-sub { color: #ff6a5e; }
+  [data-face="possession"] #altar .altar-btn { border-radius: 3px; animation: possession-beat 2.6s ease-in-out infinite; }
+  [data-face="possession"] #altar .altar-btn::after { box-shadow: 0 0 22px 4px #7a0005; }
+  @keyframes possession-beat { 0%, 34%, 100% { transform: scale(1); } 10% { transform: scale(1.07); } 20% { transform: scale(1.02); } 27% { transform: scale(1.05); } }
+
+  /* ── recruitment: a Windows 95 dialog on a 1997 homepage ─────────────────────────────────────────── */
+  [data-face="recruitment"] #altar {
+    --al-bg: #c0c0c0;
+    --al-solid: #c0c0c0;
+    --al-ink: #000;
+    --al-dim: #363636;
+    --al-faint: #d4d0c8;
+    --al-rule: #808080;
+    --al-accent: #000080;
+    --al-accent-ink: #fff;
+    --al-alt: #0000ee;
+    --al-good: #006400;
+    --al-bad: #b00000;
+    --al-font: 'Times New Roman', Times, serif;
+    --al-display: 'Comic Sans MS', 'Comic Neue', cursive;
+    --al-mono: 'Courier New', Courier, monospace;
+    --al-radius: 0;
+    --al-field: #fff;
+    --al-field-rule: #808080;
+    --al-code: #fff;
+    --al-shadow: 3px 3px 0 rgba(0, 0, 0, 0.6);
+    --al-bead: #9a9a9a;
+    --al-bead-lit: #f00;
+    --al-btn-bg: #c0c0c0;
+    --al-btn-ink: #000080;
+    --al-btn-ring: transparent;
+    --al-scheme: light;
+  }
+  [data-face="recruitment"] #altar .altar-panel { border: 2px solid; border-color: #fff #404040 #404040 #fff; font-size: 15px; }
+  [data-face="recruitment"] #altar .altar-head { margin: 2px 2px 0; padding: 4px 34px 6px 8px; background: linear-gradient(90deg, #000080, #1084d0); color: #fff; }
+  [data-face="recruitment"] #altar .altar-kicker { font: 700 11px/1.5 Tahoma, 'Segoe UI', sans-serif; letter-spacing: 0; text-transform: none; color: #fff; }
+  [data-face="recruitment"] #altar .altar-title { font: 700 21px/1.2 var(--al-display); color: #ff0; text-shadow: 2px 2px 0 #f0f; }
+  [data-face="recruitment"] #altar .altar-presence { color: #fff; }
+  [data-face="recruitment"] #altar .altar-dot { background: #0f0; box-shadow: none; }
+  [data-face="recruitment"] #altar .altar-close {
+    top: 5px;
+    right: 5px;
+    width: 22px;
+    height: 20px;
+    border: 2px solid;
+    border-color: #fff #404040 #404040 #fff;
+    border-radius: 0;
+    background: #c0c0c0;
+    color: #000;
+    font: 700 14px/15px Tahoma, sans-serif;
+  }
+  [data-face="recruitment"] #altar .altar-tabs { gap: 2px; padding: 8px 6px 0; border-bottom: 2px solid #fff; }
+  [data-face="recruitment"] #altar .altar-tab {
+    margin-bottom: 0;
+    padding: 7px 2px;
+    border: 2px solid;
+    border-color: #fff #404040 transparent #fff;
+    background: #c0c0c0;
+    color: #000;
+    font: 700 12px/1 Tahoma, 'Segoe UI', sans-serif;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+  [data-face="recruitment"] #altar .altar-tab[aria-selected="true"] { position: relative; top: 2px; margin-top: -3px; padding-bottom: 9px; background: #d4d0c8; }
+  [data-face="recruitment"] #altar .altar-rite, [data-face="recruitment"] #altar .altar-minor {
+    border: 2px solid;
+    border-color: #fff #404040 #404040 #fff;
+    border-radius: 0;
+    background: #c0c0c0;
+    color: #000;
+    font: 700 13px/1 Tahoma, 'Segoe UI', sans-serif;
+    letter-spacing: 0;
+    text-transform: none;
+    box-shadow: 1px 1px 0 #000;
+  }
+  [data-face="recruitment"] #altar .altar-rite:active, [data-face="recruitment"] #altar .altar-rite.pressed { border-color: #404040 #fff #fff #404040; transform: none; }
+  [data-face="recruitment"] #altar .altar-pray { color: #c00000; font-size: 15px; }
+  [data-face="recruitment"] #altar .mala-count {
+    padding: 4px 6px;
+    border: 2px inset #808080;
+    background: #000;
+    color: #39ff14;
+    font: 700 21px/1 var(--al-mono);
+    letter-spacing: 0.16em;
+  }
+  [data-face="recruitment"] #altar .altar-intro, [data-face="recruitment"] #altar .altar-until { color: #000; }
+  [data-face="recruitment"] #altar .altar-sub { font: 700 15px/1.2 var(--al-display); letter-spacing: 0; text-transform: none; color: #800080; }
+  [data-face="recruitment"] #altar .c-prop { color: #800080; }
+  [data-face="recruitment"] #altar .c-at { color: #b00000; }
+  [data-face="recruitment"] #altar .altar-btn {
+    border: 2px solid;
+    border-color: #fff #404040 #404040 #fff;
+    border-radius: 0;
+    box-shadow: 2px 2px 0 #000;
+  }
+  [data-face="recruitment"] #altar .altar-btn::after {
+    content: 'NEW!';
+    inset: auto -14px auto auto;
+    top: -12px;
+    width: 34px;
+    height: 20px;
+    border-radius: 0;
+    box-shadow: none;
+    background: #f00;
+    color: #ff0;
+    font: 700 9px/20px Tahoma, sans-serif;
+    text-align: center;
+    clip-path: polygon(50% 0, 61% 22%, 88% 8%, 80% 36%, 100% 50%, 80% 64%, 88% 92%, 61% 78%, 50% 100%, 39% 78%, 12% 92%, 20% 64%, 0 50%, 20% 36%, 12% 8%, 39% 22%);
+    opacity: 1;
+    animation: recruit-wobble 1.6s ease-in-out infinite;
+  }
+  [data-face="recruitment"] #altar .altar-souls { border-radius: 0; background: #ff0; color: #000; box-shadow: 1px 1px 0 #000; }
+  @keyframes recruit-wobble { 0%, 100% { transform: rotate(-10deg); } 50% { transform: rotate(8deg); } }
+
+  /* ── ashram: a saffron lamp in deep indigo that breathes 4 in, 4 held, 6 out ─────────────────────── */
+  [data-face="ashram"] #altar {
+    --al-bg: radial-gradient(130% 70% at 50% 0%, #2e2576 0%, #1a1546 46%, #110d31 100%);
+    --al-solid: #15113a;
+    --al-ink: #f6ead0;
+    --al-dim: #bdb0dc;
+    --al-faint: rgba(244, 163, 0, 0.08);
+    --al-rule: rgba(244, 163, 0, 0.24);
+    --al-accent: #f4a300;
+    --al-accent-ink: #2a1600;
+    --al-alt: #f7a8c2;
+    --al-good: #bfe9a8;
+    --al-bad: #ffa585;
+    --al-radius: 28px;
+    --al-field: rgba(255, 255, 255, 0.06);
+    --al-field-rule: rgba(244, 163, 0, 0.32);
+    --al-code: rgba(8, 6, 26, 0.5);
+    --al-shadow: 0 30px 80px rgba(5, 3, 20, 0.7), 0 0 0 1px rgba(244, 163, 0, 0.22), 0 0 60px rgba(244, 163, 0, 0.08);
+    --al-bead: rgba(246, 234, 208, 0.14);
+    --al-bead-lit: #f4a300;
+    --al-btn-bg: radial-gradient(circle at 50% 40%, #ffc54f 0%, #f4a300 46%, #b56d00 100%);
+    --al-btn-ink: #2a1600;
+    --al-btn-ring: rgba(255, 220, 150, 0.6);
+  }
+  [data-face="ashram"] #altar .altar-btn { animation: ashram-breath 14s ease-in-out infinite; }
+  [data-face="ashram"] #altar .altar-btn::after {
+    box-shadow: 0 0 0 7px rgba(244, 163, 0, 0.16), 0 0 30px 10px rgba(244, 163, 0, 0.38);
+    animation: altar-breathe 14s ease-in-out infinite;
+  }
+  [data-face="ashram"] #altar .altar-head { padding: 18px 46px 10px; text-align: center; }
+  [data-face="ashram"] #altar .altar-kicker { font: 14px/1.3 var(--font-sacred, serif); letter-spacing: 0.18em; text-transform: none; color: var(--al-accent); }
+  [data-face="ashram"] #altar .altar-title { letter-spacing: 0.04em; }
+  [data-face="ashram"] #altar .altar-presence { justify-content: center; }
+  [data-face="ashram"] #altar .altar-tab[aria-selected="true"] { color: var(--al-accent); }
+  [data-face="ashram"] #altar .altar-rule, [data-face="ashram"] #altar .altar-code { border-radius: 16px; }
+  @keyframes ashram-breath { 0% { transform: scale(1); } 28.6% { transform: scale(1.09); } 57.1% { transform: scale(1.09); } 100% { transform: scale(1); } }
+
+  /* ── departure: a ground relay for the Mothership. Scanlines, phosphor, a radar sweep ────────────── */
+  [data-face="departure"] #altar {
+    --al-bg: repeating-linear-gradient(0deg, rgba(160, 255, 220, 0.035) 0 1px, transparent 1px 3px),
+      radial-gradient(120% 90% at 50% 0%, #081828 0%, #02050b 70%);
+    --al-solid: #02060d;
+    --al-ink: #b8f8d8;
+    --al-dim: #66a38b;
+    --al-faint: rgba(111, 240, 255, 0.07);
+    --al-rule: rgba(111, 240, 255, 0.22);
+    --al-accent: #6ff0ff;
+    --al-accent-ink: #00161a;
+    --al-alt: #c8adff;
+    --al-good: #9dffb8;
+    --al-bad: #ff93a6;
+    --al-font: var(--font-mono, Consolas, monospace);
+    --al-display: var(--font-mono, Consolas, monospace);
+    --al-radius: 6px;
+    --al-field: rgba(111, 240, 255, 0.05);
+    --al-field-rule: rgba(111, 240, 255, 0.36);
+    --al-code: rgba(0, 20, 30, 0.62);
+    --al-shadow: 0 0 0 1px rgba(111, 240, 255, 0.35), 0 0 40px rgba(111, 240, 255, 0.12), 0 30px 80px rgba(0, 0, 0, 0.7);
+    --al-bead: rgba(111, 240, 255, 0.14);
+    --al-bead-lit: #6ff0ff;
+    --al-btn-bg: radial-gradient(circle, #07222c 0%, #02060d 72%);
+    --al-btn-ink: #6ff0ff;
+    --al-btn-ring: rgba(111, 240, 255, 0.55);
+  }
+  [data-face="departure"] #altar .altar-panel { font-size: 12.5px; letter-spacing: 0.03em; text-transform: uppercase; }
+  [data-face="departure"] #altar :is(.altar-code, .altar-field, .glyph, .altar-verse, .altar-verdict, .altar-hint) { text-transform: none; }
+  [data-face="departure"] #altar .altar-title { font-size: 19px; letter-spacing: 0.18em; text-shadow: 0 0 10px rgba(111, 240, 255, 0.5); }
+  [data-face="departure"] #altar .altar-kicker::before { content: '◉ '; color: #ff93a6; }
+  [data-face="departure"] #altar .mala-count { text-shadow: 0 0 12px rgba(111, 240, 255, 0.6); }
+  [data-face="departure"] #altar .altar-btn::after {
+    inset: 4px;
+    border-radius: 50%;
+    box-shadow: none;
+    background: conic-gradient(from 0deg, rgba(111, 240, 255, 0.4), rgba(111, 240, 255, 0) 28%);
+    opacity: 1;
+    animation: departure-sweep 4.5s linear infinite;
+  }
+  @keyframes departure-sweep { to { transform: rotate(360deg); } }
+
+  /* ── babel: a card from the infinite library. Ivory, sepia, a hexagon for a door ─────────────────── */
+  [data-face="babel"] #altar {
+    --al-bg: linear-gradient(#f6f2e9, #ece6d8);
+    --al-solid: #f3efe6;
+    --al-ink: #34322c;
+    --al-dim: #736d5f;
+    --al-faint: rgba(52, 50, 44, 0.05);
+    --al-rule: rgba(52, 50, 44, 0.17);
+    --al-accent: #6d5f3f;
+    --al-accent-ink: #f8f5ee;
+    --al-alt: #7a3a2a;
+    --al-good: #3f6b3a;
+    --al-bad: #9a3a2a;
+    --al-font: Georgia, 'Iowan Old Style', serif;
+    --al-display: Georgia, 'Iowan Old Style', serif;
+    --al-radius: 3px;
+    --al-field: #fffdf8;
+    --al-field-rule: rgba(52, 50, 44, 0.28);
+    --al-code: #faf7f0;
+    --al-shadow: 0 20px 50px rgba(60, 50, 30, 0.25), 0 0 0 1px rgba(52, 50, 44, 0.2);
+    --al-bead: rgba(52, 50, 44, 0.14);
+    --al-bead-lit: #6d5f3f;
+    --al-btn-bg: transparent;
+    --al-btn-ink: #f3efe6;
+    --al-btn-ring: transparent;
+    --al-scheme: light;
+  }
+  [data-face="babel"] #altar .altar-btn { box-shadow: none; filter: drop-shadow(0 6px 12px rgba(60, 50, 30, 0.35)); }
+  [data-face="babel"] #altar .altar-btn::after {
+    inset: 0;
+    z-index: -1;
+    border-radius: 0;
+    box-shadow: none;
+    background: linear-gradient(#7b6c4a, #5a4e33);
+    clip-path: polygon(50% 0, 93.3% 25%, 93.3% 75%, 50% 100%, 6.7% 75%, 6.7% 25%);
+    opacity: 1;
+    animation: none;
+  }
+  [data-face="babel"] #altar .altar-panel { background-image: repeating-linear-gradient(transparent 0 27px, rgba(52, 50, 44, 0.06) 27px 28px), var(--al-bg); }
+  [data-face="babel"] #altar .altar-title { font-style: italic; }
+  [data-face="babel"] #altar .altar-kicker { font-family: var(--al-font); font-style: italic; letter-spacing: 0.06em; text-transform: none; }
+
+  /* ── THE ECLIPSE: every 108th prayer, for thirty-three seconds ───────────────────────────────────── */
+  #eclipse {
+    --ex: 50%;
+    --ey: 30%;
+    --sun: min(26vmin, 190px);
+    position: fixed;
+    inset: 0;
+    z-index: 2147482000;
+    overflow: hidden;
+    pointer-events: none;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 2.6s ease, visibility 0s linear 2.6s;
+  }
+  html[data-eclipse] #eclipse { visibility: visible; opacity: 1; transition: opacity 2.6s ease, visibility 0s; }
+  #eclipse .eclipse-veil {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at var(--ex) var(--ey), rgba(4, 4, 14, 0.12) 0, rgba(4, 4, 14, 0.42) calc(var(--sun) * 1.1), rgba(2, 2, 8, 0.8) 85vmax);
+  }
+  #eclipse .eclipse-sun {
+    position: absolute;
+    left: var(--ex);
+    top: var(--ey);
+    width: var(--sun);
+    height: var(--sun);
+    margin: calc(var(--sun) / -2) 0 0 calc(var(--sun) / -2);
+    border-radius: 50%;
+    background: radial-gradient(circle, #fffdf4 0 50%, #ffeec2 74%, #ffd98a 100%);
+    box-shadow: 0 0 calc(var(--sun) * 0.08) calc(var(--sun) * 0.02) #fff4d0, 0 0 calc(var(--sun) * 0.35) calc(var(--sun) * 0.06) rgba(255, 226, 160, 0.42),
+      0 0 calc(var(--sun) * 1.2) calc(var(--sun) * 0.2) rgba(255, 210, 130, 0.12);
+  }
+  #eclipse .eclipse-corona {
+    position: absolute;
+    inset: -95%;
+    border-radius: 50%;
+    background: radial-gradient(circle closest-side, rgba(255, 251, 238, 0.95) 0 34%, rgba(255, 244, 214, 0.6) 36%, rgba(255, 236, 196, 0.22) 46%, rgba(255, 230, 180, 0.07) 64%, transparent 100%),
+      repeating-conic-gradient(from 7deg, rgba(255, 246, 222, 0.24) 0deg 1.4deg, transparent 1.4deg 6deg, rgba(255, 246, 222, 0.1) 6deg 7deg, transparent 7deg 13deg);
+    -webkit-mask-image: radial-gradient(circle closest-side, #000 33%, rgba(0, 0, 0, 0.55) 52%, transparent 100%);
+    mask-image: radial-gradient(circle closest-side, #000 33%, rgba(0, 0, 0, 0.55) 52%, transparent 100%);
+    opacity: 0;
+  }
+  #eclipse .eclipse-moon {
+    position: absolute;
+    inset: -1.5%;
+    border-radius: 50%;
+    background: radial-gradient(circle at 40% 38%, #17171d, #050507 70%);
+    transform: translate(-118%, 14%);
+  }
+  #eclipse .eclipse-diamond {
+    position: absolute;
+    left: 86%;
+    top: 43%;
+    width: 14%;
+    height: 14%;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 12px 6px #fff8e0, 0 0 40px 14px rgba(255, 240, 200, 0.55);
+    opacity: 0;
+  }
+  html[data-eclipse] #eclipse .eclipse-moon { animation: eclipse-moon 33s linear var(--eclipse-delay, 0s) both; }
+  html[data-eclipse] #eclipse .eclipse-corona { animation: eclipse-corona 33s linear var(--eclipse-delay, 0s) both; }
+  html[data-eclipse] #eclipse .eclipse-diamond { animation: eclipse-diamond 33s linear var(--eclipse-delay, 0s) both; }
+  #eclipse .eclipse-caption {
+    position: absolute;
+    left: 50%;
+    top: calc(var(--ey) + var(--sun) * 0.5 + clamp(30px, 7vh, 70px));
+    width: min(560px, calc(100vw - 32px));
+    margin: 0;
+    padding: 18px 28px;
+    transform: translateX(-50%);
+    border-radius: 24px;
+    background: radial-gradient(closest-side, rgba(3, 3, 10, 0.8) 55%, rgba(3, 3, 10, 0));
+    color: #f6eedb;
+    font: 14px/1.55 var(--font-scripture, Georgia, serif);
+    text-align: center;
+    text-shadow: 0 1px 14px rgba(0, 0, 0, 0.9), 0 0 2px #000;
+  }
+  #eclipse .eclipse-word {
+    display: block;
+    margin-bottom: 8px;
+    padding-left: 0.6em;
+    font: 600 12px/1 var(--font-mono, monospace);
+    letter-spacing: 0.6em;
+    text-transform: uppercase;
+    color: #ffe3a3;
+  }
+  #eclipse .eclipse-line { display: block; text-wrap: balance; }
+  #eclipse .eclipse-clock {
+    display: block;
+    margin-top: 10px;
+    font: 500 26px/1 var(--font-mono, monospace);
+    letter-spacing: 0.12em;
+    font-variant-numeric: tabular-nums;
+    color: #fff6dc;
+  }
+  /* Under mercy the eclipse is still, and total: the Moon rests exactly over the Sun. */
+  html[data-mercy="on"] #eclipse :is(.eclipse-moon, .eclipse-corona, .eclipse-diamond) { animation: none; }
+  html[data-mercy="on"] #eclipse .eclipse-moon { transform: none; }
+  html[data-mercy="on"] #eclipse .eclipse-corona { opacity: 1; }
+
+  @keyframes eclipse-moon {
+    0% { transform: translate(-118%, 14%); }
+    21% { transform: translate(-2%, 0.4%); }
+    24%, 79% { transform: translate(0, 0); }
+    82% { transform: translate(2%, -0.4%); }
+    100% { transform: translate(118%, -14%); }
+  }
+  @keyframes eclipse-corona { 0%, 18% { opacity: 0; } 25%, 78% { opacity: 1; } 86%, 100% { opacity: 0; } }
+  @keyframes eclipse-diamond {
+    0%, 19% { opacity: 0; left: 86%; }
+    21.5% { opacity: 1; left: 86%; }
+    24% { opacity: 0; left: 86%; }
+    76% { opacity: 0; left: 0%; }
+    79.5% { opacity: 1; left: 0%; }
+    82%, 100% { opacity: 0; left: 0%; }
+  }
+
+  @media (max-width: 480px) {
+    #altar .altar-head { padding: 14px 46px 8px 16px; }
+    #altar .altar-title { font-size: 20px; }
+    #altar .altar-body { padding: 12px 14px 14px; }
+    #altar .altar-tab { letter-spacing: 0.08em; }
+    #altar .altar-mala { width: min(180px, 52vw); }
+    #eclipse { --ey: 26%; }
+  }
+  @media print {
+    #altar, #eclipse { display: none; }
+  }
+}

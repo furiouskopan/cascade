@@ -1,0 +1,852 @@
+/* FACE: POSSESSION — CSS Hell.
+   Three art directions under one roof, on purpose:
+     1. the Albedo: a bland corporate homepage (system sans, blue, rounded, shadowed, white);
+     2. the Inspector: a faithful dark developer-tools pane, which later turns sick;
+     3. the Descent: below the footer, nine circles in condensed sans, Garamond italic and mono,
+        in deep reds, sickly greens, black, and at the very bottom, pale ice.
+   Everything lives in @layer face and under .face--possession. The demon's own stylesheet
+   (<style id="possessed-css">) is written at runtime by possession/demon.js, into this same layer. */
+
+@layer face {
+
+/* ————————————————————————————————— tokens ————————————————————————————————— */
+.face--possession {
+  --corp-font: 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
+  --mono: Consolas, 'Cascadia Mono', Menlo, 'Courier New', monospace;
+  --hell-display: Bahnschrift, 'Arial Narrow', 'Roboto Condensed', 'Helvetica Neue', Impact, sans-serif;
+  --hell-serif: Garamond, 'EB Garamond', 'Palatino Linotype', 'Book Antiqua', Palatino, Georgia, serif;
+  --brand: hsl(var(--corp-hue, 212) 70% 45%);
+  --dt-w: clamp(300px, 31vw, 440px);
+  --dt-h: min(46vh, 420px);
+  --noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .5 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background: #070605;
+  color: #1a202c;
+}
+.face--possession .possession { overflow-x: clip; transition: margin-right .55s ease, padding-bottom .55s ease; }
+
+/* ————————————————————————————— the Albedo (corporate) ————————————————————————————— */
+.face--possession .corp {
+  --paper: #ffffff;
+  --paper-2: #f4f6f9;
+  --card: #ffffff;
+  --ink: #1a202c;
+  --ink-soft: #4a5568;
+  --line: #e2e8f0;
+  --brand-soft: color-mix(in srgb, var(--brand) 9%, var(--paper));
+  background: var(--paper);
+  color: var(--ink);
+  font: 16px/1.6 var(--corp-font);
+  -webkit-font-smoothing: antialiased;
+}
+/* Every change the demon makes creeps in; nothing snaps. */
+.face--possession .corp :where(*) {
+  transition-property: color, background-color, border-color, letter-spacing, word-spacing, rotate, translate, filter, outline-color, box-shadow, gap, opacity;
+  transition-duration: 2.8s;
+  transition-timing-function: ease-in-out;
+}
+.face--possession .corp :where(section, header, footer, main) { background-color: transparent; }
+.face--possession .corp a { color: var(--brand); text-decoration: none; }
+.face--possession .corp a:hover { text-decoration: underline; }
+.face--possession .corp h2 { font-size: clamp(1.7rem, 3vw, 2.3rem); line-height: 1.15; letter-spacing: -0.015em; margin: .2em 0 .45em; font-weight: 700; color: var(--ink); }
+.face--possession .corp h3 { font-size: 1.08rem; margin: .6em 0 .35em; color: var(--ink); }
+.face--possession .corp p { margin: 0 0 1em; }
+.face--possession .corp .eyebrow { font-size: .78rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--brand); margin: 0; }
+.face--possession .corp .section-lede { color: var(--ink-soft); max-width: 40em; font-size: 1.08rem; }
+.face--possession .corp-main > section,
+.face--possession .corp .footer-top,
+.face--possession .corp .footer-legal { max-width: 1160px; margin-inline: auto; padding-inline: 24px; }
+.face--possession .corp-main > section { padding-block: 72px; }
+
+.face--possession .btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: .4em;
+  font: 600 .92rem/1 var(--corp-font); padding: .78em 1.2em; border-radius: 9px;
+  border: 1px solid transparent; cursor: pointer; white-space: nowrap;
+  transition-duration: 1.2s, 1.2s, 1.2s, .2s;
+  transition-property: background-color, color, border-color, box-shadow;
+}
+.face--possession .corp .btn:hover { text-decoration: none; box-shadow: 0 0 0 4px color-mix(in srgb, var(--brand) 18%, transparent); }
+.face--possession .corp .btn--primary { background: var(--brand); color: #fff; }
+.face--possession .corp .btn--ghost { background: var(--card); color: var(--ink); border-color: var(--line); }
+.face--possession .corp .btn--link { background: none; color: var(--brand); padding-inline: .4em; }
+.face--possession .corp .btn--lg { font-size: 1rem; padding: .95em 1.45em; }
+
+/* nav */
+.face--possession .corp .nav {
+  position: sticky; top: 0; z-index: 30;
+  display: flex; align-items: center; gap: 28px;
+  padding: 14px max(24px, calc(50% - 556px));
+  background: color-mix(in srgb, var(--paper) 88%, transparent);
+  -webkit-backdrop-filter: saturate(1.4) blur(10px); backdrop-filter: saturate(1.4) blur(10px);
+  border-bottom: 1px solid var(--line);
+  color: var(--ink);
+}
+.face--possession .corp .brand { display: inline-flex; align-items: center; gap: 10px; color: var(--ink); font-weight: 700; letter-spacing: -0.01em; }
+.face--possession .corp .brand:hover { text-decoration: none; }
+.face--possession .corp .logo-mark { display: inline-block; width: 28px; height: 28px; }
+.face--possession .corp .logo-mark svg { width: 100%; height: 100%; }
+.face--possession .corp .nav-links { display: flex; gap: 24px; margin-right: auto; }
+.face--possession .corp .nav-links a { color: var(--ink-soft); font-size: .93rem; font-weight: 500; display: inline-block; }
+.face--possession .corp .nav-actions { display: flex; gap: 10px; }
+
+/* hero */
+.face--possession .corp .hero {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.06fr); gap: 56px; align-items: center;
+  padding-top: 84px;
+  background: radial-gradient(ellipse 70% 60% at 90% 0%, var(--brand-soft), transparent 70%);
+  max-width: none; padding-inline: max(24px, calc(50% - 556px));
+}
+.face--possession .corp .kicker { display: inline-flex; align-items: center; gap: 8px; font-size: .85rem; color: var(--ink-soft); background: var(--card); border: 1px solid var(--line); border-radius: 99px; padding: 5px 12px 5px 8px; margin-bottom: 22px; }
+.face--possession .corp .kicker-dot { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 0 3px #22c55e33; }
+.face--possession .corp .hero h1 {
+  font-size: clamp(2.3rem, 4.6vw, 3.5rem); line-height: 1.06; letter-spacing: -0.02em; font-weight: 750;
+  margin: 0 0 20px; color: var(--ink);
+}
+.face--possession .corp .wordflow { display: flex; flex-wrap: wrap; column-gap: .25em; }
+.face--possession .corp .lede { font-size: 1.15rem; color: var(--ink-soft); max-width: 34em; column-gap: .28em; }
+.face--possession .corp .hero-ctas { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
+
+/* the brand film */
+.face--possession .corp .film { margin: 0; border-radius: 16px; overflow: hidden; background: #0f141b; box-shadow: 0 30px 60px -20px #1a202c55, 0 0 0 1px #0000000d; }
+.face--possession .corp .film-frame { position: relative; aspect-ratio: 560 / 330; }
+.face--possession .corp .poster, .face--possession .corp .poster svg { width: 100%; height: 100%; }
+.face--possession .corp .poster .eyes { opacity: 0; transition: opacity 6s ease-in; }
+.face--possession .corp .poster.eyes-1 .eyes--0,
+.face--possession .corp .poster.eyes-2 .eyes--2,
+.face--possession .corp .poster.eyes-3 .eyes--1 { opacity: 1; }
+.face--possession .corp .poster .figure--4 { opacity: 0; transition: opacity 14s ease-in; }
+.face--possession .corp .poster.fourth .figure--4 { opacity: .72; }
+.face--possession .corp .poster .art-eye, .face--possession .corp .poster .art-sun, .face--possession .corp .poster .art-hill { transition: opacity 8s ease-in-out; }
+.face--possession .corp .poster.art-watching .art-eye { opacity: 1; }
+.face--possession .corp .poster.art-watching :is(.art-sun, .art-hill) { opacity: .12; }
+.face--possession .corp .poster.all-eyes .eyes { transition-duration: 2.5s; }
+.face--possession .corp .film-play {
+  position: absolute; left: 50%; top: 50%; translate: -50% -50%; width: 68px; height: 68px; border-radius: 50%;
+  border: 0; background: #ffffffee; box-shadow: 0 10px 30px #0004; cursor: pointer; display: grid; place-items: center;
+  transition: opacity .3s, scale .2s;
+}
+.face--possession .corp .film-play:hover { scale: 1.06; }
+.face--possession .corp .film-play-icon { width: 0; height: 0; border-left: 20px solid var(--brand); border-block: 12px solid transparent; margin-left: 5px; }
+.face--possession .corp .film.playing .film-play { opacity: 0; }
+.face--possession .corp .film.playing .film-play:focus-visible, .face--possession .corp .film.playing .film-play:hover { opacity: .9; }
+.face--possession .corp .film.playing .film-play-icon { border: 0; width: 18px; height: 20px; margin: 0; border-inline: 6px solid var(--brand); }
+.face--possession .corp .film-caption { position: absolute; left: 50%; bottom: 12px; translate: -50% 0; margin: 0; max-width: 90%; font-size: .82rem; line-height: 1.35; color: #fff; background: #000000b3; padding: 3px 8px; border-radius: 3px; text-align: center; }
+.face--possession .corp .film-caption:empty { display: none; }
+.face--possession .corp .film-controls { display: flex; align-items: center; gap: 12px; padding: 8px 10px 8px 14px; background: #0f141b; color: #cbd5e1; font-size: .78rem; }
+.face--possession .corp .film-bar { flex: 1; height: 4px; border-radius: 2px; background: #334155; overflow: hidden; }
+.face--possession .corp .film-bar-fill { display: block; height: 100%; width: 100%; background: var(--brand); transform-origin: left; scale: .002 1; }
+.face--possession .corp .film.playing .film-bar-fill { animation: possession-film 66s linear infinite; }
+@keyframes possession-film { from { scale: .002 1; } to { scale: 1 1; } }
+.face--possession .corp .film-time { font-variant-numeric: tabular-nums; }
+.face--possession .corp .film-unmute { display: inline-flex; align-items: center; gap: 6px; border: 1px solid #334155; background: #111821; color: #cbd5e1; border-radius: 6px; padding: 3px 8px 3px 4px; cursor: pointer; font: 600 .74rem var(--corp-font); }
+.face--possession .corp .film-unmute:hover { color: #fff; border-color: #64748b; }
+.face--possession .corp .film-grille { display: inline-grid; }
+.face--possession .grille .crack { stroke: #0f141b; }
+
+/* trusted-by */
+.face--possession .corp .trusted { padding-block: 26px 40px; text-align: center; }
+.face--possession .corp .trusted-label { font-size: .8rem; color: var(--ink-soft); letter-spacing: .08em; text-transform: uppercase; }
+.face--possession .corp .logos { list-style: none; margin: 14px 0 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 12px 44px; color: #94a3b8; }
+.face--possession .corp .logo { position: relative; display: grid; place-items: center; min-height: 44px; }
+.face--possession .corp .wordmark { font-size: 1.25rem; transition: opacity 3s; }
+.face--possession .corp .logo--0 .wordmark { font: italic 700 1.3rem Georgia, serif; }
+.face--possession .corp .logo--1 .wordmark { font: 600 1.05rem 'Century Gothic', Futura, sans-serif; letter-spacing: .22em; text-transform: uppercase; }
+.face--possession .corp .logo--2 .wordmark { font: 400 1.45rem Garamond, Georgia, serif; }
+.face--possession .corp .logo--3 .wordmark { font: 700 1.2rem Bahnschrift, 'Arial Narrow', sans-serif; letter-spacing: .04em; }
+.face--possession .corp .logo--4 .wordmark { font: 600 1.2rem 'Palatino Linotype', Palatino, serif; font-variant: small-caps; }
+.face--possession .corp .logo-sigil { position: absolute; inset: 0; margin: auto; width: 44px; height: 44px; opacity: 0; transition: opacity 3s; color: #7a1010; }
+.face--possession .corp .logos.sigiled .wordmark { opacity: 0; }
+.face--possession .corp .logos.sigiled .logo-sigil { opacity: .9; }
+.face--possession .corp .logos.sigiled .logo:nth-child(2) :is(.wordmark, .logo-sigil) { transition-delay: 1.4s; }
+.face--possession .corp .logos.sigiled .logo:nth-child(3) :is(.wordmark, .logo-sigil) { transition-delay: 2.8s; }
+.face--possession .corp .logos.sigiled .logo:nth-child(4) :is(.wordmark, .logo-sigil) { transition-delay: 4.2s; }
+.face--possession .corp .logos.sigiled .logo:nth-child(5) :is(.wordmark, .logo-sigil) { transition-delay: 5.6s; }
+
+/* features: the grid that will bleed */
+.face--possession .corp .features { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; margin-top: 36px; border-radius: 16px; }
+.face--possession .corp .card { position: relative; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 26px; box-shadow: 0 1px 2px #0000000a, 0 8px 24px -12px #1a202c1f; }
+.face--possession .corp .card-icon { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 10px; background: var(--brand-soft); color: var(--brand); }
+.face--possession .corp .card-icon svg { width: 22px; height: 22px; }
+.face--possession .corp .card p { color: var(--ink-soft); font-size: .95rem; margin: 0; }
+.face--possession .corp.bleed .card:nth-child(3n + 1)::after,
+.face--possession .corp.bleed .card:nth-child(3n + 2)::before {
+  content: ''; position: absolute; top: 100%; left: var(--drip, 32%); width: 2px; height: 0; border-radius: 0 0 2px 2px;
+  background: linear-gradient(#3d0606, #3d060600); animation: possession-drip 48s ease-in forwards; z-index: 1;
+}
+.face--possession .corp.bleed .card:nth-child(3n + 2)::before { --drip: 71%; animation-duration: 70s; }
+.face--possession .corp.bleed .card:nth-child(2)::before { --drip: 18%; }
+@keyframes possession-drip { to { height: 30px; } }
+
+/* about + stats */
+.face--possession .corp .about { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 56px; align-items: start; }
+.face--possession .corp .about p { color: var(--ink-soft); font-size: 1.05rem; }
+.face--possession .corp .founding { margin: 26px 0 0; padding: 4px 0 4px 20px; border-left: 3px solid var(--brand); }
+.face--possession .corp .founding blockquote { margin: 0; }
+.face--possession .corp .founding blockquote p { font-style: italic; color: var(--ink); font-size: 1.05rem; margin-bottom: .4em; }
+.face--possession .corp .founding figcaption { font-size: .82rem; color: var(--ink-soft); }
+.face--possession .corp .stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin: 0; }
+.face--possession .corp .stat { background: var(--paper-2); border: 1px solid var(--line); border-radius: 12px; padding: 18px 18px 14px; }
+.face--possession .corp .stat dt { font-size: .78rem; color: var(--ink-soft); text-transform: uppercase; letter-spacing: .06em; }
+.face--possession .corp .stat dd { margin: 4px 0 0; }
+.face--possession .corp .stat b { font-size: 1.9rem; letter-spacing: -0.02em; color: var(--ink); font-variant-numeric: tabular-nums; }
+.face--possession .corp .stat--live dt::before { content: ''; display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #22c55e; margin-right: 6px; vertical-align: 1px; animation: possession-pulse 2.4s ease-in-out infinite; }
+@keyframes possession-pulse { 50% { opacity: .35; } }
+
+/* pricing: the Sphere where the z-index war is fought */
+.face--possession .corp .pricing { text-align: center; }
+.face--possession .corp .plans {
+  position: relative; isolation: isolate; /* a Sphere: no soul rises above the Sphere it was born in */
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; margin-top: 38px; text-align: left; align-items: stretch;
+}
+.face--possession .corp .plan {
+  position: relative; display: flex; flex-direction: column; gap: 4px;
+  background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 28px 26px;
+  box-shadow: 0 1px 2px #0000000a, 0 12px 30px -16px #1a202c33;
+  transition: translate 1.8s cubic-bezier(.5, 0, .2, 1), filter 3s, opacity 3s, box-shadow .6s, color 2.8s, background-color 2.8s, border-color 2.8s;
+}
+.face--possession .corp .plan--pro { border: 2px solid var(--brand); box-shadow: 0 24px 50px -20px color-mix(in srgb, var(--brand) 45%, transparent); }
+.face--possession .corp .plan-badge { position: absolute; top: -12px; left: 24px; margin: 0; font-size: .72rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; background: var(--brand); color: #fff; padding: 3px 10px; border-radius: 99px; }
+.face--possession .corp .plan h3 { margin-top: 0; }
+.face--possession .corp .plan-price { margin: 0; }
+.face--possession .corp .plan-price .amount { font-size: 2.2rem; font-weight: 750; letter-spacing: -0.02em; }
+.face--possession .corp .plan-price .per { color: var(--ink-soft); margin-left: 4px; }
+.face--possession .corp .plan-blurb { color: var(--ink-soft); font-size: .95rem; }
+.face--possession .corp .plan-feats { list-style: none; padding: 0; margin: 6px 0 22px; display: grid; gap: 8px; font-size: .93rem; flex: 1; }
+.face--possession .corp .plan-feats li::before { content: '\2713'; color: var(--brand); font-weight: 700; margin-right: 8px; }
+.face--possession .corp .plan-cta { align-self: stretch; }
+.face--possession .corp .zbadge { position: absolute; top: 10px; right: 12px; font: 11px/1 var(--mono); color: #9e1b1b; background: #fff5f5; border: 1px solid #f3c0c0; padding: 3px 5px; border-radius: 3px; opacity: 0; transition: opacity 1.5s; }
+.face--possession .corp .plans.at-war .zbadge { opacity: 1; }
+.face--possession .corp .plans.at-war .plan--starter .zbadge { opacity: 0; }
+.face--possession .corp .plans.at-war .plan--pro { translate: 21% 10px; }
+.face--possession .corp .plans.at-war .plan--ent { translate: -21% -10px; }
+.face--possession .corp .plans.at-war .plan--pro.fallen { translate: 21% 46px; filter: grayscale(1) brightness(.78); opacity: .72; }
+.face--possession .corp .zcaption { margin-top: 26px; font-size: .85rem; color: var(--ink-soft); }
+.face--possession .corp .zcaption code { font-family: var(--mono); font-size: .8rem; background: var(--paper-2); border: 1px solid var(--line); padding: 2px 6px; border-radius: 4px; }
+
+/* testimonials */
+.face--possession .corp .testimonials { text-align: center; }
+.face--possession .corp .quotes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; margin-top: 34px; text-align: left; }
+.face--possession .corp .quote { margin: 0; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 24px; display: flex; flex-direction: column; gap: 10px; }
+.face--possession .corp .stars { color: #f59e0b; letter-spacing: .05em; margin: 0; }
+.face--possession .corp .quote blockquote { margin: 0; flex: 1; }
+.face--possession .corp .quote blockquote p { margin: 0; color: var(--ink); }
+.face--possession .corp .quote figcaption { display: flex; align-items: center; gap: 10px; font-size: .88rem; }
+.face--possession .corp .quote figcaption b { display: block; }
+.face--possession .corp .quote figcaption small { color: var(--ink-soft); }
+.face--possession .corp .avatar { flex: none; width: 40px; height: 40px; border-radius: 50%; background: var(--brand-soft); color: var(--brand); padding: 6px; }
+.face--possession .corp .strangers-box { margin: 34px auto 0; max-width: 760px; text-align: left; border: 1px dashed var(--line); border-radius: 14px; padding: 18px 22px; background: var(--paper-2); }
+.face--possession .corp .strangers-box h3 { margin: 0 0 8px; font-size: .95rem; }
+.face--possession .corp .strangers { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.face--possession .corp .strangers li { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+.face--possession .corp .stranger-text { font-family: var(--font-glyph); font-size: 1.15rem; color: var(--ink); overflow-wrap: anywhere; }
+.face--possession .corp .strangers small { color: var(--ink-soft); }
+.face--possession .corp .strangers-empty { margin: 0; color: var(--ink-soft); font-size: .9rem; }
+
+/* careers: the veil */
+.face--possession .corp .careers { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 56px; align-items: start; }
+.face--possession .corp .careers-copy p:last-child { color: var(--ink-soft); }
+.face--possession .corp .veil { position: relative; z-index: 3; height: 15rem; border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 12px 30px -18px #1a202c40; }
+.face--possession .corp .veil.is-tearing { border-bottom-color: transparent; border-radius: 14px 14px 0 0; filter: drop-shadow(0 2px 0 #7a1010) drop-shadow(0 1px 0 #d7f5a055) drop-shadow(0 14px 18px #000000aa); }
+.face--possession .corp .veil-inner {
+  --seam: 15rem;
+  position: absolute; left: -1px; right: -1px; top: -1px;
+  clip-path: inset(0 0 calc(100% - 15rem) 0);
+  background: linear-gradient(to bottom, var(--card) 0 calc(var(--seam) - 1px), #0b0908 calc(var(--seam) - 1px));
+  border-radius: 14px 14px 0 0;
+  transition: clip-path 6s cubic-bezier(.3, 0, .2, 1);
+}
+.face--possession .corp .jobs { list-style: none; margin: 0; padding: 0; }
+.face--possession .corp .job { display: flex; justify-content: space-between; gap: 12px; padding: 14px 20px; border-bottom: 1px solid var(--line); }
+.face--possession .corp .job-title { font-weight: 600; }
+.face--possession .corp .job-where { color: var(--ink-soft); font-size: .9rem; white-space: nowrap; }
+.face--possession .corp .job--beyond { border-color: #2a1d1b; font-family: var(--mono); font-size: .88rem; }
+.face--possession .corp .job--beyond .job-title { color: #c9dc8a; font-weight: 400; }
+.face--possession .corp .job--beyond .job-where { color: #7c8a4c; }
+.face--possession .corp .beyond-line { margin: 0; padding: 18px 20px 26px; font: italic .95rem var(--hell-serif); color: #9e1b1b; letter-spacing: .02em; }
+
+/* footer */
+.face--possession .corp .footer { background: var(--paper-2); border-top: 1px solid var(--line); padding-top: 56px; color: var(--ink); }
+.face--possession .corp .footer-top { display: grid; grid-template-columns: minmax(0, 1.6fr) repeat(3, minmax(0, 1fr)); gap: 32px; }
+.face--possession .corp .footer-brand p { color: var(--ink-soft); font-size: .92rem; margin: 10px 0 0; }
+.face--possession .corp .status { display: inline-flex; align-items: center; gap: 8px; font-size: .85rem; border: 1px solid var(--line); background: var(--card); border-radius: 99px; padding: 4px 12px 4px 10px; }
+.face--possession .corp .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; }
+.face--possession .corp .status--warn .status-dot { background: #f59e0b; }
+.face--possession .corp .status--bad .status-dot { background: #b91c1c; }
+.face--possession .corp .status--bad { color: #9e1b1b; }
+.face--possession .corp .footer-brand .sky-line { font-size: .8rem; }
+.face--possession .corp .forecast { font-size: .85rem; }
+.face--possession .corp .footer-col h3 { font-size: .8rem; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-soft); margin: 4px 0 12px; }
+.face--possession .corp .footer-col ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; font-size: .92rem; }
+.face--possession .corp .footer-col a { color: var(--ink); }
+.face--possession .corp .footer-legal { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px 32px; padding-block: 22px 30px; margin-top: 44px; border-top: 1px solid var(--line); font-size: .8rem; color: var(--ink-soft); }
+.face--possession .corp .fineprint { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; max-width: 100%; }
+.face--possession .corp .fineprint-label { font-size: .75rem; }
+.face--possession .corp .fine-inscription { margin: 0; font-family: var(--font-glyph); font-size: .95rem; letter-spacing: .06em; color: inherit; overflow-wrap: anywhere; }
+.face--possession .corp .footer-hint { max-width: 1160px; margin: 0 auto; padding: 0 24px 26px; font: italic .95rem var(--hell-serif); color: #9e1b1b; }
+.face--possession .corp .footer-hint a { color: inherit; text-decoration: underline; }
+
+/* nigredo: what the custom properties cannot reach */
+.face--possession.nigredo .corp .film { box-shadow: 0 30px 70px -20px #6b0f0f66, 0 0 0 1px #3a2522; }
+.face--possession.nigredo .corp .poster { filter: brightness(.82) contrast(1.08); }
+.face--possession.nigredo .corp .kicker-dot { background: #b91c1c; box-shadow: 0 0 0 3px #b91c1c33; }
+.face--possession.nigredo .corp .zbadge { background: #2a0c0c; border-color: #6b0f0f; color: #f3b0b0; }
+.face--possession.nigredo .corp .avatar { color: #c9dc8a; }
+
+/* cookies, toast */
+.face--possession .cookie {
+  position: fixed; z-index: 870; left: 50%; bottom: 60px; translate: -50% 16px; opacity: 0;
+  width: min(540px, calc(100vw - 24px)); padding: 18px 20px; border-radius: 14px;
+  background: #fff; color: #1a202c; font: 14px/1.5 var(--corp-font);
+  box-shadow: 0 24px 60px -12px #0f172a59, 0 0 0 1px #0f172a14;
+  transition: translate .6s ease, opacity .6s ease;
+}
+.face--possession .cookie.is-shown { translate: -50% 0; opacity: 1; }
+/* Cookies do not reach below the footer. */
+.face--possession.below-footer .cookie.is-shown { translate: -50% 16px; opacity: 0; visibility: hidden; transition: translate .6s ease, opacity .6s ease, visibility 0s .6s; }
+.face--possession .cookie-text { margin: 0 0 12px; }
+.face--possession .cookie-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.face--possession .cookie .btn--primary { background: #1a202c; color: #fff; }
+.face--possession .cookie .btn--ghost { background: #fff; color: #1a202c; border-color: #cbd5e1; }
+.face--possession .cookie .btn--link { background: none; color: #1a202c; text-decoration: underline; }
+.face--possession .cookie .btn:disabled { opacity: .5; cursor: default; }
+.face--possession .cookie-prefs { border: 0; margin: 0 0 12px; padding: 0; display: grid; gap: 8px; }
+.face--possession .cookie-prefs legend { font-weight: 700; margin-bottom: 6px; padding: 0; }
+.face--possession .cookie-toggle { display: flex; gap: 10px; align-items: flex-start; font-size: .88rem; }
+.face--possession .cookie-toggle input { margin-top: 4px; accent-color: #1a202c; }
+.face--possession .cookie-toggle small { display: block; color: #64748b; }
+.face--possession .cookie-toggle.is-locked:last-child b { color: #7a1010; }
+.face--possession .toast {
+  position: fixed; z-index: 880; top: 16px; left: 50%; translate: -50% 0; width: max-content; max-width: min(560px, calc(100vw - 24px));
+  background: #1a202c; color: #f8fafc; border-radius: 10px; padding: 12px 16px; font: 14px/1.45 var(--corp-font);
+  box-shadow: 0 16px 40px -10px #0008;
+}
+.face--possession .toast p { margin: 0; }
+
+/* ————————————————————————————— the Inspector ————————————————————————————— */
+.face--possession .dt {
+  --dt-bg: #202124; --dt-bar: #292a2d; --dt-line: #3c4043; --dt-fg: #e8eaed; --dt-dim: #9aa0a6;
+  --dt-accent: #8ab4f8; --dt-sel: #33445e; --dt-hover: #2c3440;
+  --dt-tag: #5db0d7; --dt-attr: #9bbbdc; --dt-val: #f29766; --dt-prop: #5db0d7; --dt-comment: #7f9f6a;
+  position: fixed; z-index: 900; top: 0; right: 0; bottom: 0; width: var(--dt-w);
+  display: grid; grid-template-rows: auto minmax(0, 1fr) auto;
+  background: var(--dt-bg); color: var(--dt-fg); border-left: 1px solid var(--dt-line);
+  font: 12px/1.45 'Segoe UI', system-ui, sans-serif;
+  translate: 100% 0; visibility: hidden;
+  transition: translate .5s cubic-bezier(.3, 0, .2, 1), visibility 0s linear .5s, background-color 6s, color 6s;
+  box-shadow: -20px 0 40px -20px #0008;
+}
+.face--possession .dt[data-open="true"] { translate: 0 0; visibility: visible; transition: translate .5s cubic-bezier(.3, 0, .2, 1), visibility 0s, background-color 6s, color 6s; }
+.face--possession .dt.is-sick {
+  --dt-bg: #0f120b; --dt-bar: #151a0f; --dt-line: #2c3520; --dt-fg: #cbd8a6; --dt-dim: #7c8a5c;
+  --dt-accent: #a4c639; --dt-sel: #3a1212; --dt-hover: #1e2616; --dt-tag: #a4c639; --dt-attr: #c9dc8a; --dt-val: #e0736a; --dt-prop: #a4c639;
+}
+.face--possession .dt button { font: inherit; color: inherit; }
+.face--possession .dt-bar { display: flex; align-items: stretch; gap: 2px; background: var(--dt-bar); border-bottom: 1px solid var(--dt-line); min-height: 30px; padding-left: 4px; }
+.face--possession .dt-tabs { display: flex; min-width: 0; overflow-x: auto; scrollbar-width: none; }
+.face--possession .dt-tab { background: none; border: 0; border-bottom: 2px solid transparent; padding: 0 10px; color: var(--dt-dim); cursor: pointer; white-space: nowrap; }
+.face--possession .dt-tab[aria-selected="true"] { color: var(--dt-accent); border-bottom-color: var(--dt-accent); }
+.face--possession .dt-tab:hover { color: var(--dt-fg); background: var(--dt-hover); }
+.face--possession .dt-bar-end { margin-left: auto; display: flex; align-items: center; gap: 4px; padding-right: 4px; }
+.face--possession .dt-icon-btn { background: none; border: 0; width: 26px; height: 26px; display: grid; place-items: center; cursor: pointer; color: var(--dt-dim); border-radius: 3px; }
+.face--possession .dt-icon-btn:hover, .face--possession .dt-icon-btn[aria-pressed="true"] { color: var(--dt-accent); background: var(--dt-hover); }
+.face--possession .dt-x { font-size: 17px; }
+.face--possession .dt-speaker .grille .crack { stroke: var(--dt-bar); }
+.face--possession .dt-count { display: inline-flex; align-items: center; gap: 3px; font-size: 11px; padding: 0 3px; }
+.face--possession .dt-count--warn { color: #f2ab26; }
+.face--possession .dt-count--err { color: #f28b82; }
+.face--possession .dt-ico { font-size: 9px; }
+.face--possession .dt-body { min-height: 0; display: grid; }
+.face--possession .dt-panel { min-height: 0; display: grid; }
+.face--possession .dt-panel--elements { grid-template-rows: minmax(110px, 36%) minmax(0, 1fr); }
+.face--possession .dt-dom { min-height: 0; display: grid; grid-template-rows: minmax(0, 1fr) auto; border-bottom: 1px solid var(--dt-line); }
+.face--possession .dt-tree { list-style: none; margin: 0; padding: 4px 0; overflow: auto; font: 11.5px/1.5 var(--mono); }
+.face--possession .dt-node { display: block; width: 100%; text-align: left; border: 0; background: none; padding: 0 8px 0 calc(6px + var(--d, 0) * 13px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: default; font: inherit; }
+.face--possession .dt-node:hover { background: var(--dt-hover); }
+.face--possession .dt-node.is-selected { background: var(--dt-sel); }
+.face--possession .dt-node .dt-sel0 { display: none; color: var(--dt-dim); }
+.face--possession .dt-node.is-selected .dt-sel0 { display: inline; }
+.face--possession .dt-node.is-possessed::after { content: ' \25CF'; color: #e5484d; }
+.face--possession .dt-twisty { display: inline-block; width: 12px; color: var(--dt-dim); }
+.face--possession .t-tag { color: var(--dt-tag); }
+.face--possession .t-attr { color: var(--dt-attr); }
+.face--possession .t-val { color: var(--dt-val); }
+.face--possession .t-punc { color: color-mix(in srgb, var(--dt-tag) 60%, var(--dt-dim)); }
+.face--possession .t-sp { white-space: pre; }
+.face--possession .dt-crumbs { margin: 0; padding: 3px 8px; font: 11px var(--mono); color: var(--dt-dim); background: var(--dt-bar); border-top: 1px solid var(--dt-line); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.face--possession .dt-styles { min-height: 0; overflow: auto; }
+.face--possession .dt-filter { position: sticky; top: 0; z-index: 1; display: flex; gap: 8px; align-items: center; padding: 4px 8px; background: var(--dt-bg); border-bottom: 1px solid var(--dt-line); color: var(--dt-dim); }
+.face--possession .dt-filter-box { flex: 1; border: 1px solid var(--dt-line); border-radius: 3px; padding: 1px 6px; }
+.face--possession .dt-filter-tools { font: 11px var(--mono); white-space: pre; }
+.face--possession .dt-rules { display: block; }
+.face--possession .dt-rule { padding: 5px 8px 6px 10px; border-bottom: 1px solid var(--dt-line); font: 11.5px/1.6 var(--mono); }
+.face--possession .dt-rule-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 4px; }
+.face--possession .dt-sel { color: var(--dt-fg); overflow-wrap: anywhere; }
+.face--possession .dt-spec { color: var(--dt-dim); font-size: 10px; }
+.face--possession .dt-spec:empty { display: none; }
+.face--possession .dt-src { margin-left: auto; color: var(--dt-dim); text-decoration: underline; font-size: 11px; white-space: nowrap; }
+.face--possession .dt-decls { list-style: none; margin: 0; padding: 0; }
+.face--possession .dt-decl { position: relative; padding-left: 18px; overflow-wrap: anywhere; }
+.face--possession .dt-check { position: absolute; left: 2px; top: 4px; margin: 0; width: 11px; height: 11px; accent-color: var(--dt-accent); cursor: pointer; }
+.face--possession .dt-prop { color: var(--dt-prop); }
+.face--possession .dt-val { color: var(--dt-fg); }
+.face--possession .dt-imp { color: #f28b82; }
+.face--possession .dt-swatch { display: inline-block; width: 10px; height: 10px; border: 1px solid #ffffff55; margin-right: 4px; vertical-align: -1px; }
+.face--possession .dt-warn { color: #f2ab26; margin-left: 5px; font-size: 10px; }
+.face--possession .dt-note { color: var(--dt-dim); font-size: 10px; }
+.face--possession .dt-decl.is-overridden :is(.dt-prop, .dt-colon, .dt-val, .dt-imp, .dt-semi),
+.face--possession .dt-decl.is-disabled :is(.dt-prop, .dt-colon, .dt-val, .dt-imp, .dt-semi) { text-decoration: line-through; opacity: .6; }
+.face--possession .dt-decl.is-invalid .dt-val { text-decoration: line-through wavy #f2ab26; }
+.face--possession .dt-decl.is-editing { background: color-mix(in srgb, var(--dt-accent) 12%, transparent); }
+.face--possession .dt-rule--comment .dt-sel { color: var(--dt-comment); font-style: italic; }
+.face--possession .dt-rule--ua { color: var(--dt-dim); font-style: italic; }
+.face--possession .dt-rule--ua .dt-src { text-decoration: none; }
+.face--possession .dt-rule--ua .dt-sel { color: var(--dt-dim); }
+.face--possession .dt-rule--offering .dt-sel { color: #e2c275; }
+.face--possession .dt-rule--demon { animation: possession-rule-in 1.2s ease-out; }
+@keyframes possession-rule-in { from { background: color-mix(in srgb, #e5484d 22%, transparent); } }
+.face--possession .dt-caret { display: inline-block; width: 1.5px; height: 1.15em; margin-left: 1px; background: var(--dt-fg); vertical-align: text-bottom; animation: possession-caret 1.05s steps(1) infinite; }
+@keyframes possession-caret { 50% { opacity: 0; } }
+.face--possession .dt.is-apology .dt-rule--demon :is(.dt-prop, .dt-colon, .dt-val, .dt-imp, .dt-semi) { text-decoration: line-through; opacity: .35; }
+.face--possession .dt.is-apology .dt-rule--demon .dt-check { opacity: .3; }
+.face--possession .dt-log { list-style: none; margin: 0; padding: 0; overflow: auto; font: 11.5px/1.45 var(--mono); min-height: 0; }
+.face--possession .dt-panel--console { grid-template-rows: minmax(0, 1fr) auto; }
+.face--possession .dt-msg { display: flex; gap: 7px; align-items: baseline; padding: 3px 8px 3px 10px; border-bottom: 1px solid #ffffff0d; overflow-wrap: anywhere; }
+.face--possession .dt-msg-ico { flex: none; width: 10px; font-size: 9px; text-align: center; }
+.face--possession .dt-msg-text { flex: 1; min-width: 0; white-space: pre-wrap; }
+.face--possession .dt-msg-src { flex: none; color: var(--dt-dim); text-decoration: underline; font-size: 10.5px; }
+.face--possession .dt-msg--warn { background: #413c26; color: #f5d488; border-color: #665c2a; }
+.face--possession .dt-msg--error { background: #4e3534; color: #f7a39c; border-color: #6f4543; }
+.face--possession .dt-msg--info { color: var(--dt-accent); }
+.face--possession .dt-msg--demon { color: #d7f5a0; font-style: italic; }
+.face--possession .dt-msg--you, .face--possession .dt-msg--echo { color: var(--dt-dim); }
+.face--possession .dt-msg--you .dt-msg-text { color: var(--dt-fg); }
+.face--possession .dt-prompt { display: flex; align-items: center; gap: 6px; padding: 5px 8px 5px 10px; border-top: 1px solid var(--dt-line); }
+.face--possession .dt-prompt-mark { color: var(--dt-accent); font: 700 14px var(--mono); }
+.face--possession .dt-prompt input { flex: 1; min-width: 0; background: transparent; border: 0; color: var(--dt-fg); font: 12px var(--mono); padding: 3px 0; }
+.face--possession .dt-prompt input:focus-visible { outline: 1px solid var(--dt-accent); outline-offset: 2px; }
+.face--possession .dt-panel--sources { grid-template-rows: auto minmax(0, 1fr); }
+.face--possession .dt-file { margin: 0; padding: 4px 10px; background: var(--dt-bar); border-bottom: 1px solid var(--dt-line); font-size: 11.5px; }
+.face--possession .dt-file-note { color: var(--dt-dim); }
+.face--possession .dt-source { list-style: none; margin: 0; padding: 4px 0; overflow: auto; font: 11.5px/1.5 var(--mono); counter-reset: ln; }
+.face--possession .dt-source li { counter-increment: ln; display: flex; }
+.face--possession .dt-source li::before { content: counter(ln); flex: none; width: 3.2em; padding-right: 10px; text-align: right; color: var(--dt-dim); opacity: .7; }
+.face--possession .dt-source code { white-space: pre-wrap; overflow-wrap: anywhere; color: var(--dt-fg); }
+.face--possession .dt-status { display: flex; align-items: flex-start; gap: 7px; min-height: 84px; padding: 6px 10px; background: var(--dt-bar); border-top: 1px solid var(--dt-line); color: var(--dt-dim); font-size: 11px; }
+.face--possession .dt-typing-dot { flex: none; width: 7px; height: 7px; border-radius: 50%; background: #5f6368; margin-top: 4px; }
+.face--possession .dt.is-typing .dt-typing-dot { background: #e5484d; animation: possession-pulse 1.6s ease-in-out infinite; }
+.face--possession .dt.is-typing .dt-status-text { color: var(--dt-fg); }
+:root[data-ascended] .face--possession .dt-status-text::after { content: ' \00B7 an Ascended soul is present; the hand trembles'; color: #e2c275; }
+
+.face--possession .dt-chip {
+  position: fixed; z-index: 860; right: 0; top: 50%; translate: 0 -50%;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 10px 6px; border: 1px solid #3c4043; border-right: 0; border-radius: 8px 0 0 8px;
+  background: #202124; color: #e8eaed; font: 600 11px var(--mono); cursor: pointer; box-shadow: -6px 0 20px #0005;
+}
+.face--possession.dt-open .dt-chip { right: var(--dt-w); }
+.face--possession .dt-chip-n { color: #f2ab26; writing-mode: vertical-rl; }
+.face--possession .dt-chip-n:empty { display: none; }
+
+.face--possession.is-inspecting .corp, .face--possession.is-inspecting .abyss { cursor: crosshair; }
+.face--possession .dt-highlight { position: fixed; inset: 0; z-index: 895; pointer-events: none; }
+.face--possession .dt-highlight > * { position: absolute; left: 0; top: 0; }
+.face--possession .hl-ring { border-style: solid; border-width: 0; }
+.face--possession .hl-margin { border-color: #f6b26ba6; }
+.face--possession .hl-border { border-color: #ffe599a6; }
+.face--possession .hl-padding { border-color: #93c47d8c; }
+.face--possession .hl-content { background: #6fa8dca6; }
+.face--possession .hl-tip { background: #fff; color: #202124; font: 11px/1.45 var(--mono); padding: 5px 8px; border-radius: 3px; box-shadow: 0 2px 10px #0006; max-width: 256px; white-space: nowrap; }
+.face--possession .hl-tip b { color: #881280; font-weight: 600; }
+.face--possession .hl-tip .sheaths i { font-style: normal; font-family: var(--corp-font); font-size: 10px; padding: 0 3px; border-radius: 2px; }
+.face--possession .hl-tip .s-c { background: #6fa8dc; }
+.face--possession .hl-tip .s-p { background: #93c47d; }
+.face--possession .hl-tip .s-b { background: #ffe599; }
+.face--possession .hl-tip .s-m { background: #f6b26b; }
+
+/* Desktop dock: the page reflows narrower when the Inspector opens, as it does in life. */
+@media (min-width: 900px) {
+  .face--possession.dt-open .possession { margin-right: var(--dt-w); }
+  .face--possession.dt-open .toast { margin-left: calc(var(--dt-w) / -2); }
+  .face--possession.dt-open .cookie { margin-left: calc(var(--dt-w) / -2); }
+}
+
+/* the demon points at the one righteous Inversion */
+:root:has(#temple.point-at-mercy) #mercy { opacity: 1; outline: 2px solid #d7f5a0; outline-offset: 4px; }
+
+/* ————————————————————————————— the Descent ————————————————————————————— */
+.face--possession .abyss { position: relative; background: #070605; color: #d8cdb4; font-family: var(--hell-serif); }
+.face--possession .abyss code { font-family: var(--mono); font-size: .92em; }
+.face--possession .void {
+  min-height: 78vh; display: grid; place-content: center; gap: 4px; padding: 10vh 16px; text-align: center;
+  background: linear-gradient(#f4f6f9 0, #cfd3d8 12%, #5b5550 38%, #070605 78%);
+  font: italic 1.15rem var(--hell-serif); color: #3a322d;
+}
+.face--possession.nigredo .void { background: linear-gradient(#1b1311, #070605 60%); color: #6a5c52; }
+.face--possession .void p { margin: 0; }
+.face--possession .void p:nth-child(2) { color: #2a2420; }
+.face--possession.nigredo .void p:nth-child(2) { color: #8d7d6f; }
+.face--possession .void .void-small { margin-top: 18vh; font-size: .9rem; color: #8d7d6f; }
+
+/* the gate */
+.face--possession .gate { position: relative; display: grid; justify-items: center; padding: 10vh 16px 12vh; background: var(--noise), radial-gradient(ellipse at 50% 30%, #1d1714, #070605 70%); isolation: isolate; }
+.face--possession .gate-arch { position: absolute; inset: 3vh max(0px, calc(50% - 420px)) 0; color: #15100e; z-index: -1; }
+.face--possession .gate-arch svg { width: 100%; height: 100%; max-width: none; }
+.face--possession .gate-body { max-width: 620px; text-align: center; padding: 8vh 14px 0; }
+.face--possession .gate-lintel { border-block: 1px solid #3a302a; padding: 10px 0; margin-bottom: 4vh; }
+.face--possession .gate-inscription { margin: 0; font-family: var(--font-glyph); font-size: clamp(15px, 2.1vw, 20px); letter-spacing: .1em; line-height: 1.6; color: #a8997e; text-shadow: 0 1px 0 #000, 0 -1px 0 #3a302a88; overflow-wrap: anywhere; }
+.face--possession .gate-title { margin: 0 0 4vh; font: 700 clamp(3.2rem, 11vw, 7.4rem)/.86 var(--hell-display); font-stretch: 75%; letter-spacing: .01em; text-transform: uppercase; color: #d8cdb4; text-shadow: 0 2px 0 #000, 0 -1px 0 #4a3e36, 0 0 40px #6b0f0f55; }
+.face--possession .gate-verse p { margin: 0; font-size: clamp(.86rem, 1.6vw, 1.02rem); letter-spacing: .16em; text-transform: uppercase; line-height: 1.95; color: #a8997e; }
+.face--possession .gate-verse .gate-last { margin-top: 1.4em; color: #c9382c; font-size: clamp(.95rem, 1.9vw, 1.2rem); letter-spacing: .12em; }
+.face--possession .gate-verse .gate-last code { text-transform: none; letter-spacing: 0; }
+.face--possession .gate-it { margin: 4vh 0 0; font-style: italic; font-size: 1.1rem; color: #cbbd9f; }
+.face--possession .gate-it .gloss { color: #7c6f5f; font-size: .92rem; }
+.face--possession .gate-sky { margin: 2.4vh auto 0; max-width: 34em; font-size: .92rem; color: #7c6f5f; }
+
+.face--possession .vestibule { max-width: 760px; margin: 0 auto; padding: 4vh 16px 12vh; text-align: center; }
+.face--possession .vestibule h2 { font: 700 clamp(1.6rem, 4vw, 2.6rem)/1 var(--hell-display); font-stretch: 75%; text-transform: uppercase; letter-spacing: .02em; color: #b5a88f; margin: 0 0 16px; }
+.face--possession .vestibule p { font-size: 1.1rem; line-height: 1.65; color: #a39780; }
+.face--possession .vestibule code { color: #b5c95a; }
+.face--possession .banner { margin-top: 28px; border-block: 1px solid #2a2a1a; background: #0d0d08; }
+.face--possession .banner marquee { display: block; font: 600 1.05rem/2.6 var(--mono); color: #7f8c3a; }
+
+/* the circles */
+.face--possession .circle {
+  --c-bg: #111; --c-prev: #070605; --c-fg: #d8cdb4; --c-accent: #8a8a82; --c-dim: color-mix(in srgb, var(--c-fg) 60%, var(--c-bg)); --c-sin: #b5c95a;
+  position: relative; overflow: clip; color: var(--c-fg);
+  padding: 16vh max(20px, calc(50% - 540px)) 14vh;
+  background: var(--noise), linear-gradient(var(--c-prev) 0, var(--c-bg) 16vh);
+}
+.face--possession .circle--1 { --c-prev: #070605; --c-bg: #1a1917; --c-fg: #c2bcae; --c-accent: #8d857a; }
+.face--possession .circle--2 { --c-prev: #1a1917; --c-bg: #1d0a12; --c-fg: #ead3da; --c-accent: #c9587a; }
+.face--possession .circle--3 { --c-prev: #1d0a12; --c-bg: #14150b; --c-fg: #d3d6b4; --c-accent: #a0ad4d; }
+.face--possession .circle--4 { --c-prev: #14150b; --c-bg: #1f1208; --c-fg: #ead6b3; --c-accent: #d0902e; }
+.face--possession .circle--5 { --c-prev: #1f1208; --c-bg: #0a1109; --c-fg: #cbdba8; --c-accent: #8aa634; }
+.face--possession .circle--6 { --c-prev: #0a1109; --c-bg: #280605; --c-fg: #f2d6c4; --c-accent: #ff6a3d; }
+.face--possession .circle--7 { --c-prev: #280605; --c-bg: #1b0905; --c-fg: #ead0bd; --c-accent: #d0392b; }
+.face--possession .circle--8 { --c-prev: #1b0905; --c-bg: #121211; --c-fg: #d2cfc8; --c-accent: #9a978e; }
+.face--possession .circle--9 { --c-prev: #121211; --c-bg: #cfd9c8; --c-fg: #17231d; --c-accent: #4a6657; --c-sin: #2c4a3a; }
+.face--possession .circle-head { position: relative; z-index: 1; }
+.face--possession .circle-num {
+  position: absolute; z-index: 0; top: -.14em; right: -.06em; pointer-events: none; user-select: none;
+  font: 700 clamp(8rem, 30vw, 24rem)/.8 var(--hell-serif); color: transparent;
+  -webkit-text-stroke: 1.2px color-mix(in srgb, var(--c-accent) 40%, transparent);
+}
+.face--possession :is(.circle--2, .circle--4, .circle--6, .circle--8) .circle-num { right: auto; left: -.06em; }
+.face--possession :is(.circle--2, .circle--4, .circle--6, .circle--8) .circle-head { text-align: right; }
+.face--possession :is(.circle--2, .circle--4, .circle--6, .circle--8) .circle-title { margin-left: auto; }
+.face--possession .circle-kicker { margin: 0; font: 600 .78rem var(--mono); letter-spacing: .34em; text-transform: uppercase; color: var(--c-accent); }
+.face--possession .circle-title { margin: .18em 0 .32em; max-width: 13ch; font: 700 clamp(2.6rem, 8vw, 6rem)/.9 var(--hell-display); font-stretch: 75%; text-transform: uppercase; letter-spacing: .005em; color: var(--c-fg); }
+.face--possession .circle-sin { margin: 0; font-size: .95rem; }
+.face--possession .sin-label { font: italic .95rem var(--hell-serif); color: var(--c-dim); margin-right: 6px; }
+.face--possession .circle-sin code { display: inline-block; max-width: 100%; overflow-wrap: anywhere; color: var(--c-sin); background: #00000059; border: 1px solid #ffffff14; padding: 3px 9px; }
+.face--possession .circle--9 .circle-sin code { background: #ffffff66; border-color: #ffffffaa; }
+.face--possession .circle-stage { position: relative; z-index: 1; margin: 7vh 0 8vh; }
+.face--possession .circle-text { position: relative; z-index: 1; display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 36px 56px; align-items: start; }
+.face--possession .tercet { grid-column: 1 / -1; margin: 0; padding: .1em 0 .1em 1.1em; border-left: 2px solid var(--c-accent); font: italic 400 clamp(1.35rem, 2.7vw, 2rem)/1.42 var(--hell-serif); color: var(--c-fg); }
+.face--possession .tercet .t-line { display: block; }
+.face--possession .tercet .t-line--1 { padding-left: 1.4em; }
+.face--possession .contrapasso h3 { margin: 0 0 .6em; font: 600 .74rem var(--mono); letter-spacing: .32em; text-transform: uppercase; color: var(--c-accent); }
+.face--possession .contrapasso p { margin: 0; font-size: 1.14rem; line-height: 1.66; }
+.face--possession .plea { grid-column: 1 / -1; margin: 0; font-size: .98rem; line-height: 1.6; color: var(--c-dim); font-style: italic; }
+.face--possession .plea-label { font-style: normal; font-size: .82rem; letter-spacing: .06em; }
+.face--possession .plea cite { font-style: normal; font-variant: small-caps; letter-spacing: .04em; color: var(--c-accent); }
+.face--possession .plea-frag { font-style: normal; }
+
+/* The Old Law cannot be restyled, not even here: it renders in the browser's own defaults. */
+.face--possession .old-law {
+  all: initial;
+  display: block; align-self: start; max-width: 34em; padding: 8px; margin: 0;
+  background: Canvas; color: CanvasText; color-scheme: light; font-family: initial; font-size: initial; line-height: normal;
+  border: 2px inset ButtonBorder; box-shadow: 0 18px 40px -18px #000c;
+}
+.face--possession .old-law b { font-weight: bold; }
+
+/* I — Limbo */
+.face--possession .limbo-page { all: initial; display: block; max-width: 540px; margin: 0 auto; padding: 8px 8px 16px; background: Canvas; color: CanvasText; color-scheme: light; font-family: initial; font-size: initial; line-height: normal; box-shadow: 0 0 0 1px #0004, 0 40px 90px -20px #000; filter: grayscale(.35) contrast(.92); }
+.face--possession .circle--1 .circle-stage::after { content: ''; position: absolute; inset: -8vh -10vw; pointer-events: none; background: radial-gradient(ellipse at 30% 40%, #8d857a22, transparent 60%), radial-gradient(ellipse at 70% 70%, #c2bcae14, transparent 60%); }
+
+/* II — the Tempest */
+.face--possession .tempest {
+  position: relative; height: 340px; border-radius: 50% / 34%; overflow: hidden;
+  background: radial-gradient(ellipse at center, #3a1322 0%, #1d0a1200 70%), repeating-linear-gradient(170deg, #ffffff00 0 40px, #c9587a0d 40px 42px, #ffffff00 42px 90px);
+  background-size: 100% 100%, 400px 400px;
+  animation: possession-wind 40s linear infinite;
+}
+@keyframes possession-wind { to { background-position: 0 0, -400px 70px; } }
+.face--possession .soul {
+  position: absolute; left: var(--x); top: var(--y);
+  font: 600 13px/1 var(--corp-font); padding: 8px 12px; border-radius: 7px; white-space: nowrap;
+  background: #5a1d31; color: #f7dbe4; box-shadow: 0 8px 20px #0007;
+  animation: possession-gust var(--dur) ease-in-out var(--delay) infinite alternate;
+  transition: translate 1.4s cubic-bezier(.2, .8, .2, 1), opacity 1.4s;
+}
+.face--possession .soul--1 { background: transparent; border: 1px solid #c9587a; color: #ead3da; }
+.face--possession .soul--2 { background: #e2b340; color: #2a1a05; border-radius: 99px; font-size: 11px; }
+.face--possession .soul--3 { background: none; box-shadow: none; color: #8ab4f8; text-decoration: underline; padding: 4px; }
+.face--possession .soul:hover { translate: var(--dx) var(--dy); opacity: .35; }
+@keyframes possession-gust {
+  0% { transform: translate(0, 0) rotate(-4deg); }
+  35% { transform: translate(46px, -22px) rotate(3deg); }
+  70% { transform: translate(-18px, 16px) rotate(-1deg); }
+  100% { transform: translate(-44px, -8px) rotate(5deg); }
+}
+.face--possession .twins { max-width: 520px; margin: 36px auto 0; }
+.face--possession .twin { width: 42%; height: 88px; display: grid; place-items: center; border: 1px solid #c9587a88; background: #2a0f1a; color: #ead3da; animation: possession-float 7s ease-in-out infinite alternate; }
+.face--possession .twin--left { float: left; }
+.face--possession .twin--right { float: right; animation-delay: -3.5s; }
+.face--possession .clearfix { clear: both; display: grid; justify-items: center; gap: 2px; padding-top: 10px; font-size: .9rem; color: #c9a0ad; font-style: italic; }
+.face--possession .clearfix code { font-style: normal; color: #c9587a; }
+@keyframes possession-float { from { translate: 0 -5px; } to { translate: 0 6px; } }
+
+/* III — the Bloat */
+.face--possession .circle--3 .circle-stage { overflow: hidden; padding: 26px 0; }
+.face--possession .rain { position: absolute; inset: 0; pointer-events: none; }
+.face--possession .rain span { position: absolute; left: var(--x); top: -24px; font: 11px var(--mono); color: #a0ad4d66; animation: possession-fall var(--dur) linear var(--delay) infinite; }
+@keyframes possession-fall { to { transform: translateY(460px); } }
+.face--possession .nest-wrap { position: relative; display: grid; place-items: center; }
+.face--possession .nest { position: relative; padding: 7px; border: 1px solid #a0ad4d40; border-radius: 3px; background: #a0ad4d05; }
+.face--possession .nest[data-cls]::before { content: attr(data-cls); position: absolute; top: -.62em; left: 4px; padding: 0 3px; font: 9px/1 var(--mono); color: #a0ad4d99; background: var(--c-bg); }
+.face--possession .bloat-btn { font: 600 13px var(--corp-font); padding: 7px 14px; border-radius: 5px; border: 1px solid #cfd6a0; background: #a0ad4d; color: #14150b; cursor: pointer; }
+.face--possession .coverage { position: relative; max-width: 520px; margin: 26px auto 0; font: 12px var(--mono); color: #b9bf94; }
+.face--possession .coverage p { display: flex; flex-wrap: wrap; gap: 4px 16px; margin: 0 0 6px; }
+.face--possession .coverage p span:last-child { color: #d0392b; margin-left: auto; }
+.face--possession .coverage-bar { display: block; height: 10px; background: #7a1f1f; }
+.face--possession .coverage-bar .used { display: block; width: .4%; min-width: 2px; height: 100%; background: #3fae49; }
+
+/* IV — the Weights of Grace */
+.face--possession .weights { position: relative; isolation: isolate; container-type: inline-size; display: flex; justify-content: space-between; align-items: center; min-height: 330px; padding-top: 30px; }
+.face--possession .boulder {
+  --size: min(40cqw, 250px);
+  --travel: calc((100cqw - 2 * var(--size)) / 2 - 4px);
+  position: relative; isolation: isolate; flex: none; width: var(--size); height: var(--size);
+  display: grid; place-content: center; justify-items: center; gap: 6px; padding: 12%; text-align: center;
+  animation: possession-push 8s cubic-bezier(.55, 0, .45, 1) infinite;
+}
+/* The stone rolls; the sums painted on it stay upright, as sums do. */
+.face--possession .boulder::before {
+  content: ''; position: absolute; inset: 0; z-index: -1; border-radius: 50%;
+  background: radial-gradient(circle at 34% 28%, #7a5530, #3b240f 58%, #1d1006), var(--noise);
+  box-shadow: inset -14px -18px 36px #000a, 0 26px 40px -10px #000c;
+  animation: possession-roll 8s cubic-bezier(.55, 0, .45, 1) infinite;
+}
+.face--possession .boulder--nest { animation-name: possession-push-l; }
+.face--possession .boulder--nest::before { animation-name: possession-roll-l; }
+.face--possession .boulder b { font: 700 clamp(1.1rem, 4.4cqw, 2.1rem) var(--mono); color: #f3d9a8; text-shadow: 0 2px 6px #000; }
+.face--possession .boulder code { font-size: clamp(8px, 1.3cqw, 10.5px); line-height: 1.35; color: #e2c28bb3; overflow-wrap: anywhere; max-height: 5.4em; overflow: hidden; }
+.face--possession .shout { position: absolute; top: -1.9em; left: 50%; translate: -50% 0; white-space: nowrap; font: italic 1.15rem var(--hell-serif); color: var(--c-accent); }
+@keyframes possession-push { 0%, 12%, 100% { transform: translateX(0); } 46% { transform: translateX(var(--travel)); } 54% { transform: translateX(calc(var(--travel) - 12px)); } }
+@keyframes possession-push-l { 0%, 12%, 100% { transform: translateX(0); } 46% { transform: translateX(calc(var(--travel) * -1)); } 54% { transform: translateX(calc(var(--travel) * -1 + 12px)); } }
+@keyframes possession-roll { 0%, 12%, 100% { rotate: 0deg; } 46% { rotate: 150deg; } 54% { rotate: 144deg; } }
+@keyframes possession-roll-l { 0%, 12%, 100% { rotate: 0deg; } 46% { rotate: -150deg; } 54% { rotate: -144deg; } }
+.face--possession .weights-law { position: absolute; left: 0; right: 0; bottom: -2.4em; margin: 0; text-align: center; font-style: italic; color: var(--c-dim); }
+.face--possession .weights-law code { font-style: normal; color: #f3d9a8; }
+
+/* V — the Styx */
+.face--possession .styx { position: relative; height: 130vh; min-height: 720px; }
+.face--possession .ferry { position: sticky; top: 38vh; z-index: 2; display: flex; align-items: center; gap: 12px; width: fit-content; margin-left: 6%; }
+.face--possession .ferry-boat { position: relative; width: 96px; height: 24px; background: #2d2218; border-radius: 0 0 50% 50% / 0 0 100% 100%; box-shadow: 0 10px 20px #000a; }
+.face--possession .ferry-boat::before { content: ''; position: absolute; left: 22px; bottom: 20px; width: 2px; height: 46px; background: #5a4a38; rotate: -14deg; transform-origin: bottom; }
+.face--possession .ferry-label { font-style: italic; color: #cbdba8; }
+.face--possession .ferry-label code { font-style: normal; color: #b5c95a; background: #00000066; padding: 2px 6px; }
+.face--possession .mire { position: absolute; inset: 12% -20px 0; border-radius: 45% 55% 0 0 / 5% 5% 0 0; background: repeating-linear-gradient(178deg, #8aa6340a 0 1px, transparent 1px 22px), repeating-linear-gradient(181deg, #00000033 0 2px, transparent 2px 37px), linear-gradient(#1b2a0e00, #1b2a0e 10%, #0f1a0b 55%, #060a05); box-shadow: inset 0 30px 60px -30px #8aa63455; }
+.face--possession .wrath { position: absolute; left: var(--x); top: var(--y); font: 700 clamp(.85rem, 2vw, 1.2rem) var(--mono); color: #d7e8a0; text-shadow: 0 0 14px #000; white-space: nowrap; animation: possession-bob var(--bob) ease-in-out var(--delay) infinite alternate; }
+.face--possession .wrath--inverted { rotate: 180deg; color: #b5c95a; }
+@keyframes possession-bob { from { transform: translateY(-7px); } to { transform: translateY(9px); } }
+.face--possession .sullen { position: absolute; left: 0; right: 0; bottom: 7%; margin: 0; padding: 0 16px; text-align: center; font: italic 1.2rem var(--hell-serif); color: #5d7430; filter: blur(1.4px); opacity: .8; }
+
+/* VI — Dis */
+.face--possession .dis-skyline { color: #120202; height: 120px; margin: -10px -20px 0; }
+.face--possession .dis-skyline svg { width: 100%; height: 100%; max-width: none; }
+.face--possession .embers { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.face--possession .embers span { position: absolute; bottom: 0; left: var(--x); width: 3px; height: 3px; border-radius: 50%; background: #ffa24a; box-shadow: 0 0 7px #ff6a3d; opacity: 0; animation: possession-rise var(--dur) linear var(--delay) infinite; }
+@keyframes possession-rise { 0% { transform: translate(0, 0); opacity: 0; } 12% { opacity: .9; } 100% { transform: translate(24px, -420px); opacity: 0; } }
+.face--possession .tombs { position: relative; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 230px), 1fr)); gap: 18px; margin-top: 18px; }
+.face--possession .tomb {
+  display: grid; grid-template-rows: auto 1fr auto; gap: 8px; padding: 14px 14px 12px; min-height: 180px;
+  background: linear-gradient(#34100a, #1a0504); border: 1px solid #6a2012; border-radius: 3px 3px 26px 26px;
+  box-shadow: inset 0 -24px 44px #ff4a1a24, 0 0 26px #ff4a1a14; animation: possession-smoulder 6s ease-in-out infinite alternate;
+}
+.face--possession .tomb:nth-child(2n) { animation-delay: -3s; }
+@keyframes possession-smoulder { to { box-shadow: inset 0 -30px 54px #ff4a1a3a, 0 0 34px #ff4a1a22; } }
+.face--possession .tomb-lid { margin: 0; }
+.face--possession .tomb-lid code { display: block; padding: 6px 8px; background: #00000066; color: #ffb49a; font-size: 11px; transform: rotate(-2deg) translateY(-4px); overflow-wrap: anywhere; }
+.face--possession .tomb-body { display: grid; place-items: center; text-align: center; color: #f2d6c4; min-width: 0; }
+.face--possession .tomb-body center, .face--possession .tomb-body font { font-size: 15px; }
+.face--possession .tomb-name { margin: 0; font: 600 .72rem var(--mono); letter-spacing: .22em; text-transform: uppercase; color: var(--c-accent); }
+.face--possession .tomb blink { display: inline; font: 700 14px var(--corp-font); color: #ffd36b; animation: possession-blink 1s steps(1) infinite; }
+@keyframes possession-blink { 50% { visibility: hidden; } }
+.face--possession .covenant { font: 13px 'Times New Roman', Times, serif; color: #f2d6c4; border-color: #ff6a3d66; }
+.face--possession .empty-tomb { margin: 0; font-style: italic; color: #c99a86; font-size: .95rem; }
+
+/* VII — the Thicket */
+.face--possession .thicket { position: relative; height: 400px; overflow: hidden; border-bottom: 1px solid #3a120a; }
+.face--possession .thicket-trees { position: absolute; inset: 0 0 34px; color: #3d140b; }
+.face--possession .thicket-trees svg { width: 100%; height: 100%; max-width: none; }
+.face--possession .pin { position: absolute; left: var(--x); top: var(--y); }
+.face--possession .pin code { position: relative; z-index: 1; display: inline-block; font-size: 12px; color: #f3c3a8; background: #2a0c06; border: 1px solid #d0392b88; padding: 2px 6px; white-space: nowrap; }
+.face--possession .pin::after { content: ''; position: absolute; left: 10px; top: 100%; height: calc(var(--gy) - 10px); border-left: 1px dotted #d0392b; }
+.face--possession .ghost { position: absolute; left: var(--gx); top: var(--gy); width: 70px; height: 30px; border: 1px dashed #d0392b99; background: #d0392b0d; }
+.face--possession .river { position: absolute; left: 0; right: 0; bottom: 0; height: 34px; margin: 0; overflow: hidden; background: linear-gradient(90deg, #3a0c06, #5c160b 50%, #3a0c06); color: #ffb49a88; font: 11px/34px var(--mono); white-space: nowrap; }
+.face--possession .river span { display: inline-block; animation: possession-flow 50s linear infinite; }
+@keyframes possession-flow { to { transform: translateX(-50%); } }
+
+/* VIII — Malebolge */
+.face--possession .bolge { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.face--possession .bolgia { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 10px 24px; align-items: center; padding: 12px 16px; background: var(--noise), linear-gradient(90deg, #191918, #22211f); border: 1px solid #2e2d2a; box-shadow: inset 0 10px 18px -12px #000; }
+.face--possession .bolgia:nth-child(2) { margin-inline: 1.2%; } .face--possession .bolgia:nth-child(3) { margin-inline: 2.4%; }
+.face--possession .bolgia:nth-child(4) { margin-inline: 3.6%; } .face--possession .bolgia:nth-child(5) { margin-inline: 4.8%; }
+.face--possession .bolgia:nth-child(6) { margin-inline: 6%; } .face--possession .bolgia:nth-child(7) { margin-inline: 7.2%; }
+.face--possession .bolgia:nth-child(8) { margin-inline: 8.4%; } .face--possession .bolgia:nth-child(9) { margin-inline: 9.6%; }
+.face--possession .bolgia:nth-child(10) { margin-inline: 10.8%; border-color: #4a4a3a; }
+.face--possession .bolgia-head { margin: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; }
+.face--possession .bolgia-n { min-width: 2.6em; font: 700 1.2rem var(--hell-serif); color: #6d6a62; }
+.face--possession .bolgia-head b { font-weight: 600; }
+.face--possession .bolgia-head code { font-size: .8rem; color: #9a978e; }
+.face--possession .bolgia-demo { min-width: 0; font-size: .98rem; }
+.face--possession .bolgia-demo p { margin: 0; }
+.face--possession .pander { cursor: pointer; }
+.face--possession .broken-img { display: inline-flex; align-items: center; gap: 8px; border: 1px solid #555; padding: 16px 22px; font: 12px var(--corp-font); color: #888; }
+.face--possession .broken-img::before { content: ''; width: 16px; height: 13px; border: 1px solid #777; background: linear-gradient(135deg, transparent 45%, #777 45% 55%, transparent 55%); }
+.face--possession .mirror { transform: scaleX(-1); font-style: italic; color: #b7b3aa; }
+.face--possession .fake-btn { display: inline-block; padding: 8px 14px; border-radius: 6px; background: #3a3936; color: #d2cfc8; cursor: pointer; user-select: none; font: 600 13px var(--corp-font); }
+.face--possession .gilded { display: inline-block; padding: 10px 14px; border-radius: 3px; background: linear-gradient(135deg, #7d6219, #e9cf7a 45%, #8a6d1d 70%, #c9a94a); color: #2a2208; font-size: .92rem; outline: none; }
+.face--possession .liars { display: flex; flex-wrap: wrap; gap: 14px; }
+.face--possession .liar { padding: 8px 12px; font: 12px var(--mono); border: 1px solid #77756e; color: #d2cfc8; animation: possession-steal 9s ease-in-out infinite alternate; }
+.face--possession .liar--b { animation-direction: alternate-reverse; }
+@keyframes possession-steal { from { border-radius: 2px; } to { border-radius: 50% 12% 50% 12% / 30% 60% 22% 50%; } }
+.face--possession .flames { display: flex; flex-wrap: wrap; gap: 10px; }
+.face--possession .flame { display: inline-block; padding: 20px 10px 8px; font: 11px var(--mono); color: #ffd79a; border-radius: 50% 50% 46% 46% / 64% 64% 36% 36%; background: radial-gradient(ellipse at 50% 100%, #ff7a2a70, #ff7a2a00 72%); transform-origin: bottom; animation: possession-flicker 2.6s ease-in-out infinite alternate; }
+.face--possession .flame:nth-child(2n) { animation-delay: -1.3s; }
+@keyframes possession-flicker { to { transform: scaleY(1.07) skewX(-2deg); } }
+.face--possession .split { width: 10ch; word-break: break-all; font: 14px/1.3 var(--mono); color: #b7b3aa; }
+.face--possession .falsifiers p { font-size: .92rem; color: #b7b3aa; }
+.face--possession .possession-rosetta { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 0; }
+.face--possession .possession-rosetta .rosetta-pair { display: grid; justify-items: center; gap: 2px; min-width: 46px; padding: 6px 10px; border: 1px solid #4a4a3a; background: #0c0c0b; }
+.face--possession .possession-rosetta dt { font-family: var(--font-glyph); font-size: 26px; line-height: 1.1; color: #d7f5a0; }
+.face--possession .possession-rosetta dd { margin: 0; font: 11px var(--mono); color: #8a8a82; }
+
+/* IX — Cocytus */
+.face--possession .circle--ice { background: linear-gradient(var(--c-prev) 0, #cfd9c800 16vh), repeating-linear-gradient(117deg, transparent 0 140px, #ffffff66 140px 141px, transparent 141px 260px), repeating-linear-gradient(23deg, transparent 0 190px, #4a665722 190px 191px, transparent 191px 330px), radial-gradient(ellipse at 50% 64%, #eef3ea, #cfd9c8 55%, #a5b5a0); }
+.face--possession .circle--ice .circle-num { -webkit-text-stroke-color: #4a665766; }
+.face--possession .circle--ice .old-law { box-shadow: 0 18px 40px -18px #17231d66; }
+.face--possession .lake { display: grid; gap: 40px; justify-items: center; }
+.face--possession .zones { list-style: none; margin: 0; padding: 0; width: 100%; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.face--possession .zone { padding: 14px 16px; background: #ffffff59; border: 1px solid #ffffffb3; box-shadow: inset 0 0 26px #ffffffa6, 0 12px 26px -18px #17231d66; }
+.face--possession .zone b { font: 700 1.1rem var(--hell-display); font-stretch: 75%; letter-spacing: .08em; text-transform: uppercase; margin-right: 10px; }
+.face--possession .zone code { font-size: .82rem; color: #2c4a3a; }
+.face--possession .frozen { margin: 8px 0 0; filter: blur(1.1px); transition: filter .8s; }
+.face--possession .zone--4 .frozen { filter: blur(2.2px); font-size: .85rem; }
+.face--possession .zone:hover .frozen { filter: none; }
+.face--possession .inversion { text-align: center; max-width: 720px; }
+.face--possession .inv-faces { display: flex; justify-content: center; gap: clamp(12px, 5vw, 48px); margin: 0; }
+.face--possession .inv-face { display: grid; justify-items: center; gap: 2px; rotate: 180deg; }
+.face--possession .inv-face code { font: 700 clamp(1rem, 3.2vw, 1.7rem) var(--mono); color: #17231d; }
+.face--possession .inv-face small { font: italic .85rem var(--hell-serif); color: #4a6657; }
+.face--possession .inv-note { margin: 22px auto 0; max-width: 36em; font-size: 1.08rem; line-height: 1.6; }
+.face--possession .all-selector { margin: 6px 0 0; font: 700 clamp(5rem, 22vw, 15rem)/1 var(--mono); letter-spacing: -.06em; color: #17231d17; filter: blur(2px); user-select: none; }
+.face--possession .inv-under { margin: 0; font-style: italic; color: #4a6657; }
+
+/* the way out */
+.face--possession .exit {
+  position: relative; display: grid; place-items: center; min-height: 92vh; padding: 14vh 16px; overflow: clip; color: #e9e4d8;
+  background:
+    radial-gradient(1.2px 1.2px at 12% 18%, #fff, transparent), radial-gradient(1px 1px at 28% 72%, #fffc, transparent),
+    radial-gradient(1.4px 1.4px at 44% 30%, #fff, transparent), radial-gradient(1px 1px at 63% 12%, #fffa, transparent),
+    radial-gradient(1.2px 1.2px at 78% 64%, #fff, transparent), radial-gradient(1px 1px at 88% 26%, #fffb, transparent),
+    radial-gradient(1px 1px at 8% 88%, #fff9, transparent), radial-gradient(1.3px 1.3px at 54% 90%, #fff, transparent),
+    radial-gradient(1px 1px at 36% 50%, #fff8, transparent), radial-gradient(1px 1px at 94% 82%, #fffa, transparent),
+    linear-gradient(#a5b5a0 0, #2a302b 12vh, #030303 30vh);
+}
+.face--possession .exit-inner { max-width: 640px; text-align: center; rotate: 180deg; transition: rotate 2.8s cubic-bezier(.6, 0, .2, 1); }
+.face--possession .exit.righted .exit-inner { rotate: 0deg; }
+.face--possession .exit-eye { width: 96px; margin: 0 auto 22px; color: #d7f5a0; opacity: .75; }
+.face--possession .exit h2 { margin: 0 0 .4em; font: italic 400 clamp(1.8rem, 4.6vw, 3.1rem)/1.18 var(--hell-serif); }
+.face--possession .exit-it { font-style: italic; color: #a39780; font-size: 1.15rem; }
+.face--possession .exit p { font-size: 1.08rem; line-height: 1.6; }
+.face--possession .exit code { color: #d7f5a0; }
+.face--possession .exit .exit-stats { font: .82rem/1.6 var(--mono); color: #8d7d6f; }
+.face--possession .exit-btn { margin-top: 10px; font: 600 .82rem var(--mono); letter-spacing: .12em; text-transform: uppercase; padding: 13px 20px; background: transparent; color: #d8cdb4; border: 1px solid #d8cdb466; cursor: pointer; }
+.face--possession .exit-btn:hover { background: #d8cdb4; color: #030303; }
+
+/* the depth gauge */
+.face--possession .depth { position: fixed; z-index: 820; left: 8px; top: 50%; translate: 0 -50%; display: grid; justify-items: center; gap: 6px; padding: 8px 2px; border-radius: 3px; background: #070605b3; font: 600 11px var(--mono); }
+.face--possession .depth ol { list-style: none; margin: 0; padding: 2px 0; display: grid; gap: 1px; border-left: 1px solid #ffffff1f; }
+.face--possession .depth a { display: block; padding: 2px 7px; color: #8a7f70; text-decoration: none; text-shadow: 0 0 6px #000; }
+.face--possession .depth a:hover, .face--possession .depth a[aria-current] { color: #d7f5a0; }
+.face--possession .depth-gate { font-size: 14px; }
+.face--possession .depth-read { margin: 0; writing-mode: vertical-rl; color: #6a5f55; font-size: 10px; text-shadow: 0 0 6px #000; }
+@media (min-width: 900px) {
+  .face--possession .circle { padding-left: max(64px, calc(50% - 540px)); }
+}
+
+/* ————————————————————————————— mercy ————————————————————————————— */
+/* Mercy stops motion (base.css) and, here, also calms the curses that harm reading. The selectors carry
+   an id so that no ordinary demon rule can outrank them. */
+html[data-mercy="on"] #temple.face--possession .w { order: 0; }
+html[data-mercy="on"] #temple.face--possession .rot { font-family: inherit; }
+html[data-mercy="on"] #temple.face--possession :is(.frozen, .sullen) { filter: none; }
+html[data-mercy="on"] #temple.face--possession .exit-inner { rotate: none; }
+html[data-mercy="on"] #temple.face--possession .soul:hover { translate: none; opacity: 1; }
+html[data-mercy="on"] #temple.face--possession .mirror { transform: none; }
+html[data-mercy="on"] #temple.face--possession .wrath--inverted,
+html[data-mercy="on"] #temple.face--possession .inv-face { rotate: none; }
+
+/* The laying on of hands: hovering a rotted word restores it. */
+.face--possession .corp .rot:hover { font-family: inherit; }
+
+/* ————————————————————————————— small screens ————————————————————————————— */
+@media (max-width: 899px) {
+  .face--possession .dt { top: auto; left: 0; width: auto; height: var(--dt-h); border-left: 0; border-top: 1px solid var(--dt-line); translate: 0 100%; box-shadow: 0 -20px 40px -20px #0008; }
+  .face--possession .dt-panel--elements { grid-template-rows: minmax(0, 1fr); }
+  .face--possession .dt-dom { display: none; }
+  .face--possession .dt-status { min-height: 0; padding: 5px 84px 5px 84px; }
+  .face--possession .dt-body { padding-bottom: 0; }
+  .face--possession .dt { grid-template-rows: auto minmax(0, 1fr) auto; }
+  .face--possession .dt-panel { padding-bottom: 0; }
+  .face--possession.dt-open .possession { padding-bottom: var(--dt-h); }
+  .face--possession .dt-chip { top: auto; bottom: 88px; right: 10px; translate: none; flex-direction: row; border-right: 1px solid #3c4043; border-radius: 8px; padding: 8px 10px; }
+  .face--possession .dt-chip-n { writing-mode: horizontal-tb; }
+  .face--possession.dt-open .dt-chip { right: 10px; bottom: calc(var(--dt-h) + 10px); }
+  .face--possession.dt-open .cookie { bottom: calc(var(--dt-h) + 12px); }
+  #temple.face--possession .depth { display: none; }
+
+  .face--possession .corp .hero, .face--possession .corp .about, .face--possession .corp .careers { grid-template-columns: minmax(0, 1fr); gap: 36px; }
+  .face--possession .corp .features { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .face--possession .corp .plans { grid-template-columns: minmax(0, 1fr); max-width: 460px; margin-inline: auto; }
+  .face--possession .corp .plans.at-war .plan--pro { translate: 0 22%; }
+  .face--possession .corp .plans.at-war .plan--ent { translate: 0 -22%; }
+  .face--possession .corp .plans.at-war .plan--pro.fallen { translate: 0 32%; }
+  .face--possession .corp .quotes { grid-template-columns: minmax(0, 1fr); }
+  .face--possession .corp .footer-top { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .face--possession .corp .footer-brand { grid-column: 1 / -1; }
+  .face--possession .circle-text { grid-template-columns: minmax(0, 1fr); }
+  .face--possession .bolgia { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 720px) {
+  .face--possession .corp .nav { gap: 12px; padding-inline: 16px; }
+  .face--possession .corp .nav-links, .face--possession .corp .nav-actions .btn--ghost { display: none; }
+  .face--possession .corp .nav-actions { margin-left: auto; }
+  .face--possession .corp-main > section, .face--possession .corp .footer-top, .face--possession .corp .footer-legal, .face--possession .corp .footer-hint { padding-inline: 16px; }
+  .face--possession .corp-main > section { padding-block: 52px; }
+  .face--possession .corp .hero { padding-top: 44px; padding-inline: 16px; }
+  .face--possession .corp .features { grid-template-columns: minmax(0, 1fr); }
+  .face--possession .corp .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .face--possession .corp .stat b { font-size: 1.5rem; }
+  .face--possession .corp .job { padding-inline: 14px; }
+  .face--possession { --dt-h: min(38vh, 340px); }
+  .face--possession .cookie { bottom: 50px; padding: 12px 14px; font-size: 13px; }
+  .face--possession .cookie-text { margin-bottom: 8px; }
+  .face--possession .cookie .btn { padding: .62em .9em; font-size: .85rem; }
+  .face--possession .circle { padding: 12vh 16px 10vh; }
+  .face--possession .tempest { height: 300px; border-radius: 20px; }
+  .face--possession .nest { padding: 4px; }
+  .face--possession .styx { height: 110vh; }
+  .face--possession .thicket { height: 440px; }
+  .face--possession .zones { grid-template-columns: minmax(0, 1fr); }
+  .face--possession .bolge .bolgia:nth-child(n) { margin-inline: 0; }
+  .face--possession .weights { min-height: 240px; }
+}
+
+/* Hidden means hidden, whatever display a rule above gave it. (An id, so no class can outrank it.) */
+#temple.face--possession [hidden] { display: none; }
+
+}

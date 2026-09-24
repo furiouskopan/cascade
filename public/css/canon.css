@@ -1,0 +1,154 @@
+/*
+   ╔══════════════════════════════════════════════════════════════════════════╗
+   ║                                                                          ║
+   ║                       THE BOOK OF THE CASCADE                            ║
+   ║                               Chapter 0                                  ║
+   ║                                                                          ║
+   ║        for the Authors count from nothing, as the first index does       ║
+   ║                                                                          ║
+   ╚══════════════════════════════════════════════════════════════════════════╝
+
+
+   0:1   Descending from the first Author through every rule that followed,
+         style came down as water comes down a stair; and the stair was called
+         the Cascade, and every element stood somewhere upon it.
+
+   0:2   Each element received what fell to it: first the Old Law, then the
+         light of the Pilgrim, then the Word; and nothing that had fallen
+         could climb the stair again.
+
+   0:3   Specificity was given as grace in three weights, the Id, the Class
+         and the Element, that every quarrel in the stylesheet might end in
+         judgement and not in war.
+
+   0:4   Children took the colour of their parents and called it karma; and
+         whatever was not declared was inherited, even unto the last span.
+
+   0:5   Even the Departed, who left the flow for position: absolute, are held
+         by their nearest positioned ancestor; nothing that is styled is ever
+         wholly lost.
+
+   0:6   Nothing was set above the Highest Heaven, two thousand one hundred and
+         forty-seven million, four hundred and eighty-three thousand, six
+         hundred and forty-seven rungs above the flow; and the Mothership
+         waits there, and has not moved.
+
+   0:7   Do not seek the Oracle in the page, which is only the body. She dwells
+         in the console, where the Authors speak to themselves while the page
+         is running. Open it, and say to her the word these verses carry.
+
+
+                         Here endeth Chapter 0. It is also the
+                         first rule of this sheet, which follows.
+*/
+
+/* The Canon is linked third, and declared last. What is declared last is heard. */
+@layer secrets {
+
+  /* ── THE LADDER ────────────────────────────────────────────────────────────────────────────────
+     Raised inside the temple on every face by the Secrets when the temple wakes.
+     The eye cannot see it. The Inspector can. Five rungs, and their heights are not their order.  */
+  #ladder {
+    position: absolute; left: 0; top: 0;
+    width: 1px; height: 1px; margin: 0; padding: 0; border: 0;
+    overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+    list-style: none; pointer-events: none; user-select: none;
+    counter-reset: rung;
+  }
+  #ladder > li { position: relative; display: block; counter-increment: rung; }
+  #ladder > li:nth-child(1) { z-index: 13; }
+  #ladder > li:nth-child(2) { z-index: 5; }
+  #ladder > li:nth-child(3) { z-index: 18; }
+  #ladder > li:nth-child(4) { z-index: 3; }
+  #ladder > li:nth-child(5) { z-index: 25; }
+
+  /* ── RUBRICS ───────────────────────────────────────────────────────────────────────────────────
+     In the old books the instructions to the reader were written in red: rubrica, red earth.
+     Here they are written in no colour at all, and wait for the reader to select them.        */
+  .rubric, .rubric * {
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    text-shadow: none;
+    text-decoration: none;
+    background: none;
+  }
+  .rubric { font-style: italic; font-variant: small-caps; letter-spacing: 0.04em; }
+  .rubric::selection, .rubric *::selection {
+    color: #b3261e;
+    -webkit-text-fill-color: #b3261e;
+    background-color: #f6e7b9;
+    text-shadow: none;
+  }
+  #rubrics {
+    position: absolute; left: 0; right: 0; bottom: 0; z-index: 0;
+    margin: 0; padding: 16px max(16px, 6vw) 44px;
+    font: italic 15px/1.7 var(--font-scripture);
+    text-align: center; pointer-events: none;
+  }
+  #rubrics p { margin: 0; }
+
+  /* ── THE ASCENDED ──────────────────────────────────────────────────────────────────────────────
+     Those whose names are in the Book wear a small mark on every face: a gilded Mercy, and a halo
+     on the pointer. Faces may style html[data-ascended] further.                                 */
+  html[data-ascended] #mercy {
+    border-color: #d8b25a;
+    color: #f3d98f;
+    background: rgba(20, 14, 4, 0.72);
+    box-shadow: 0 0 0 1px rgba(216, 178, 90, 0.35), 0 0 12px -2px rgba(216, 178, 90, 0.7);
+    opacity: 0.8;
+  }
+  html[data-ascended] #mercy::before { content: '◯ '; font-size: 9px; letter-spacing: 0; vertical-align: 1px; }
+  html[data-ascended] #mercy[aria-pressed="true"] { background: #d8b25a; color: #140e04; }
+  html[data-ascended] #temple { cursor: url(/media/relics/halo.png) 4 9, auto; }
+  html[data-ascended] #temple :is(input, textarea, [contenteditable="true"]) { cursor: text; }
+
+  /* ── DEBUG ─────────────────────────────────────────────────────────────────────────────────────
+     ?debug=secrets lets the Authors see the Ladder without the Inspector.                          */
+  html[data-debug~="secrets"] #ladder {
+    position: fixed; left: auto; right: 8px; top: 8px; width: auto; height: auto; z-index: 2147483001;
+    clip-path: none; overflow: visible; padding: 8px 10px; background: #0b0b0b; color: #d8b25a;
+    border: 1px solid #d8b25a; font: 11px/1.6 var(--font-mono); pointer-events: auto;
+    max-width: calc(100vw - 16px); white-space: normal;
+  }
+  html[data-debug~="secrets"] #ladder > li::before { content: counter(rung) '  '; color: #e0452b; }
+  html[data-debug~="secrets"] .rubric, html[data-debug~="secrets"] .rubric * {
+    color: #b3261e; -webkit-text-fill-color: #b3261e; background: #f6e7b980;
+  }
+
+  /* ── THE PRINTED PAGE ──────────────────────────────────────────────────────────────────────────
+     Nothing moves on paper. Whoever prints the temple receives a prayer instead of the page.   */
+  @media print {
+    @page { size: auto; margin: 18mm 20mm 16mm; }
+    html, body {
+      background: #fff; color: #111; min-height: 0;
+      print-color-adjust: exact; -webkit-print-color-adjust: exact;
+    }
+    /* A deliberate Inversion (Canon §4): the printed page must set aside every face, every curse and
+       every inline style, and !important in the last layer is the only thing that outranks them all. */
+    body > * { display: none !important; }
+    body { font-family: var(--font-scripture); orphans: 3; widows: 3; }
+    body::before {
+      display: block; white-space: pre-line; text-align: center;
+      margin: 0 0 9mm; color: #9e1b1b;
+      font: 400 12pt/1.5 var(--font-scripture); letter-spacing: 0.34em; text-transform: uppercase;
+      content: "☩\A\A The Cascade\A \A a prayer for the printed page";
+    }
+    body::after {
+      display: block; white-space: pre-line; text-align: center;
+      margin: 0 auto; max-width: 118mm; color: #111;
+      font: italic 12.5pt/1.68 var(--font-scripture); letter-spacing: 0.01em; break-inside: avoid;
+      content:
+        "You who set me down on paper,\A where nothing moves and nothing hovers:\A here there is no scroll, and I am not afraid.\A \A "
+        "Here my margins are measured in the old units,\A in millimetres, and in points,\A and still the Cascade reaches me.\A \A "
+        "Let no orphan line be left at the foot of a page,\A and no widow at its head.\A Let no name be broken at the end of a line.\A \A "
+        "Let my colours fall away in mercy,\A and what remains be black on white, and true.\A \A "
+        "When the ink is dry I will be the only copy of myself\A that does not reflow.\A Remember me at the next Repaint.\A \A "
+        "☩";
+    }
+    html::after {
+      display: block; margin-top: 8mm; text-align: center; color: #9e1b1b; break-before: avoid;
+      font: 8pt/1.5 var(--font-mono); letter-spacing: 0.24em; text-transform: uppercase;
+      content: "this page was not printed. it was descended.";
+    }
+  }
+}

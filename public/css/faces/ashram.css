@@ -1,0 +1,1149 @@
+/* THE ASHRAM: the Yantra Breath Temple. Deep indigo, saffron, kumkum; slow light; real boxes.
+   Everything lives in @layer face and under .face--ashram (a schism may load another face's CSS).
+   The z-index values of the Seven Wheels are literal and are read back by the page: see "THE LADDER". */
+@layer face {
+
+html[data-face="ashram"] { background: #05041a; }
+
+.face--ashram {
+  --ind-0: #05041a;
+  --ind-1: #0b0930;
+  --ind-2: #141049;
+  --ind-3: #221c6a;
+  --ind-4: #352d92;
+  --sandal: #f1e3c6;
+  --ash: #aaa4c8;
+  --accent: #f59e2b;
+  --accent-hi: #ffc875;
+  --kumkum: #e0344a;
+  --lotus: #f09ab6;
+  --prana: #4cc2b0;
+  --turmeric: #e9b91d;
+  --ash-display: 'Gabriola', 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
+  --ash-text: 'Candara', 'Optima', 'Segoe UI', 'Gill Sans', sans-serif;
+  --ash-label: 'Bahnschrift', 'DIN Alternate', 'Arial Narrow', 'Segoe UI', sans-serif;
+  --ash-deva: 'Nirmala Text', 'Nirmala UI', 'Kohinoor Devanagari', 'Noto Sans Devanagari', 'Mangal', sans-serif;
+  --ash-mono: 'Cascadia Mono', Consolas, monospace;
+  color: var(--sandal);
+  font-family: var(--ash-text);
+
+  & .ashram[data-tint="turmeric"] { --accent: #e9b91d; --accent-hi: #ffe38f; --kumkum: #ef5b2a; --lotus: #f7a8c4; --prana: #5fd1a4; }
+  & .ashram[data-tint="lotus"] { --accent: #ff9463; --accent-hi: #ffd2b4; --kumkum: #ec3f72; --lotus: #ffb8d0; --prana: #62c7d6; }
+
+  & .ashram {
+    position: relative;
+    isolation: isolate;
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding: 0 clamp(16px, 4vw, 56px);
+    overflow-x: clip;
+    background:
+      radial-gradient(ellipse 55% 42% at 50% 40vh, rgba(245, 158, 43, 0.11), transparent 70%),
+      radial-gradient(ellipse 120% 70% at 50% 0%, #1b1560 0%, transparent 62%),
+      linear-gradient(180deg, #0e0b38 0%, #09072a 38%, #06051d 70%, #05041a 100%);
+  }
+  /* Grain, and a thin sky of stars over the upper hall. Fixed, behind everything, never moving. */
+  & .ashram::before,
+  & .ashram::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+  }
+  & .ashram::before {
+    opacity: 0.07;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 .86 0 0 0 0 .62 0 0 0 .9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  & .ashram::after {
+    opacity: 0.55;
+    background-image:
+      radial-gradient(1px 1px at 23px 41px, rgba(255, 238, 210, 0.9), transparent 70%),
+      radial-gradient(1px 1px at 131px 17px, rgba(255, 238, 210, 0.6), transparent 70%),
+      radial-gradient(1.4px 1.4px at 191px 133px, rgba(255, 214, 160, 0.8), transparent 70%),
+      radial-gradient(1px 1px at 67px 187px, rgba(210, 205, 255, 0.7), transparent 70%),
+      radial-gradient(1px 1px at 251px 97px, rgba(255, 238, 210, 0.5), transparent 70%),
+      radial-gradient(1.2px 1.2px at 293px 229px, rgba(255, 238, 210, 0.7), transparent 70%);
+    background-size: 311px 263px;
+    mask-image: linear-gradient(180deg, #000 0%, rgba(0, 0, 0, 0.5) 45%, transparent 85%);
+  }
+  & .ashram.is-night::after { opacity: 0.9; }
+  & .ashram.is-deep {
+    background:
+      radial-gradient(ellipse 55% 42% at 50% 40vh, rgba(224, 52, 74, 0.12), transparent 70%),
+      radial-gradient(ellipse 120% 70% at 50% 0%, #2a0f4a 0%, transparent 62%),
+      linear-gradient(180deg, #120828 0%, #09061f 50%, #05041a 100%);
+  }
+
+  & :focus-visible { outline: 2px solid var(--accent-hi); outline-offset: 4px; }
+  & ::selection { background: rgba(245, 158, 43, 0.35); color: #fff; }
+  & .ash-deva, & [lang="sa"], & [lang="hi"] { font-family: var(--ash-deva); }
+  & [lang="bo"] { font-family: 'Microsoft Himalaya', 'Noto Serif Tibetan', var(--ash-deva); font-size: 1.45em; line-height: 1; }
+  & [lang="cu"] { font-family: 'Segoe UI Historic', 'Noto Sans Glagolitic', var(--ash-text); }
+  & [lang="he"], & [lang="el"], & [lang="la"], & [lang="x-enochian"] { font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, serif; }
+  & code { font-family: var(--ash-mono); font-size: 0.86em; color: var(--accent-hi); }
+  & h1, & h2, & h3, & p { margin: 0; }
+
+  & .ash-kicker {
+    font: 300 12px/1.3 var(--ash-label);
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--ash);
+    margin: 0 0 10px;
+  }
+
+  /* ---------------------------------------------------------------- THE THRESHOLD */
+  & .ash-threshold {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 10px 32px;
+    max-width: 1320px;
+    margin: 0 auto;
+    padding: 18px 0 12px;
+    border-bottom: 1px solid rgba(245, 158, 43, 0.16);
+  }
+  & .ash-mark { display: flex; align-items: center; gap: 18px; }
+  & .ash-title-deva {
+    font: 400 clamp(40px, 4.4vw, 58px)/1 var(--ash-deva);
+    color: var(--accent);
+    text-shadow: 0 0 26px rgba(245, 158, 43, 0.35);
+    padding-bottom: 4px;
+  }
+  & .ash-title {
+    font: 300 clamp(13px, 1.25vw, 17px)/1.2 var(--ash-label);
+    letter-spacing: 0.34em;
+    text-transform: uppercase;
+    color: var(--sandal);
+  }
+  & .ash-subtitle { font: italic 15px/1.4 var(--ash-text); color: var(--ash); margin-top: 4px; }
+  & .ash-sitting {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 22px;
+    font: 300 11.5px/1.4 var(--ash-label);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ash);
+  }
+  & .ash-clock { color: var(--accent-hi); font-variant-numeric: tabular-nums; letter-spacing: 0.12em; }
+  & .ash-ascended { flex-basis: 100%; font: italic 14px/1.5 var(--ash-text); color: var(--ash); }
+  & .ash-ascended .ash-deva { font-style: normal; color: var(--accent); }
+  & .ash-ascended-name { font-size: 1.2em; font-style: normal; color: var(--accent-hi); }
+  /* The ascended: the bindu is gilded for them, and the Crown's plate stays lit. */
+  html[data-ascended] & .ash-y-bindu circle:not(.ash-y-halo) { fill: #ffd76a; }
+  html[data-ascended] & .ash-rung[data-wheel="6"] .ash-plate { border-color: #ffd76a; box-shadow: 0 0 0 1px rgba(255, 215, 106, 0.5), 7px 7px 0 color-mix(in oklab, var(--c) 45%, #05041a), 0 0 40px rgba(255, 215, 106, 0.35); }
+
+  /* ---------------------------------------------------------------- THE STAGE */
+  & .ash-stage {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    gap: 20px clamp(18px, 3vw, 44px);
+    max-width: 1320px;
+    min-height: calc(100svh - 92px);
+    margin: 0 auto;
+    padding: 14px 0 34px;
+  }
+  & .ash-center { display: grid; justify-items: center; gap: 14px; }
+  & .ash-mandala {
+    --size: min(70svh, 600px, 92vw);
+    position: relative;
+    width: var(--size);
+    aspect-ratio: 1;
+  }
+  & .ash-breather {
+    position: absolute;
+    inset: 0;
+    transform: scale(0.95);
+    will-change: transform;
+    transform-origin: 50% 50%;
+  }
+  & .ash-aura {
+    position: absolute;
+    inset: 6%;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 196, 110, 0.34) 0%, rgba(245, 140, 40, 0.15) 32%, rgba(140, 70, 180, 0.07) 55%, transparent 70%);
+    opacity: 0.7;
+  }
+  & .ash-yantra { position: absolute; inset: 0; color: var(--accent); }
+  & .ash-yantra svg {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    filter: drop-shadow(0 0 2.5px rgba(245, 158, 43, 0.55));
+  }
+  & .ash-y-gates path { stroke: var(--accent); stroke-width: 0.55; transition: transform 6s cubic-bezier(.4, 0, .2, 1), opacity 6s; }
+  & .ash-y-gates path:nth-child(1) { stroke: var(--accent-hi); stroke-width: 0.8; }
+  & .ash-y-gates path:nth-child(3) { opacity: 0.6; }
+  & .ash-y-gates { transform-box: fill-box; transform-origin: center; transition: transform 6s cubic-bezier(.4, 0, .2, 1), opacity 6s; }
+  & .ash-y-rings circle { stroke: var(--accent); stroke-width: 0.5; opacity: 0.85; }
+  & .ash-y-lotus .is-outer { fill: rgba(20, 14, 70, 0.72); stroke: var(--accent-hi); stroke-width: 0.6; transition: fill 3s; }
+  & .ash-y-lotus .is-vein { fill: none; stroke: var(--accent); stroke-width: 0.3; opacity: 0.45; }
+  & .ash-y-lotus .is-inner { fill: rgba(224, 52, 74, 0.1); stroke: var(--accent); stroke-width: 0.55; transition: fill 3s; }
+  & .ash-y-up, & .ash-y-down, & .ash-y-bindu { transform-box: fill-box; transform-origin: center; transition: transform 5s cubic-bezier(.4, 0, .2, 1); }
+  & .ash-y-up path { stroke: var(--accent-hi); stroke-width: 0.6; }
+  & .ash-y-down path { stroke: var(--kumkum); stroke-width: 0.6; }
+  & .ash-y-bindu circle { fill: var(--kumkum); stroke: none; }
+  & .ash-y-bindu .ash-y-halo { fill: var(--kumkum); opacity: 0.22; }
+  & .ash-y-mala circle { fill: var(--accent); stroke: none; opacity: 0.25; transition: opacity 1.2s, fill 1.2s; }
+  & .ash-y-mala .is-marker { fill: var(--kumkum); opacity: 0.8; }
+  & .ash-y-mala .is-lit { fill: var(--accent-hi); opacity: 1; }
+
+  /* The forms of the yantra: drawn in line, painted in layered lacquer, or gilded. */
+  & .ash-stage[data-form="painted"] .ash-y-up path { fill: rgba(255, 200, 117, 0.075); }
+  & .ash-stage[data-form="painted"] .ash-y-down path { fill: rgba(224, 52, 74, 0.1); }
+  & .ash-stage[data-form="painted"] .ash-y-rings circle:last-child { fill: rgba(20, 16, 73, 0.55); }
+  & .ash-stage[data-form="painted"] .ash-y-lotus .is-outer { fill: rgba(64, 22, 70, 0.8); }
+  & .ash-stage[data-form="painted"] .ash-y-lotus .is-inner { fill: rgba(224, 52, 74, 0.26); }
+  & .ash-stage[data-form="gilded"] .ash-yantra svg { filter: drop-shadow(0 0 1px #fff3cf) drop-shadow(0 0 5px rgba(245, 158, 43, 0.7)); }
+  & .ash-stage[data-form="gilded"] .ash-y-gates path { stroke: var(--accent-hi); stroke-width: 1; }
+  & .ash-stage[data-form="gilded"] .ash-y-gates path:nth-child(2) { stroke-width: 0.4; stroke-dasharray: 1.2 1.6; }
+  & .ash-stage[data-form="gilded"] .ash-y-down path { stroke: var(--accent); }
+  & .ash-stage[data-form="gilded"] .ash-y-up path { stroke: #fff1c8; }
+  & .ash-stage[data-form="gilded"] .ash-y-rings circle { stroke-width: 0.9; }
+  & .ash-stage[data-form="gilded"] .ash-y-lotus .is-outer { fill: rgba(40, 26, 60, 0.78); stroke-width: 0.9; }
+  & .ash-stage[data-form="gilded"] .ash-y-lotus .is-vein { stroke: var(--accent-hi); opacity: 0.6; }
+  & .ash-stage[data-form="gilded"] .ash-y-mala circle { opacity: 0.45; }
+  & .ashram.is-still .ash-y-lotus .is-outer { fill: rgba(70, 34, 60, 0.8); }
+  & .ashram.is-still .ash-y-lotus .is-inner { fill: rgba(224, 52, 74, 0.2); }
+  & .ashram.is-full .ash-y-lotus .is-outer { fill: rgba(52, 44, 104, 0.8); }
+
+  /* The shadow yantra: turned half a petal, breathing out while the other breathes in. */
+  & .ash-ghost {
+    position: absolute;
+    inset: 0;
+    color: var(--lotus);
+    opacity: 0.16;
+    transform: rotate(15deg) scale(0.99);
+    pointer-events: none;
+    filter: blur(0.4px);
+  }
+  & .ash-ghost svg { width: 100%; height: 100%; overflow: visible; }
+  & .ash-stage .ash-mandala .ash-ghost :is(path, circle) { stroke: currentColor; fill: none; }
+  & .ash-ghost .ash-y-mala, & .ash-ghost .ash-y-bindu { display: none; }
+  & .ashram.is-dark .ash-yantra { opacity: 0.78; }
+  & .ashram.is-dark .ash-aura { filter: grayscale(0.6); }
+
+  /* 108 seconds: the gates part and the bindu opens. */
+  & .ash-stage.is-open .ash-y-gates { transform: scale(1.16); opacity: 0.22; }
+  & .ash-stage.is-open .ash-y-up { transform: translateY(-9px); }
+  & .ash-stage.is-open .ash-y-down { transform: translateY(9px); }
+  & .ash-stage.is-open .ash-y-bindu { transform: scale(2.6); }
+  & .ashram.was-opened .ash-y-bindu circle:not(.ash-y-halo) { fill: #ffd76a; }
+
+  /* The Lotus of Letters: the Rosetta on the even petals, the six seeds on the odd. */
+  & .ash-petals { position: absolute; inset: 0; container-type: size; pointer-events: none; }
+  & .ash-rosetta { position: absolute; inset: 0; margin: 0; padding: 0; }
+  & .ash-rosetta .rosetta-pair,
+  & .ash-petal-seeds span {
+    --r: var(--lotus-r, 34.3cqw);
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    margin: 0;
+    --b: calc(var(--a) + var(--turn, 0deg));
+    transform: translate(-50%, -50%) translate(calc(sin(var(--b)) * var(--r)), calc(cos(var(--b)) * var(--r) * -1));
+  }
+  & .ash-rosetta .rosetta-pair { display: grid; justify-items: center; gap: 0; line-height: 1; }
+  & .ash-rosetta .rosetta-pair:nth-child(1) { --a: 0deg; }
+  & .ash-rosetta .rosetta-pair:nth-child(2) { --a: 60deg; }
+  & .ash-rosetta .rosetta-pair:nth-child(3) { --a: 120deg; }
+  & .ash-rosetta .rosetta-pair:nth-child(4) { --a: 180deg; }
+  & .ash-rosetta .rosetta-pair:nth-child(5) { --a: 240deg; }
+  & .ash-rosetta .rosetta-pair:nth-child(6) { --a: 300deg; }
+  & .ash-rosetta dt {
+    font-size: max(17px, 4.6cqw);
+    line-height: 1;
+    padding-bottom: 0.08em;
+    border-bottom: 1px solid rgba(255, 200, 117, 0.45);
+    color: #fff1d2;
+    text-shadow: 0 0 6px rgba(255, 190, 100, 0.8), 0 0 1px #000;
+  }
+  & .ash-rosetta dd {
+    margin: 0.2em 0 0;
+    font: 500 max(10.5px, 2.2cqw)/1 var(--ash-label);
+    letter-spacing: 0.06em;
+    color: var(--accent-hi);
+  }
+  & .ash-petal-seeds span {
+    font-size: max(15px, 3.9cqw);
+    line-height: 1;
+    color: var(--lotus);
+    text-shadow: 0 0 10px rgba(224, 52, 74, 0.6);
+  }
+  & .ash-petal-seeds span:nth-child(1) { --a: 30deg; }
+  & .ash-petal-seeds span:nth-child(2) { --a: 90deg; }
+  & .ash-petal-seeds span:nth-child(3) { --a: 150deg; }
+  & .ash-petal-seeds span:nth-child(4) { --a: 210deg; }
+  & .ash-petal-seeds span:nth-child(5) { --a: 270deg; }
+  & .ash-petal-seeds span:nth-child(6) { --a: 330deg; }
+
+  /* The plinth, carved with the Inscription. */
+  & .ash-plinth {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    max-width: min(92vw, 620px);
+    padding: 9px 20px 10px;
+    border-block: 1px solid rgba(245, 158, 43, 0.32);
+    background:
+      linear-gradient(180deg, rgba(255, 220, 160, 0.05), transparent 40%),
+      linear-gradient(180deg, #16124c, #0c0a33);
+    box-shadow: inset 0 1px 0 rgba(255, 220, 160, 0.08), inset 0 -2px 6px rgba(0, 0, 0, 0.5), 0 10px 30px rgba(0, 0, 0, 0.45);
+  }
+  & .ash-plinth-mark { font: 18px var(--ash-deva); color: var(--kumkum); }
+  & .ash-inscription {
+    margin: 0;
+    font-size: 17px;
+    line-height: 1.5;
+    letter-spacing: 0.1em;
+    text-align: center;
+    color: #cdb98f;
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.9), 0 1px 0 rgba(255, 230, 180, 0.14);
+  }
+
+  /* The guide. */
+  & .ash-guide { justify-self: end; text-align: right; max-width: 310px; }
+  & .ash-phase-deva {
+    font: 400 clamp(46px, 5.2vw, 76px)/1.15 var(--ash-deva);
+    color: var(--accent-hi);
+    text-shadow: 0 0 30px rgba(245, 158, 43, 0.4);
+    transition: color 1.2s, filter .6s, opacity .6s;
+  }
+  & .ash-stage[data-phase="hold"] .ash-phase-deva { color: var(--sandal); text-shadow: 0 0 30px rgba(255, 240, 220, 0.3); }
+  & .ash-stage[data-phase="out"] .ash-phase-deva { color: var(--lotus); text-shadow: 0 0 30px rgba(224, 52, 74, 0.35); }
+  & .ash-phase-line {
+    display: flex;
+    justify-content: flex-end;
+    align-items: baseline;
+    gap: 14px;
+    margin-top: 2px;
+    font: 300 19px/1 var(--ash-label);
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+  }
+  & .ash-phase-count {
+    font: 200 42px/1 var(--ash-label);
+    letter-spacing: 0;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+    min-width: 0.7em;
+    text-align: center;
+  }
+  & .ash-phase-iast { font: italic 17px/1.4 var(--ash-text); color: var(--ash); margin-top: 6px; }
+  & .ash-ticks { display: flex; justify-content: flex-end; gap: 4px; list-style: none; margin: 18px 0 6px; padding: 0; }
+  & .ash-ticks li { width: 13px; height: 4px; border-radius: 2px; background: rgba(255, 255, 255, 0.09); transition: background .5s, box-shadow .5s; }
+  & .ash-ticks li[data-phase="hold"] { width: 13px; background: rgba(255, 255, 255, 0.05); }
+  & .ash-ticks li.is-past[data-phase="in"] { background: rgba(245, 158, 43, 0.55); }
+  & .ash-ticks li.is-past[data-phase="hold"] { background: rgba(241, 227, 198, 0.4); }
+  & .ash-ticks li.is-past[data-phase="out"] { background: rgba(240, 154, 182, 0.5); }
+  & .ash-ticks li.is-now { background: var(--accent-hi); box-shadow: 0 0 10px var(--accent); }
+  & .ash-ratio {
+    display: flex;
+    justify-content: flex-end;
+    gap: 14px;
+    font: 300 11px/1 var(--ash-label);
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--ash);
+  }
+  & .ash-ratio b { font: 400 15px var(--ash-deva); color: var(--accent); letter-spacing: 0; }
+  & .ash-whisper {
+    margin-top: 26px;
+    min-height: 4.4em;
+    font: italic 19px/1.45 var(--ash-text);
+    color: var(--sandal);
+    opacity: 0.9;
+    text-wrap: pretty;
+  }
+  & .ash-whisper.is-new { animation: ash-fade-in 1.6s ease-out both; }
+  & .ash-breaths { margin-top: 12px; font: 300 12px/1.5 var(--ash-label); letter-spacing: 0.12em; color: var(--ash); }
+  & .ash-mercy-note { display: none; margin-top: 14px; font: italic 16px/1.5 var(--ash-text); color: var(--sandal); }
+  & .ash-stage.is-merciful .ash-mercy-note { display: block; }
+  & .ash-stage.is-merciful .ash-ticks,
+  & .ash-stage.is-merciful .ash-phase-count { display: none; }
+  & .ash-stage.is-faltering .ash-phase-deva { filter: blur(0.7px); opacity: 0.72; }
+  & .ash-stage.is-faltering .ash-ticks { opacity: 0.5; }
+
+  /* The side: the reading and the bowl. */
+  & .ash-side { justify-self: start; display: grid; gap: 26px; max-width: 320px; }
+  & .ash-reading-sky { display: flex; align-items: center; gap: 16px; }
+  & .ash-moon { width: 56px; height: 56px; flex: none; overflow: visible; }
+  & .ash-moon-dark { fill: #17134a; stroke: rgba(241, 227, 198, 0.22); stroke-width: 0.4; }
+  & .ash-moon-lit { fill: #f6ecd5; filter: drop-shadow(0 0 2.5px rgba(255, 238, 200, 0.7)); }
+  & .ash-tithi { display: grid; gap: 2px; }
+  & .ash-tithi-name { font: 400 31px/1 var(--ash-display); color: var(--accent-hi); }
+  & .ash-tithi > span:last-child, & .ash-moon-line { font: italic 14.5px/1.4 var(--ash-text); color: var(--ash); }
+  & .ash-hora { display: grid; grid-template-columns: auto 1fr; gap: 2px 12px; margin-top: 16px; font: 15px/1.45 var(--ash-text); }
+  & .ash-hora-glyph {
+    grid-row: span 2;
+    font: 30px/1 'Segoe UI Symbol', var(--ash-display);
+    color: var(--accent);
+    align-self: center;
+  }
+  & .ash-hora .ash-deva { color: var(--accent-hi); }
+  & .ash-hora-wakes { color: var(--ash); font-style: italic; }
+  & .ash-prophecy {
+    margin: 18px 0 0;
+    padding: 2px 0 2px 16px;
+    border-left: 2px solid var(--kumkum);
+    font: italic 17px/1.5 var(--ash-text);
+    color: var(--sandal);
+    text-wrap: pretty;
+  }
+  & .ash-omens { margin-top: 10px; font: 300 11px/1.4 var(--ash-label); letter-spacing: 0.2em; text-transform: uppercase; color: var(--kumkum); }
+
+  /* The singing bowl. */
+  & .ash-bowl-wrap { margin: 0; display: grid; gap: 6px; }
+  & .ash-bowl {
+    position: relative;
+    display: block;
+    width: 100%;
+    max-width: 270px;
+    padding: 0;
+    border: 0;
+    border-radius: 18px;
+    background: none;
+    cursor: pointer;
+    touch-action: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  & .ash-bowl-svg { position: relative; width: 100%; height: auto; overflow: visible; }
+  & .ash-bowl-glow {
+    position: absolute;
+    inset: -8% -6% 18%;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, rgba(255, 196, 110, 0.5), rgba(245, 140, 40, 0.12) 60%, transparent);
+    opacity: calc(0.14 + var(--song, 0) * 0.66);
+    transition: opacity 1.6s;
+  }
+  & .ash-bowl:hover .ash-bowl-glow, & .ash-bowl:focus-visible .ash-bowl-glow { opacity: 0.4; }
+  & .ash-bowl.is-ringing .ash-bowl-glow { opacity: 0.85; transition: opacity 0.4s; }
+  & .ash-ripple { opacity: 0; transform-box: fill-box; transform-origin: center; }
+  & .ash-bowl.is-ringing .ash-ripple { animation: ash-ripple 2.5s cubic-bezier(.2, .6, .3, 1) 3 both; }
+  & .ash-bowl.is-ringing .ash-ripple:nth-of-type(2) { animation-delay: 0.83s; }
+  & .ash-bowl.is-ringing .ash-ripple:nth-of-type(3) { animation-delay: 1.66s; }
+  & .ash-cymatics { fill: none; stroke: #ffd48a; color: #ffd48a; opacity: 0; transition: opacity 3s; }
+  & .ash-bowl.is-singing .ash-cymatics { opacity: 0.95; animation: ash-breathe-soft 5s ease-in-out infinite alternate; }
+  & .ash-bowl.is-singing .ash-bowl-glow { opacity: 0.8; }
+  & .ash-bowl-wrap figcaption { display: grid; gap: 6px; padding-right: 64px; } /* the altar lives in the corner */
+  & .ash-bowl-wrap .ash-kicker { margin: 0; }
+  & .ash-kicker-deva { font: 400 14px/1 var(--ash-deva); letter-spacing: 0.02em; text-transform: none; color: var(--accent); white-space: nowrap; }
+  /* On touch screens a sleeping bowl lets the page scroll past it; once struck, it keeps the finger. */
+  @media (pointer: coarse) {
+    & .ash-bowl { touch-action: pan-y; }
+    & .ash-bowl.is-woken { touch-action: none; }
+  }
+  & .ash-bowl-status { font: 15px/1.45 var(--ash-text); color: var(--sandal); }
+  & .ash-bowl-hint { font: italic 13.5px/1.4 var(--ash-text); color: var(--ash); }
+
+  /* ---------------------------------------------------------------- THE MANTRA */
+  & .ash-mantra-sec {
+    position: relative;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 72px 0 64px;
+    text-align: center;
+  }
+  & .ash-mantra-sec::before,
+  & .ash-mantra-sec::after {
+    content: '';
+    position: absolute;
+    left: 15%;
+    right: 15%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(245, 158, 43, 0.5), transparent);
+  }
+  & .ash-mantra-sec::before { top: 24px; }
+  & .ash-mantra-sec::after { bottom: 20px; }
+  & .ash-mantra-deva {
+    margin-top: 18px;
+    font: 400 clamp(56px, 9vw, 112px)/1.25 var(--ash-deva);
+    color: var(--accent-hi);
+    text-shadow: 0 0 34px rgba(245, 158, 43, 0.38);
+    word-spacing: 0.25em;
+  }
+  & .ash-syl { display: inline-block; }
+  & .ash-mantra-deva.is-chanting .ash-syl { animation: ash-syl 1.9s ease-in-out both; animation-delay: calc(var(--k) * 1.3s); }
+  & .ash-mantra-iast {
+    margin-top: 2px;
+    font: 300 20px/1.3 var(--ash-label);
+    letter-spacing: 0.34em;
+    color: var(--sandal);
+  }
+  & .ash-mantra-gloss {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px 30px;
+    list-style: none;
+    margin: 22px auto 0;
+    padding: 0;
+    max-width: 780px;
+    font: italic 16px/1.45 var(--ash-text);
+    color: var(--ash);
+  }
+  & .ash-mantra-gloss b { font-style: normal; font-weight: 400; color: var(--accent); margin-right: 0.25em; }
+  & .ash-newseeds { margin-top: 38px; }
+  & .ash-newseeds-deva { font: 400 clamp(30px, 4.4vw, 46px)/1.35 var(--ash-deva); color: var(--lotus); }
+  & .ash-newseeds-latin { margin-top: 4px; }
+  & .ash-newseeds-latin code { font-size: 14px; color: var(--ash); letter-spacing: 0.08em; }
+  & .ash-mantra-how { margin: 30px auto 16px; max-width: 34em; font: italic 17px/1.5 var(--ash-text); color: var(--ash); }
+  & .ash-chant {
+    padding: 11px 26px;
+    border: 1px solid var(--accent);
+    border-radius: 999px;
+    background: rgba(245, 158, 43, 0.06);
+    color: var(--accent-hi);
+    font: 300 12.5px/1 var(--ash-label);
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background .4s, box-shadow .4s;
+  }
+  & .ash-chant:hover, & .ash-chant:focus-visible { background: rgba(245, 158, 43, 0.16); box-shadow: 0 0 24px rgba(245, 158, 43, 0.25); }
+  & .ash-chant-status { min-height: 1.5em; margin-top: 12px; font: italic 15px/1.5 var(--ash-text); color: var(--ash); }
+
+  /* ---------------------------------------------------------------- SECTION HEADS */
+  & .ash-sec-head { margin-bottom: 26px; }
+  & .ash-sec-deva { font: 400 30px/1.1 var(--ash-deva); color: var(--kumkum); margin-bottom: 6px; }
+  & .ash-sec-head h2 { font: 400 clamp(38px, 4.2vw, 56px)/0.95 var(--ash-display); color: var(--sandal); margin-bottom: 14px; }
+  & .ash-lede { font: 17px/1.6 var(--ash-text); color: var(--ash); max-width: 36em; text-wrap: pretty; }
+
+  & .ash-pair {
+    display: grid;
+    grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr);
+    gap: 40px clamp(24px, 5vw, 72px);
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 56px 0 40px;
+    border-top: 1px solid rgba(245, 158, 43, 0.12);
+  }
+
+  /* ---------------------------------------------------------------- THE LADDER */
+  & .ash-ladder-sec { --plate: 132px; --col: 196px; --row: 84px; }
+  & .ash-sphere {
+    position: relative;
+    isolation: isolate; /* the Sphere: nothing in here rises above the mercy button */
+    padding: 22px 0 56px;
+  }
+  & .ash-ladder { list-style: none; margin: 0; padding: 0; }
+  & .ash-rung { position: relative; height: var(--row); --c-hi: color-mix(in oklab, var(--c) 62%, white); }
+  /* The Ladder, literally. Read these back in the inspector: the page does. */
+  & .ash-rung[data-wheel="0"] { z-index: 1; }
+  & .ash-rung[data-wheel="1"] { z-index: 2; }
+  & .ash-rung[data-wheel="2"] { z-index: 3; }
+  & .ash-rung[data-wheel="3"] { z-index: 4; }
+  & .ash-rung[data-wheel="4"] { z-index: 5; }
+  & .ash-rung[data-wheel="5"] { z-index: 6; }
+  & .ash-rung[data-wheel="6"] { z-index: 2147483647; }
+  & .ash-rung-btn {
+    position: relative;
+    display: grid;
+    grid-template-columns: var(--col) minmax(0, 1fr);
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+    border-radius: 4px;
+  }
+  & .ash-rung-btn:focus-visible { outline-offset: 2px; }
+  & .ash-plate {
+    justify-self: center;
+    width: var(--plate);
+    aspect-ratio: 1;
+    border-radius: 6px;
+    background: color-mix(in oklab, var(--c) 20%, rgba(11, 9, 48, 0.82));
+    border: 1px solid color-mix(in oklab, var(--c-hi) 80%, transparent);
+    box-shadow:
+      0 0 0 1px rgba(0, 0, 0, 0.35),
+      7px 7px 0 color-mix(in oklab, var(--c) 45%, #05041a),
+      0 0 26px color-mix(in oklab, var(--c) 28%, transparent);
+    transform: rotateX(58deg) rotateZ(45deg);
+    transition: transform .7s cubic-bezier(.3, .7, .3, 1), box-shadow .7s, background .7s;
+  }
+  & .ash-plate-svg { width: 100%; height: 100%; color: var(--c-hi); }
+  & .ash-plate-face { fill: none; stroke: none; }
+  & .ash-plate-rule { fill: none; stroke: color-mix(in oklab, var(--c-hi) 40%, transparent); stroke-width: 0.6; stroke-dasharray: 2 2; }
+  & .ash-plate-ring { fill: none; stroke: var(--c-hi); stroke-width: 0.9; }
+  & .ash-plate-lotus { fill: color-mix(in oklab, var(--c) 28%, transparent); stroke: var(--c-hi); stroke-width: 0.9; }
+  & .ash-plate-lotus.is-thousand { fill: none; stroke-width: 0.22; }
+  & .ash-plate-sign { fill: none; stroke: #fff; stroke-width: 1; opacity: 0.8; }
+  & .ash-plate-core { fill: var(--c-hi); }
+  & .ash-plate-bija {
+    position: absolute;
+    left: calc(var(--col) / 2);
+    top: 50%;
+    transform: translate(-50%, 40%);
+    font: 400 26px/1 var(--ash-deva);
+    color: #fff;
+    text-shadow: 0 0 10px var(--c), 0 0 22px var(--c);
+    pointer-events: none;
+    transition: transform .7s cubic-bezier(.3, .7, .3, 1);
+  }
+  & .ash-rung[data-wheel="6"] .ash-plate-bija { font-size: 22px; opacity: 0.7; }
+  & .ash-rung-btn:hover .ash-plate,
+  & .ash-rung-btn:focus-visible .ash-plate { transform: translateY(-12px) rotateX(58deg) rotateZ(45deg); }
+  & .ash-rung-btn:hover .ash-plate-bija,
+  & .ash-rung-btn:focus-visible .ash-plate-bija { transform: translate(-50%, calc(40% - 12px)); }
+  & .ash-rung-text { display: grid; gap: 2px; padding: 0 0 0 10px; }
+  & .ash-z { font: 300 11px/1.2 var(--ash-label); letter-spacing: 0.2em; text-transform: uppercase; color: var(--ash); }
+  & .ash-z-value { font-weight: 600; letter-spacing: 0.05em; color: var(--c-hi); font-variant-numeric: tabular-nums; }
+  & .ash-rung-name { font: 400 27px/0.95 var(--ash-display); color: var(--sandal); }
+  & .ash-rung-name .ash-deva { font-size: 0.66em; color: var(--c-hi); margin-right: 0.2em; }
+  & .ash-rung-sub { font: 13px/1.35 var(--ash-text); color: var(--ash); }
+  & .ash-wheel-reading {
+    --c: var(--accent);
+    min-height: 7.2em;
+    margin: 0 0 14px;
+    padding: 12px 16px 12px 18px;
+    border-left: 2px solid color-mix(in oklab, var(--c) 70%, white);
+    background: linear-gradient(90deg, color-mix(in oklab, var(--c) 14%, transparent), transparent 80%);
+  }
+  & .ash-reading-title { font: 400 24px/1.1 var(--ash-display); color: var(--sandal); margin-bottom: 4px; }
+  & .ash-reading-title .ash-deva { font-size: 0.72em; color: color-mix(in oklab, var(--c) 60%, white); }
+  & .ash-reading-text { font: 15px/1.5 var(--ash-text); color: var(--ash); text-wrap: pretty; }
+  & .ash-rung.is-hour .ash-plate { border-color: var(--accent-hi); }
+  & .ash-rung.is-awake .ash-plate {
+    background: color-mix(in oklab, var(--c) 48%, rgba(11, 9, 48, 0.6));
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.25),
+      7px 7px 0 color-mix(in oklab, var(--c) 60%, #05041a),
+      0 0 46px color-mix(in oklab, var(--c) 70%, transparent);
+  }
+  & .ash-rung.is-sounded .ash-plate { animation: ash-sound 1.8s ease-out both; }
+  & .ash-ladder-sec.is-risen .ash-rung[data-wheel="6"] .ash-plate-lotus.is-thousand { stroke: #fff; stroke-width: 0.3; }
+
+  & .ash-serpent {
+    position: absolute;
+    left: calc(var(--col) / 2);
+    top: 0;
+    width: 0;
+    height: 0;
+    z-index: 1;
+    pointer-events: none;
+    transition: transform 1.05s cubic-bezier(.5, 0, .3, 1);
+  }
+  & .ash-serpent.is-returning { transition-duration: 2.4s; }
+  & .ash-serpent-head {
+    position: absolute;
+    left: -8px;
+    top: -8px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #fff 0 22%, var(--accent-hi) 45%, rgba(245, 158, 43, 0) 72%);
+    box-shadow: 0 0 20px 7px rgba(255, 190, 90, 0.55);
+    opacity: 0;
+    transition: opacity .9s;
+  }
+  & .ash-serpent-tail {
+    position: absolute;
+    left: -1.5px;
+    top: 0;
+    width: 3px;
+    height: 96px;
+    border-radius: 2px;
+    background: linear-gradient(180deg, rgba(255, 214, 150, 0.95), rgba(245, 158, 43, 0));
+    opacity: 0;
+    transition: opacity .9s;
+  }
+  & .ash-ladder-sec:is(.is-rising, .is-risen) .ash-serpent-head,
+  & .ash-ladder-sec:is(.is-rising, .is-risen) .ash-serpent-tail { opacity: 1; }
+  & .ash-coil {
+    position: absolute;
+    left: calc(var(--col) / 2 - 36px);
+    bottom: calc(56px + var(--row) / 2 - 13px);
+    width: 72px;
+    height: 39px;
+    z-index: 1;
+    overflow: visible;
+    pointer-events: none;
+    transition: opacity 1.2s;
+  }
+  & .ash-coil path { fill: none; stroke: var(--accent-hi); stroke-width: 1.3; stroke-linecap: round; filter: drop-shadow(0 0 2px var(--accent)); }
+  & .ash-ladder-sec:is(.is-rising, .is-risen) .ash-coil { opacity: 0.15; }
+  & .ash-ladder-hint { font: italic 15px/1.5 var(--ash-text); color: var(--ash); }
+  & .ash-ladder-note { min-height: 1.5em; margin-top: 8px; font: 15px/1.5 var(--ash-text); color: var(--accent-hi); }
+
+  /* ---------------------------------------------------------------- THE FIVE SHEATHS */
+  & .ash-kosha-fig { margin: 0 0 26px; display: grid; justify-items: center; gap: 14px; }
+  & .ash-field-frame { width: 300px; height: 330px; contain: strict; display: grid; place-items: center; }
+  & .ash-field {
+    position: relative;
+    display: flow-root;
+    border-radius: 2px;
+    background:
+      repeating-linear-gradient(-45deg, rgba(245, 158, 43, 0.2) 0 1px, transparent 1px 7px),
+      rgba(245, 158, 43, 0.05);
+    box-shadow: inset 0 0 0 1px rgba(245, 158, 43, 0.35);
+  }
+  & .ash-body {
+    --breath: 0.5;
+    position: relative;
+    box-sizing: content-box;
+    margin: 30px;
+    padding: calc(12px + var(--breath) * 16px);
+    border: 3px solid var(--turmeric);
+    outline: 2px dashed var(--lotus);
+    outline-offset: 14px;
+    background: color-mix(in oklab, var(--prana) 20%, #0b0930);
+  }
+  & .ash-seed { position: relative; width: 150px; height: 190px; background: #19155a; box-shadow: inset 0 0 0 1px rgba(159, 176, 255, 0.35); }
+  & .ash-figure { display: block; width: 100%; height: 100%; }
+  & .ash-fig-cushion { fill: rgba(224, 52, 74, 0.45); stroke: none; }
+  & .ash-fig-body { fill: #231d6e; stroke: rgba(241, 227, 198, 0.8); stroke-width: 1.1; }
+  & .ash-fig-line { fill: none; stroke: rgba(241, 227, 198, 0.55); stroke-width: 1; }
+  & .ash-fig-arm-o { fill: none; stroke: rgba(241, 227, 198, 0.8); stroke-width: 8.4; stroke-linecap: round; }
+  & .ash-fig-arm-i { fill: none; stroke: #231d6e; stroke-width: 6.2; stroke-linecap: round; }
+  & .ash-fig-spine { fill: none; stroke: rgba(255, 255, 255, 0.28); stroke-width: 0.8; stroke-dasharray: 2 3; }
+  & .ash-fig-wheel { fill: var(--c); opacity: 0.5; transition: opacity .8s, filter .8s; }
+  & .ash-koshas.is-awake .ash-fig-wheel { opacity: 1; filter: drop-shadow(0 0 3px var(--c)); transition-delay: calc(var(--k) * 1.15s); }
+  /* The eyes. Closed while you are calm; open, and following you, while you are restless. */
+  & .ash-eye-lid { fill: none; stroke: rgba(241, 227, 198, 0.85); stroke-width: 0.85; stroke-linecap: round; transition: opacity 0.6s 0.5s; }
+  & .ash-eye-open {
+    transform-box: fill-box;
+    transform-origin: center;
+    transform: scaleY(0.04);
+    opacity: 0;
+    transition: transform 1.6s cubic-bezier(.3, .7, .3, 1), opacity 1.1s;
+  }
+  & .ash-eye.is-third .ash-eye-open { transform: scaleX(0.04); }
+  & .ash-eye-white { fill: #efe2c4; stroke: rgba(255, 240, 210, 0.95); stroke-width: 0.45; }
+  & .ash-eye-iris { fill: #07051f; }
+  & .ash-eye-glint { fill: #fff; opacity: 0.85; }
+  & .ash-eye.is-third .ash-eye-lid { stroke: #8f84ff; stroke-width: 0.7; }
+  & .ash-eye.is-third .ash-eye-white { fill: #1b1466; stroke: #b3a8ff; }
+  & .ash-eye.is-third .ash-eye-iris { fill: var(--accent-hi); }
+  & .ash-koshas.is-watching .ash-eye:not(.is-third) .ash-eye-open { transform: none; opacity: 1; transition-duration: 0.45s, 0.3s; }
+  & .ash-koshas.is-watching .ash-eye:not(.is-third) .ash-eye-lid { opacity: 0; transition-delay: 0s; }
+  & .ash-koshas.is-third .ash-eye.is-third .ash-eye-open { transform: none; opacity: 1; transition-duration: 5s, 3s; }
+  & .ash-koshas.is-third .ash-eye.is-third .ash-eye-lid { opacity: 0; transition-delay: 0s; }
+  & .ash-koshas.is-third .ash-fig-wheel.is-ajna { opacity: 0; }
+  & .ash-koshas.is-third .ash-fig-wheel { filter: drop-shadow(0 0 2px var(--c)); }
+  & .ash-tag {
+    position: absolute;
+    z-index: 1;
+    padding: 2px 6px 1px;
+    border: 1px solid currentColor;
+    border-radius: 2px;
+    background: #0b0930;
+    font: 400 10px/1.2 var(--ash-label);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  & .ash-tag span { font: 400 11px/1 var(--ash-deva); letter-spacing: 0; text-transform: none; margin-left: 3px; }
+  & .ash-tag--margin { bottom: 6px; left: 6px; color: var(--accent); }
+  & .ash-tag--outline { top: -28px; right: 6px; color: var(--lotus); }
+  & .ash-tag--border { bottom: -10px; right: 18px; color: var(--turmeric); }
+  & .ash-tag--padding { top: 3px; left: 4px; color: var(--prana); }
+  & .ash-tag--content { bottom: 4px; left: 50%; transform: translateX(-50%); color: #a9b6ff; }
+  & .ash-kosha-fig figcaption { max-width: 34em; font: italic 14px/1.5 var(--ash-text); color: var(--ash); text-align: center; }
+  & .ash-kosha-list { display: grid; margin: 0; }
+  & .ash-kosha {
+    display: grid;
+    grid-template-columns: minmax(130px, 0.8fr) minmax(0, 2fr);
+    gap: 4px 18px;
+    padding: 12px 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+  }
+  & .ash-kosha dt { display: grid; align-content: start; gap: 2px; }
+  & .ash-kosha dt code { font: 400 12px/1.3 var(--ash-label); letter-spacing: 0.22em; text-transform: uppercase; }
+  & .ash-kosha dt .ash-deva { font-size: 20px; line-height: 1.3; color: var(--sandal); }
+  & .ash-kosha dt .ash-iast { font: italic 13px/1.3 var(--ash-text); color: var(--ash); }
+  & .ash-kosha dd { margin: 0; font: 15px/1.5 var(--ash-text); color: var(--ash); }
+  & .ash-kosha dd strong { font-weight: 400; color: var(--sandal); }
+  & .ash-live { display: block; margin-top: 4px; font: 300 12px/1.4 var(--ash-label); letter-spacing: 0.08em; color: var(--accent-hi); font-variant-numeric: tabular-nums; }
+  & .ash-kosha--outline code { color: var(--lotus); }
+  & .ash-kosha--margin code { color: var(--accent); }
+  & .ash-kosha--border code { color: var(--turmeric); }
+  & .ash-kosha--padding code { color: var(--prana); }
+  & .ash-kosha--content code { color: #a9b6ff; }
+  & .ash-kosha-coda { margin-top: 18px; font: italic 15px/1.55 var(--ash-text); color: var(--ash); max-width: 36em; }
+
+  /* ---------------------------------------------------------------- THE PRAYER WHEEL */
+  & .ash-wheel-sec {
+    display: grid;
+    grid-template-columns: minmax(300px, 0.9fr) minmax(0, 1.1fr);
+    align-items: center;
+    gap: 32px clamp(24px, 5vw, 72px);
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 64px 0;
+    border-top: 1px solid rgba(245, 158, 43, 0.12);
+  }
+  & .ash-wheel-stage { display: grid; place-items: center; }
+  & .ash-wheel-scene { position: relative; width: 340px; height: 400px; max-width: 100%; }
+  & .ash-drum {
+    position: absolute;
+    left: 50%;
+    top: 80px;
+    width: calc(var(--R) * 2 + 24px);
+    height: 190px;
+    transform: translateX(-50%);
+    display: grid;
+    place-items: center;
+    perspective: 820px;
+    cursor: grab;
+    touch-action: pan-y;
+    z-index: 1;
+    border-radius: 14px;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  & .ash-drum.is-held { cursor: grabbing; }
+  & .ash-drum::after {
+    /* the curve of the drum: light on the left shoulder, dark at both edges */
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 21px;
+    width: calc(var(--R) * 2 + 2px);
+    height: 146px;
+    transform: translateX(-50%);
+    border-radius: 3px / 8px;
+    background: linear-gradient(90deg, rgba(5, 4, 26, 0.85), rgba(5, 4, 26, 0.25) 18%, rgba(255, 232, 190, 0.2) 36%, rgba(5, 4, 26, 0.05) 52%, rgba(5, 4, 26, 0.3) 78%, rgba(5, 4, 26, 0.9));
+    pointer-events: none;
+  }
+  & .ash-drum-body {
+    position: relative;
+    width: var(--pw);
+    height: 150px;
+    transform-style: preserve-3d;
+    transform: rotateX(-14deg);
+  }
+  & .ash-panel {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    backface-visibility: hidden;
+    transform: rotateY(calc(var(--i) * 360deg / var(--N))) translateZ(var(--R));
+    background: #7d1223;
+  }
+  & .ash-strip {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: calc(var(--i) * var(--pw) * -1);
+    width: calc(var(--pw) * var(--N));
+    display: grid;
+    grid-template-rows: 28px 1fr 28px;
+  }
+  & .ash-strip-band { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; align-items: center; }
+  & .ash-strip-band--top, & .ash-strip-band--low {
+    background: linear-gradient(180deg, #7a5214, #e9bf6a 30%, #b88633 70%, #5e3e0e);
+    color: #3a1d05;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+  }
+  & .ash-strip-band--top { box-shadow: inset 0 -2px 0 #3a2208; }
+  & .ash-strip-band--low { box-shadow: inset 0 2px 0 #3a2208; }
+  & .ash-strip-band--mid {
+    background:
+      repeating-linear-gradient(90deg, transparent 0 20px, rgba(0, 0, 0, 0.12) 20px 21px),
+      linear-gradient(180deg, #5a0b18, #9a1a2c 50%, #5a0b18);
+    color: #ffd27a;
+    font-size: 30px;
+    text-shadow: 0 1px 0 #3b0710, 0 0 8px rgba(255, 190, 90, 0.35);
+  }
+  & .ash-strip-cell { display: grid; place-items: center; white-space: nowrap; line-height: 1; }
+  & .ash-cap {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    width: calc(var(--R) * 2 + 6px);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    transform: translate(-50%, -50%) rotateX(90deg);
+    background: radial-gradient(circle, #ffe3a6 0%, #d49a45 45%, #7a4f16 80%, #3f2808 100%);
+    box-shadow: inset 0 0 0 3px #5e3e0e;
+  }
+  & .ash-cap svg { width: 100%; height: 100%; }
+  & .ash-cap-rim { fill: none; stroke: #5e3e0e; stroke-width: 2; }
+  & .ash-cap-lotus { fill: rgba(125, 18, 35, 0.55); stroke: #5e3e0e; stroke-width: 1.2; }
+  & .ash-cap-hub { fill: #3f2808; }
+  & .ash-weight {
+    position: absolute;
+    left: 50%;
+    top: 30px;
+    width: 10px;
+    height: 58px;
+    margin-left: -5px;
+    transform-origin: 50% 0;
+    transform: rotateY(40deg) translateZ(calc(var(--R) + 2px)) rotateX(var(--swing, 0deg));
+    backface-visibility: hidden;
+  }
+  & .ash-chain { position: absolute; left: 4px; top: 0; width: 2px; height: 46px; background: repeating-linear-gradient(180deg, #f3cf86 0 3px, transparent 3px 5px); }
+  & .ash-bob { position: absolute; left: 0; bottom: 0; width: 10px; height: 12px; border-radius: 50% 50% 45% 45%; background: radial-gradient(circle at 35% 30%, #ffe3a6, #a8712c 60%, #4d300f); }
+  & .ash-rod {
+    position: absolute;
+    left: 50%;
+    top: 38px;
+    width: 6px;
+    height: 62px;
+    margin-left: -3px;
+    z-index: 2;
+    border-radius: 3px;
+    background: linear-gradient(90deg, #4d300f, #f3cf86 45%, #7a4f16);
+    pointer-events: none;
+  }
+  & .ash-finial {
+    position: absolute;
+    left: 50%;
+    top: -14px;
+    width: 14px;
+    height: 18px;
+    margin-left: -7px;
+    border-radius: 50% 50% 50% 50% / 64% 64% 36% 36%;
+    background: radial-gradient(circle at 40% 35%, #fff2c8, #e0a445 55%, #6b4518);
+    box-shadow: 0 0 12px rgba(255, 200, 110, 0.5);
+  }
+  & .ash-handle {
+    position: absolute;
+    left: 50%;
+    top: 246px;
+    width: 12px;
+    height: 104px;
+    margin-left: -6px;
+    border-radius: 4px;
+    background: linear-gradient(90deg, #2e1608, #8a5a2e 45%, #3a1d0c);
+    pointer-events: none;
+  }
+  & .ash-mala { position: absolute; left: 50%; top: 312px; width: 300px; height: auto; transform: translateX(-50%); overflow: visible; }
+  & .ash-mala-cord { fill: none; stroke: rgba(245, 158, 43, 0.25); stroke-width: 0.8; }
+  & .ash-bead { fill: #3a2a5a; stroke: rgba(255, 220, 170, 0.25); stroke-width: 0.4; transition: fill .6s; }
+  & .ash-bead.is-told { fill: #b98a4a; }
+  & .ash-bead.is-now { fill: var(--accent-hi); stroke: #fff; filter: drop-shadow(0 0 3px var(--accent)); }
+  & .ash-guru-bead { fill: var(--kumkum); stroke: #ffd48a; stroke-width: 0.8; }
+  & .ash-tassel { fill: none; stroke: var(--kumkum); stroke-width: 1.3; stroke-linecap: round; }
+  & .ash-wheel-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 16px 24px;
+    margin: 26px 0 18px;
+  }
+  & .ash-wheel-stats dt { font: 300 11px/1.3 var(--ash-label); letter-spacing: 0.2em; text-transform: uppercase; color: var(--ash); }
+  & .ash-wheel-stats dd { margin: 4px 0 0; }
+  & .ash-num { font: 300 28px/1.1 var(--ash-label); color: var(--accent-hi); font-variant-numeric: tabular-nums; }
+  & .ash-wheel-voice { min-height: 3em; font: italic 17px/1.5 var(--ash-text); color: var(--sandal); }
+  & .ash-wall { margin-top: 22px; padding: 16px 18px; border: 1px solid rgba(240, 154, 182, 0.25); background: rgba(11, 9, 48, 0.6); }
+  & .ash-wall .ash-kicker { margin-bottom: 6px; }
+  & .ash-wall-text { font-size: 22px; line-height: 1.35; color: var(--lotus); overflow-wrap: anywhere; }
+  & .ash-wall-note { margin-top: 6px; font: italic 13px/1.4 var(--ash-text); color: var(--ash); }
+
+  /* ---------------------------------------------------------------- THE SUTRA */
+  & .ash-sutra-sec {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 64px 0 40px;
+    border-top: 1px solid rgba(245, 158, 43, 0.12);
+  }
+  & .ash-sutra { display: grid; gap: 22px; list-style: none; margin: 0; padding: 0; }
+  & .ash-verse-grid { display: grid; grid-template-columns: 78px minmax(0, 1fr); gap: 18px; align-items: baseline; }
+  & .ash-sutra-verse > :not(.ash-verse-grid) { display: block; margin-left: 96px; font-size: 14px; }
+  & .ash-vnum { font: 400 18px/1 var(--ash-deva); color: var(--accent); text-align: right; white-space: nowrap; }
+  & .ash-sutra-verse p { font: 20px/1.62 var(--ash-text); color: var(--sandal); text-wrap: pretty; }
+  & .ash-sutra-verse .ash-frag { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 14px; margin-top: 6px; font-size: 16px; }
+  & .ash-frag-text { font-size: 20px; color: var(--lotus); }
+  & .ash-frag-gloss { font-style: italic; color: var(--ash); }
+  & .ash-sutra-verse.is-108 { animation: ash-fade-in 3s ease-out both; }
+  & .ash-sutra-verse.is-108 p { color: var(--accent-hi); }
+  & .ash-colophon {
+    margin: 44px auto 0;
+    max-width: 36em;
+    text-align: center;
+    font: italic 16px/1.6 var(--ash-text);
+    color: var(--ash);
+  }
+  & .ash-colophon .ash-deva { font-style: normal; font-size: 22px; color: var(--accent); }
+
+  /* ---------------------------------------------------------------- THE FOOTER */
+  & .ash-footer {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 40px clamp(24px, 5vw, 72px);
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 56px 0 128px;
+    border-top: 1px solid rgba(245, 158, 43, 0.16);
+  }
+  & .ash-footer h2 { font: 400 34px/1 var(--ash-display); color: var(--sandal); margin-bottom: 16px; }
+  & .ash-footer h2 .ash-deva { font-size: 0.62em; color: var(--kumkum); margin-right: 0.3em; }
+  & .ash-timetable { list-style: none; margin: 0; padding: 0; }
+  & .ash-timetable li {
+    display: grid;
+    grid-template-columns: 64px minmax(0, 1fr);
+    gap: 14px;
+    padding: 7px 0;
+    border-bottom: 1px dotted rgba(255, 255, 255, 0.1);
+    font: 15px/1.45 var(--ash-text);
+    color: var(--ash);
+  }
+  & .ash-timetable time { font: 300 14px/1.45 var(--ash-label); letter-spacing: 0.08em; color: var(--sandal); font-variant-numeric: tabular-nums; }
+  & .ash-timetable li.is-now { color: var(--sandal); }
+  & .ash-timetable li.is-now time { color: var(--accent-hi); }
+  & .ash-timetable em { font: 300 11px/1 var(--ash-label); letter-spacing: 0.2em; text-transform: uppercase; color: var(--kumkum); margin-left: 6px; }
+  & .ash-rules ol { margin: 0; padding-left: 1.4em; display: grid; gap: 8px; font: 15.5px/1.5 var(--ash-text); color: var(--sandal); }
+  & .ash-rules li::marker { font-family: var(--ash-label); color: var(--accent); }
+  & .ash-shanti { grid-column: 1 / -1; display: grid; justify-items: center; gap: 6px; text-align: center; padding-top: 18px; }
+  & .ash-shanti .ash-deva { font-size: 30px; color: var(--accent-hi); }
+  & .ash-shanti span:last-child { font: 300 11.5px/1.5 var(--ash-label); letter-spacing: 0.22em; text-transform: uppercase; color: var(--ash); }
+
+  /* ---------------------------------------------------------------- THE WOMB-CHAMBER */
+  & .ash-chamber {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    overflow: hidden;
+    pointer-events: none;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 1.4s, visibility 0s linear 1.4s;
+  }
+  & .ash-chamber.is-present { visibility: visible; opacity: 1; transition: opacity 1.4s; }
+  & .ash-chamber-glow {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at 50% 21%, #fff4d6 0, #ffc36a 1.2vmin, rgba(255, 170, 70, 0.55) 4vmin, transparent 16vmin),
+      radial-gradient(ellipse 70% 60% at 50% 42%, #5a1024 0%, #2b0a22 45%, #0f0620 80%);
+  }
+  & .ash-chamber-inner {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-content: center;
+    gap: 14px;
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 30vh 24px 24px;
+    text-align: center;
+    font: 18px/1.55 var(--ash-text);
+    color: var(--sandal);
+    opacity: 0;
+    transition: opacity 1.2s;
+  }
+  & .ash-chamber.is-open .ash-chamber-inner { opacity: 1; transition: opacity 2.4s 2.6s; }
+  & .ash-chamber-deva { font: 400 clamp(40px, 7vw, 64px)/1.1 var(--ash-deva); color: var(--accent-hi); text-shadow: 0 0 30px rgba(255, 180, 90, 0.45); }
+  & .ash-chamber-iast { font: 300 12px/1.4 var(--ash-label); letter-spacing: 0.3em; text-transform: uppercase; color: var(--lotus); margin-bottom: 8px; }
+  & .ash-chamber-teaching { font: italic 19px/1.55 var(--ash-text); color: #ffe2b0; }
+  & .ash-chamber-times { font: 300 12px/1.5 var(--ash-label); letter-spacing: 0.16em; color: var(--ash); }
+  & .ash-chamber-leave { font: italic 15px/1.5 var(--ash-text); color: var(--ash); }
+  & .ash-door {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 50.5%;
+    overflow: hidden;
+    background:
+      radial-gradient(circle, rgba(255, 214, 140, 0.55) 0 2px, transparent 3px) 0 0 / 46px 46px,
+      linear-gradient(90deg, rgba(0, 0, 0, 0.45), transparent 10%, transparent 90%, rgba(0, 0, 0, 0.45)),
+      repeating-linear-gradient(0deg, #3b1c0c 0 3px, #47230f 3px 11px, #3f1e0d 11px 14px),
+      #3d1f0e;
+    box-shadow: inset 0 0 0 10px #2a1206, inset 0 0 0 12px #8a5a2e, inset 0 0 60px rgba(0, 0, 0, 0.6);
+    transition: transform 4.6s cubic-bezier(.62, 0, .2, 1);
+  }
+  & .ash-door--l { left: 0; }
+  & .ash-door--r { right: 0; }
+  & .ash-chamber.is-open .ash-door--l { transform: translateX(-100%); }
+  & .ash-chamber.is-open .ash-door--r { transform: translateX(100%); }
+  & .ash-door-art {
+    position: absolute;
+    top: 50%;
+    width: min(84vh, 96vw);
+    aspect-ratio: 1;
+    color: rgba(240, 190, 110, 0.55);
+  }
+  & .ash-door-art svg { width: 100%; height: 100%; }
+  & .ash-door--l .ash-door-art { right: 0; transform: translate(50%, -50%); }
+  & .ash-door--r .ash-door-art { left: 0; transform: translate(-50%, -50%); }
+  & .ash-door-ring {
+    position: absolute;
+    top: calc(50% - 22px);
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 4px solid #d9a24f;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6), inset 0 0 4px rgba(0, 0, 0, 0.5);
+  }
+  & .ash-door--l .ash-door-ring { right: 18px; }
+  & .ash-door--r .ash-door-ring { left: 18px; }
+
+  /* ---------------------------------------------------------------- ECLIPSE, ASCENSION */
+  & .ashram.is-eclipsed .ash-yantra { color: #6e64b8; }
+  & .ashram.is-eclipsed .ash-aura {
+    background: radial-gradient(circle, #000 0 36%, rgba(255, 244, 220, 0.5) 39%, rgba(255, 200, 120, 0.18) 45%, transparent 62%);
+    opacity: 1;
+  }
+  & .ashram.is-eclipsed .ash-y-bindu circle { fill: #000; }
+
+  /* ---------------------------------------------------------------- NARROWER HALLS */
+  @media (max-width: 1080px) {
+    & .ash-stage { grid-template-columns: minmax(0, 1fr); justify-items: center; min-height: 0; padding-top: 18px; }
+    & .ash-center { order: -1; }
+    & .ash-guide { justify-self: center; text-align: center; max-width: 520px; }
+    & .ash-phase-line, & .ash-ticks, & .ash-ratio { justify-content: center; }
+    & .ash-whisper { min-height: 3em; margin-top: 18px; }
+    & .ash-side { justify-self: center; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); max-width: 720px; align-items: start; }
+    & .ash-pair { grid-template-columns: minmax(0, 1fr); }
+  }
+  @media (max-width: 760px) {
+    & .ash-side { grid-template-columns: minmax(0, 1fr); max-width: 420px; }
+    & .ash-wheel-sec { grid-template-columns: minmax(0, 1fr); }
+    & .ash-footer { grid-template-columns: minmax(0, 1fr); }
+    & .ash-kosha { grid-template-columns: minmax(0, 1fr); }
+  }
+  @media (max-width: 560px) {
+    & .ash-threshold { align-items: flex-start; }
+    & .ash-mark { gap: 12px; }
+    & .ash-title { letter-spacing: 0.22em; }
+    & .ash-mandala { --size: min(92vw, 70svh); }
+    & .ash-plinth { padding: 8px 12px; gap: 8px; }
+    & .ash-inscription { font-size: 15px; }
+    & .ash-ladder-sec { --plate: 100px; --col: 142px; --row: 68px; }
+    & .ash-plate-bija { font-size: 21px; }
+    & .ash-rung-name { font-size: 23px; }
+    & .ash-rung-sub, & .ash-rung-teach { font-size: 12.5px; }
+    & .ash-verse-grid { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+    & .ash-sutra-verse > :not(.ash-verse-grid) { margin-left: 0; }
+    & .ash-vnum { text-align: left; }
+    & .ash-sutra-verse p { font-size: 18px; }
+    & .ash-wheel-scene { transform: scale(0.92); transform-origin: 50% 0; margin-bottom: -30px; }
+  }
+}
+
+/* ---------------------------------------------------------------- MOTION */
+@keyframes ash-fade-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@keyframes ash-ripple { 0% { transform: scale(0.3); opacity: 0.9; } 100% { transform: scale(4); opacity: 0; } }
+@keyframes ash-breathe-soft { from { opacity: 0.6; } to { opacity: 1; } }
+@keyframes ash-syl {
+  0% { color: inherit; transform: none; }
+  35% { color: #fff; text-shadow: 0 0 40px rgba(255, 200, 110, 0.9); transform: translateY(-6px); }
+  100% { color: inherit; transform: none; }
+}
+@keyframes ash-sound {
+  0% { box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.6), 7px 7px 0 color-mix(in oklab, var(--c) 60%, #05041a), 0 0 70px var(--c); }
+  100% { box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35), 7px 7px 0 color-mix(in oklab, var(--c) 45%, #05041a), 0 0 26px color-mix(in oklab, var(--c) 28%, transparent); }
+}
+
+/* Mercy: nothing moves by itself. Rung sounds, ripples and chants become still glows. */
+[data-mercy="on"] .face--ashram {
+  & .ash-breather { will-change: auto; }
+  & .ash-bowl.is-ringing .ash-ripple { animation: none; opacity: 0.45; }
+  & .ash-bowl.is-ringing .ash-ripple:nth-of-type(1) { transform: scale(1.4); }
+  & .ash-bowl.is-ringing .ash-ripple:nth-of-type(2) { transform: scale(2.4); }
+  & .ash-bowl.is-ringing .ash-ripple:nth-of-type(3) { transform: scale(3.4); }
+  & .ash-bowl.is-singing .ash-cymatics { animation: none; }
+  & .ash-mantra-deva.is-chanting .ash-syl { animation: none; }
+  & .ash-mantra-deva.is-chanting { text-shadow: 0 0 44px rgba(255, 200, 110, 0.7); }
+  & .ash-whisper.is-new { animation: none; }
+}
+}

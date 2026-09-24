@@ -1,0 +1,496 @@
+/* THE HAND OF DESCENT (the glyphs layer).
+   "Cascade Glyphs" writes Katabasic, the script of the Cascade: every Latin letter drawn as a glyph, and
+   the same glyph again at U+E000 + its code. The font is written by tools/build-font.mjs; the names of
+   the letters are in public/js/lib/glyphs.js (ALPHABET).
+
+   Two tiers, on purpose:
+   - @layer glyphs (after `face`): only what must hold on every face. Glyph text is set in the glyph hand
+     and is never given a counterfeit bold or slant. Also the layer's own apparitions in #layers.
+   - @layer base.glyphs (a sub-layer of `base`, so BEFORE `face`): the default look of .inscription,
+     .rosetta and the optional .glyph--* finishes. Any face can override all of it with plain rules. */
+
+@font-face {
+  font-family: 'Cascade Glyphs';
+  src: url('/fonts/cascade-glyphs.otf') format('opentype');
+  /* One weight answers to every weight, so bold headings never smear the letters. */
+  font-weight: 100 900;
+  font-style: normal;
+  /* Better a moment of silence than a row of empty boxes in the Private Use Area. */
+  font-display: block;
+}
+
+@layer glyphs {
+  .glyph,
+  [lang="x-cascade"] {
+    font-family: var(--font-glyph, 'Cascade Glyphs', serif);
+    font-synthesis: none;
+    font-variant-ligatures: none;
+    font-kerning: none;
+  }
+
+  /* ── Apparitions (#layers). Colours come from custom properties, which faces may set. ───────── */
+  .glyph-veil {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    contain: strict;
+    z-index: 2;
+  }
+  .glyph-veil > * { pointer-events: none; user-select: none; }
+
+  /* A letter typed into the air is written by the nib, left to right, then rises. */
+  .glyph-rise {
+    position: absolute;
+    left: 0;
+    top: 0;
+    translate: var(--x, 50vw) var(--y, 50vh);
+    font-size: var(--size, 30px);
+    line-height: 1;
+    white-space: pre;
+    color: var(--glyph-ink);
+    text-shadow: 0 0 1px var(--glyph-halo), 0 0 0.3em var(--glyph-halo), 0 0 0.9em var(--glyph-glow);
+    transform: translate(-50%, -85%);
+    animation: glyph-rise var(--dur, 1.8s) cubic-bezier(0.16, 0.7, 0.3, 1) forwards;
+    will-change: transform, opacity;
+  }
+  .glyph-rise.is-still { animation: none; opacity: 0.92; }
+
+  @keyframes glyph-rise {
+    0% { opacity: 1; clip-path: inset(-100% 100% -100% -100%); transform: translate(-50%, -85%); }
+    /* The stroke is laid down; then the letter lets go of the line. */
+    16% { clip-path: inset(-100%); transform: translate(-50%, -85%); }
+    55% { opacity: 0.9; }
+    100% {
+      opacity: 0;
+      clip-path: inset(-100%);
+      transform: translate(calc(-50% + var(--dx, 0px)), calc(-85% - var(--dy, 100px))) scale(1.25) rotate(var(--rot, 0deg));
+    }
+  }
+
+  /* A word of assent is pressed into the air as a seal: a legend of the word running round the rim
+     between two rules (tops outward, as on every seal), a wheel of its letters turning against the rim,
+     thirty-two hairline rays, and the first letter at the heart. The resting state IS the still state;
+     the keyframes only bring it in and take it away, so mercy shows the finished seal. */
+  .glyph-bloom {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 0;
+    height: 0;
+    translate: var(--x, 50vw) var(--y, 50vh);
+    color: var(--glyph-ink);
+    --dur: 3.6s;
+  }
+  .glyph-bloom > * { position: absolute; left: 0; top: 0; }
+
+  /* An aura, so the seal reads over any page. Faces may give it a scorched or gilded edge. */
+  .glyph-bloom__halo {
+    width: calc(var(--reach, 140px) * 2.9);
+    aspect-ratio: 1;
+    translate: -50% -50%;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, var(--glyph-aura) 0%, var(--glyph-aura) 46%, var(--glyph-aura-edge, transparent) 70%, transparent 100%);
+    animation: glyph-seal-halo var(--dur) ease forwards;
+  }
+  .glyph-bloom__rays {
+    width: calc(var(--r, 110px) * 2);
+    aspect-ratio: 1;
+    translate: -50% -50%;
+    border-radius: 50%;
+    background: repeating-conic-gradient(from 5.625deg, var(--glyph-ink) 0deg 0.55deg, transparent 0.55deg 11.25deg);
+    -webkit-mask: radial-gradient(closest-side, transparent 29%, #000 34%, #000 60%, transparent 70%);
+    mask: radial-gradient(closest-side, transparent 29%, #000 34%, #000 60%, transparent 70%);
+    opacity: 0.42;
+    animation: glyph-seal-rays var(--dur) ease-out forwards;
+  }
+  .glyph-bloom__rim {
+    width: calc(var(--reach, 140px) * 2);
+    aspect-ratio: 1;
+    translate: -50% -50%;
+    border: 1.5px solid var(--glyph-ink);
+    border-radius: 50%;
+    box-shadow: 0 0 0 1px var(--glyph-halo), inset 0 0 0 1px var(--glyph-halo), 0 0 1.4em var(--glyph-glow);
+    animation: glyph-seal-rim var(--dur) cubic-bezier(0.2, 0.75, 0.25, 1) forwards;
+  }
+  .glyph-bloom__rim::after {
+    content: '';
+    position: absolute;
+    inset: calc(var(--legend, 24px) * 1.6);
+    border: 1px solid var(--glyph-ink);
+    border-radius: 50%;
+    box-shadow: 0 0 0 1px var(--glyph-halo);
+  }
+  .glyph-bloom__legend,
+  .glyph-bloom__wheel {
+    width: 0;
+    height: 0;
+    animation: glyph-seal-legend var(--dur) cubic-bezier(0.2, 0.75, 0.25, 1) forwards;
+  }
+  .glyph-bloom__wheel { animation-name: glyph-seal-wheel; }
+  .glyph-bloom__petal {
+    position: absolute;
+    left: 0;
+    top: 0;
+    font-size: var(--legend, 24px);
+    line-height: 1;
+    white-space: pre;
+    text-shadow: 0 0 1px var(--glyph-halo), 0 0 0.2em var(--glyph-halo), 0 0 0.3em var(--glyph-halo);
+    transform: translate(-50%, -50%) rotate(calc(var(--i) * 1turn / var(--n))) translateY(calc(-1 * var(--rad, var(--r, 110px))));
+  }
+  .glyph-bloom__wheel .glyph-bloom__petal {
+    --rad: calc(var(--r, 110px) * 0.5);
+    font-size: calc(var(--r, 110px) * 0.24);
+    text-shadow: 0 0 1px var(--glyph-halo), 0 0 0.25em var(--glyph-halo), 0 0 0.7em var(--glyph-glow);
+  }
+  .glyph-bloom__heart {
+    translate: -50% -50%;
+    font-size: calc(var(--r, 110px) * 0.62);
+    line-height: 1;
+    text-shadow: 0 0 1px var(--glyph-halo), 0 0 0.12em var(--glyph-halo), 0 0 0.5em var(--glyph-glow);
+    animation: glyph-seal-heart var(--dur) cubic-bezier(0.2, 0.75, 0.25, 1) forwards;
+  }
+  .glyph-bloom__caption {
+    top: calc(var(--reach, 140px) + 14px);
+    translate: calc(-50% + var(--shift, 0px)) 0;
+    width: max-content;
+    max-width: min(calc(100vw - 24px), 26em);
+    margin: 0;
+    padding: 0.35em 0.9em;
+    font: italic 0.95rem/1.35 var(--font-scripture, serif);
+    letter-spacing: 0.02em;
+    text-align: center;
+    color: var(--glyph-whisper-ink);
+    background: var(--glyph-whisper-bg);
+    border: 1px solid var(--glyph-whisper-rule);
+    animation: glyph-seal-caption var(--dur) ease forwards;
+  }
+  .glyph-bloom__caption .glyph { font-style: normal; letter-spacing: 0.08em; margin-right: 0.2em; }
+  .glyph-bloom.is-still > * { animation: none; }
+
+  @keyframes glyph-seal-halo {
+    0% { opacity: 0; transform: scale(0.55); }
+    24% { opacity: 1; transform: none; }
+    80% { opacity: 1; }
+    100% { opacity: 0; transform: scale(1.06); }
+  }
+  @keyframes glyph-seal-rim {
+    0% { opacity: 0; transform: scale(0.72); }
+    26% { opacity: 1; transform: none; }
+    82% { opacity: 1; }
+    100% { opacity: 0; transform: scale(1.04); }
+  }
+  @keyframes glyph-seal-rays {
+    0%, 12% { opacity: 0; transform: scale(0.8) rotate(-8deg); }
+    40%, 80% { opacity: 0.42; }
+    100% { opacity: 0; transform: rotate(4deg); }
+  }
+  @keyframes glyph-seal-legend {
+    0% { opacity: 0; transform: rotate(var(--turn, -30deg)); }
+    30%, 84% { opacity: 1; }
+    100% { opacity: 0; transform: rotate(8deg); }
+  }
+  @keyframes glyph-seal-wheel {
+    0%, 8% { opacity: 0; transform: rotate(calc(var(--turn, -30deg) * -1.4)) scale(0.8); }
+    36%, 84% { opacity: 1; }
+    100% { opacity: 0; transform: rotate(-10deg); }
+  }
+  @keyframes glyph-seal-heart {
+    0%, 10% { opacity: 0; transform: scale(0.6); }
+    32% { opacity: 1; transform: scale(1.05); }
+    44% { transform: none; }
+    84% { opacity: 1; }
+    100% { opacity: 0; transform: scale(0.97); }
+  }
+  @keyframes glyph-seal-caption {
+    0%, 18% { opacity: 0; transform: translateY(0.4em); }
+    32% { opacity: 1; transform: none; }
+    82% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+
+  /* The Naming: a letter's glyph, called by its name. */
+  .glyph-naming {
+    position: absolute;
+    left: 50%;
+    top: 42%;
+    translate: -50% -50%;
+    display: grid;
+    justify-items: center;
+    gap: 0.2em;
+    width: max-content;
+    max-width: min(86vw, 24em);
+    padding: 1.2em 1.8em 1.1em;
+    text-align: center;
+    color: var(--glyph-whisper-ink);
+    background: var(--glyph-whisper-bg);
+    border: 1px solid var(--glyph-whisper-rule);
+    outline: 1px solid var(--glyph-whisper-rule);
+    outline-offset: 4px;
+    animation: glyph-naming var(--dur, 4.2s) ease forwards;
+  }
+  .glyph-naming__glyph { font-size: clamp(72px, 16vw, 132px); line-height: 1.05; color: var(--glyph-ink); text-shadow: 0 0 0.5em var(--glyph-glow); }
+  .glyph-naming__name { font: 600 0.85rem/1.2 var(--font-mono, monospace); letter-spacing: 0.42em; text-transform: uppercase; margin-right: -0.42em; }
+  .glyph-naming__sign { font: italic 1.05rem/1.3 var(--font-scripture, serif); }
+  .glyph-naming__gloss { font: 0.9rem/1.45 var(--font-scripture, serif); opacity: 0.82; max-width: 20em; }
+  .glyph-naming.is-still { animation: none; }
+  @keyframes glyph-naming {
+    0% { opacity: 0; transform: scale(0.94); filter: blur(3px); }
+    14% { opacity: 1; transform: none; filter: none; }
+    84% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+
+  /* Whispers: a quiet line near the foot of the page, clear of mercy (left) and the altar (right). */
+  .glyph-voice {
+    position: fixed;
+    left: 50%;
+    bottom: calc(92px + env(safe-area-inset-bottom, 0px));
+    translate: -50% 0;
+    display: grid;
+    justify-items: center;
+    gap: 6px;
+    width: max-content;
+    max-width: min(calc(100vw - 32px), 30em);
+    pointer-events: none;
+    z-index: 3;
+  }
+  .glyph-whisper {
+    padding: 0.5em 1.1em 0.55em;
+    text-align: center;
+    color: var(--glyph-whisper-ink);
+    background: var(--glyph-whisper-bg);
+    border: 1px solid var(--glyph-whisper-rule);
+    box-shadow: 0 0.6em 2em rgb(0 0 0 / 0.35);
+    animation: glyph-whisper var(--dur, 4.4s) ease forwards;
+  }
+  .glyph-whisper::before,
+  .glyph-whisper::after {
+    /* U+E000: the letter displaced from nothing, the watcher (an open eye low in a pyramid).
+       No text contains it; only whispers are signed with it. */
+    content: '\E000' / '';
+    font: normal 1.05em/1 var(--font-glyph, serif);
+    font-synthesis: none;
+    color: var(--glyph-ink);
+    opacity: 0.85;
+  }
+  .glyph-whisper::before { margin-right: 0.6em; }
+  .glyph-whisper::after { margin-left: 0.6em; }
+
+  /* Told to screen readers, shown to nobody: the Naming and the seals live in an aria-hidden veil. */
+  .glyph-sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    pointer-events: none;
+  }
+  .glyph-whisper.is-still { animation: none; }
+  @keyframes glyph-whisper {
+    0% { opacity: 0; transform: translateY(8px); letter-spacing: 0.12em; }
+    12% { opacity: 1; transform: none; letter-spacing: 0.02em; }
+    85% { opacity: 1; }
+    100% { opacity: 0; transform: translateY(-6px); }
+  }
+
+  /* The Scribe's Exemplar (?debug=glyphs): the whole hand, for those who build the temple. */
+  .glyph-exemplar {
+    position: fixed;
+    /* Clear of mercy (bottom-left) and the altar (bottom-right). */
+    inset: 12px 12px 84px;
+    z-index: 5;
+    overflow: auto;
+    padding: 24px clamp(16px, 4vw, 48px) 48px;
+    color: #2a1d12;
+    background: #f1e8d4;
+    border: 1px solid #8a6a3a;
+    box-shadow: 0 0 0 6px #f1e8d4, 0 0 0 7px #8a6a3a, 0 20px 60px rgb(0 0 0 / 0.5);
+    font-family: var(--font-scripture, serif);
+    pointer-events: auto;
+  }
+  .glyph-exemplar__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px 16px;
+    margin: 0 0 6px;
+  }
+  .glyph-exemplar h2 { flex: 1 1 14em; margin: 0; font-size: 1.5rem; font-weight: 400; letter-spacing: 0.08em; }
+  .glyph-exemplar__intro { margin: 0 0 16px; font-style: italic; opacity: 0.8; }
+  .glyph-exemplar__grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 10px; }
+  .glyph-exemplar__cell { display: grid; justify-items: center; padding: 10px 6px 8px; border: 1px solid rgb(138 106 58 / 0.35); background: rgb(255 255 255 / 0.25); }
+  .glyph-exemplar__cell .glyph { font-size: 64px; line-height: 1.15; }
+  .glyph-exemplar__cell small { font: 11px/1.3 var(--font-mono, monospace); letter-spacing: 0.08em; text-align: center; }
+  .glyph-exemplar__line { margin: 10px 0 0; line-height: 1.3; overflow-wrap: anywhere; }
+  .glyph-exemplar__close {
+    flex: none;
+    font: 12px/1 var(--font-mono, monospace);
+    padding: 6px 10px;
+    background: #2a1d12;
+    color: #f1e8d4;
+    border: 0;
+    cursor: pointer;
+  }
+}
+
+/* ── Overridable defaults (sub-layer of base; every face outranks it) ───────────────────────────── */
+@layer base.glyphs {
+  :root {
+    /* Gold ink with a dark halo reads on vellum and on the void alike. Faces may re-ink it. */
+    --glyph-ink: #f0c65a;
+    --glyph-halo: rgb(28 14 2 / 0.85);
+    --glyph-glow: rgb(240 198 90 / 0.35);
+    --glyph-whisper-ink: #efe6d2;
+    --glyph-whisper-bg: rgb(16 12 8 / 0.86);
+    --glyph-whisper-rule: rgb(240 198 90 / 0.45);
+    --glyph-aura: rgb(12 9 6 / 0.62);
+    --glyph-aura-edge: transparent;
+  }
+  [data-face="sanctum"] {
+    --glyph-ink: #b3261e;
+    --glyph-halo: rgb(250 240 214 / 0.95);
+    --glyph-glow: rgb(212 160 40 / 0.45);
+    --glyph-whisper-ink: #2b1d10;
+    --glyph-whisper-bg: rgb(244 234 208 / 0.95);
+    --glyph-whisper-rule: #9c7a2c;
+    --glyph-aura: rgb(248 238 210 / 0.9);
+    --glyph-aura-edge: rgb(212 160 40 / 0.24);
+  }
+  [data-face="possession"] {
+    --glyph-ink: #d61f2c;
+    --glyph-halo: rgb(0 0 0 / 0.9);
+    --glyph-glow: rgb(120 200 60 / 0.35);
+    --glyph-whisper-ink: #d7f5c2;
+    --glyph-whisper-bg: rgb(8 0 0 / 0.9);
+    --glyph-whisper-rule: rgb(214 31 44 / 0.7);
+    /* The seal is branded into the page: a black core with a scorched red edge. */
+    --glyph-aura: rgb(8 0 0 / 0.84);
+    --glyph-aura-edge: rgb(150 14 20 / 0.3);
+  }
+  [data-face="recruitment"] {
+    --glyph-ink: #ffff66;
+    --glyph-halo: #0000cc;
+    --glyph-glow: rgb(255 0 255 / 0.45);
+    --glyph-whisper-ink: #000080;
+    --glyph-whisper-bg: #ffffcc;
+    --glyph-whisper-rule: #ff00ff;
+    --glyph-aura: rgb(0 0 70 / 0.7);
+    --glyph-aura-edge: rgb(255 0 255 / 0.22);
+  }
+  [data-face="ashram"] {
+    --glyph-ink: #ffb347;
+    --glyph-halo: rgb(20 14 70 / 0.9);
+    --glyph-glow: rgb(255 153 51 / 0.45);
+    --glyph-whisper-ink: #ffe3b8;
+    --glyph-whisper-bg: rgb(22 16 72 / 0.9);
+    --glyph-whisper-rule: rgb(255 179 71 / 0.55);
+    --glyph-aura: rgb(14 10 58 / 0.75);
+    --glyph-aura-edge: rgb(255 153 51 / 0.2);
+  }
+  [data-face="departure"] {
+    --glyph-ink: #8dffc0;
+    --glyph-halo: rgb(0 20 12 / 0.9);
+    --glyph-glow: rgb(120 255 190 / 0.5);
+    --glyph-whisper-ink: #b8ffd9;
+    --glyph-whisper-bg: rgb(0 12 8 / 0.88);
+    --glyph-whisper-rule: rgb(141 255 192 / 0.5);
+    --glyph-aura: rgb(0 16 10 / 0.75);
+    --glyph-aura-edge: rgb(120 255 190 / 0.14);
+  }
+  [data-face="babel"] {
+    --glyph-ink: #5b3a1a;
+    --glyph-halo: rgb(248 242 228 / 0.95);
+    --glyph-glow: rgb(160 110 40 / 0.3);
+    --glyph-whisper-ink: #3a2a18;
+    --glyph-whisper-bg: rgb(248 242 228 / 0.95);
+    --glyph-whisper-rule: rgb(91 58 26 / 0.45);
+    --glyph-aura: rgb(248 242 228 / 0.9);
+    --glyph-aura-edge: rgb(160 110 40 / 0.16);
+  }
+  /* The whisper's voice (colours are the --glyph-whisper-* properties above). */
+  .glyph-whisper { font: italic 1rem/1.35 var(--font-scripture, serif); letter-spacing: 0.02em; }
+  [data-face="recruitment"] .glyph-whisper { font: 1rem/1.35 'Comic Sans MS', 'Comic Sans', cursive; }
+  [data-face="departure"] .glyph-whisper,
+  [data-face="possession"] .glyph-whisper { font: 0.9rem/1.35 var(--font-mono, monospace); letter-spacing: 0.06em; font-style: normal; }
+
+  /* The Inscription: set wide and quiet, like letters cut into a lintel. */
+  .inscription {
+    margin: 1.5em auto;
+    max-width: 38em;
+    font-size: clamp(1.05rem, 0.9rem + 0.8vw, 1.55rem);
+    line-height: 1.75;
+    letter-spacing: 0.1em;
+    word-spacing: 0.4em;
+    text-align: center;
+    text-wrap: balance;
+  }
+  /* Optional finish: a carved band with rules and terminal seeds. */
+  .inscription--carved {
+    position: relative;
+    padding: 0.5em 2.2em;
+    border-block: 1px solid currentColor;
+    box-shadow: 0 3px 0 -2px currentColor, 0 -3px 0 -2px currentColor;
+  }
+  .inscription--carved::before,
+  .inscription--carved::after {
+    content: '\2666';
+    position: absolute;
+    top: 50%;
+    translate: 0 -50%;
+    font: 0.6em/1 var(--font-scripture, serif);
+    opacity: 0.8;
+  }
+  .inscription--carved::before { left: 0.6em; }
+  .inscription--carved::after { right: 0.6em; }
+
+  /* The Rosetta: each glyph over its letter. */
+  .rosetta {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.6em 1.1em;
+    margin: 1em 0;
+    padding: 0;
+  }
+  .rosetta-pair {
+    display: grid;
+    justify-items: center;
+    align-content: start;
+    gap: 0.3em;
+    min-width: 2.2em;
+  }
+  .rosetta dt {
+    font-size: 2em;
+    line-height: 1.1;
+    padding-bottom: 0.2em;
+    border-bottom: 1px solid color-mix(in srgb, currentColor 35%, transparent);
+  }
+  .rosetta dd {
+    margin: 0;
+    font: 0.78em/1 var(--font-mono, monospace);
+    letter-spacing: 0.14em;
+    opacity: 0.85;
+  }
+
+  /* Optional finishes for any glyph text. */
+  .glyph--gilt {
+    background: linear-gradient(170deg, #fff1b8 0%, #d9a93a 38%, #8a5a12 52%, #f3d27a 68%, #a8741c 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 1px 0 rgb(60 30 0 / 0.5));
+  }
+  .glyph--carved {
+    color: color-mix(in srgb, currentColor 78%, black);
+    text-shadow: 0 1px 0 rgb(255 255 255 / 0.35), 0 -1px 0 rgb(0 0 0 / 0.45);
+  }
+  .glyph--glow {
+    text-shadow: 0 0 0.12em currentColor, 0 0 0.6em color-mix(in srgb, currentColor 55%, transparent);
+  }
+}

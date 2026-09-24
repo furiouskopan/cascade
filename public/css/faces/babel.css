@@ -1,0 +1,836 @@
+/* BABEL: THE INFINITE SCRIPTURE. A polyglot Bible printed on thin paper, shelved in Borges' Library.
+   Leaves of cool Bible paper float down an endless wall of identical volumes. Three columns for the
+   Three Origins (the Word, the Pilgrim's glyphs, the tongues of the Old Law), verse numbers in lapis,
+   marginalia in pencil, and the next chapter showing through the paper, mirrored.
+   Everything lives in @layer face and under .face--babel (Canon §3). Motion is CSS only; mercy
+   (base.css, @layer reset) neutralises it, and scroll-driven effects are switched off explicitly below. */
+@layer face {
+
+  html[data-face="babel"] { background: #151412; }
+
+  .face--babel {
+    --bb-paper: #f1efe8;
+    --bb-paper-2: #e6e3d9;
+    --bb-ink: #1b1a17;
+    --bb-ink-soft: #57534b;
+    --bb-rule: rgba(27, 26, 23, 0.26);
+    --bb-lapis: #24418f;
+    --bb-lapis-soft: rgba(36, 65, 143, 0.62);
+    --bb-pencil: #5f5d58;
+    --bb-crimson: #9b1c2c;
+    --bb-leather: #1f2a4d;
+    --bb-stone: #1b1a17;
+    --bb-lamp: 246, 226, 170;
+
+    --bb-serif: 'Sitka Text', 'Sitka', Constantia, 'Iowan Old Style', Georgia, serif;
+    --bb-display: 'Sitka Banner', 'Sitka Display', 'Sitka Heading', Constantia, Georgia, serif;
+    --bb-head: 'Sitka Heading', 'Sitka Subheading', Constantia, Georgia, serif;
+    --bb-small: 'Sitka Small', 'Sitka Text', Constantia, Georgia, serif;
+    --bb-hand: 'Ink Free', 'Segoe Print', 'Bradley Hand', 'Comic Neue', cursive;
+
+    --bb-leaf-w: 1120px;
+    --bb-mark: 3.4rem;
+    --bb-num: 2.6rem;
+    --bb-tongue: 13.5rem;
+    --bb-gap: 1.1rem;
+
+    color: var(--bb-ink);
+    font-family: var(--bb-serif);
+    color-scheme: light;
+  }
+
+  /* ------------------------------------------------------------------ the gallery: endless shelves */
+  .face--babel .bb {
+    position: relative;
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding-bottom: 6rem;
+    background:
+      /* the lamps, above the stair */
+      radial-gradient(ellipse 70% 38rem at 50% 0, rgba(var(--bb-lamp), 0.16), transparent 75%),
+      /* the dark between the tops of the books and the shelf above */
+      repeating-linear-gradient(to bottom, rgba(8, 8, 7, 0.9) 0 22px, rgba(8, 8, 7, 0.35) 22px 30px, transparent 30px 150px),
+      /* shelf boards */
+      repeating-linear-gradient(to bottom, transparent 0 142px, #0e0d0b 142px 144px, #463f33 144px 147px, #1a1814 147px 150px),
+      /* raised bands on every spine */
+      repeating-linear-gradient(to bottom, transparent 0 52px, rgba(255, 240, 200, 0.07) 52px 54px, transparent 54px 108px, rgba(255, 240, 200, 0.06) 108px 110px, transparent 110px 150px),
+      /* the spines: identical books, four hundred and ten pages each */
+      repeating-linear-gradient(to right, rgba(255, 255, 255, 0.05) 0 2px, transparent 2px 13px, rgba(0, 0, 0, 0.5) 13px 14px),
+      repeating-linear-gradient(to right, #3a2922 0 14px, #2a3129 14px 28px, #25283a 28px 42px, #3b3226 42px 56px, #2f2320 56px 70px, #262b25 70px 84px, #33291f 84px 98px),
+      var(--bb-stone);
+  }
+  .face--babel .bb[data-lamps="night"] { --bb-lamp: 214, 196, 150; }
+  .face--babel .bb[data-moon="full"]::after {
+    content: '';
+    position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(to bottom, rgba(200, 210, 230, 0.07), transparent 40rem);
+  }
+
+  /* The lamplight: a vignette over everything that deepens when the reader holds still. */
+  .face--babel .bb::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 5; pointer-events: none;
+    background:
+      linear-gradient(to right, rgba(6, 6, 5, 0.62), transparent 16%, transparent 84%, rgba(6, 6, 5, 0.62)),
+      radial-gradient(ellipse 90% 80% at 50% 38%, transparent 55%, rgba(6, 6, 5, 0.42));
+    opacity: 0.55;
+    transition: opacity 6s ease;
+  }
+  .face--babel .bb[data-lamps="night"]::before { opacity: 0.75; }
+  .face--babel .bb[data-still]::before { opacity: 1; }
+  .face--babel .bb[data-crimson]::before {
+    background:
+      linear-gradient(to right, rgba(60, 4, 10, 0.6), transparent 16%, transparent 84%, rgba(60, 4, 10, 0.6)),
+      radial-gradient(ellipse 90% 80% at 50% 38%, transparent 55%, rgba(40, 3, 8, 0.4));
+  }
+  html[data-eclipse] .face--babel .bb::before {
+    opacity: 1;
+    background: radial-gradient(circle at 50% 42%, transparent 0 14rem, rgba(3, 3, 8, 0.55) 26rem, rgba(3, 3, 8, 0.85));
+  }
+
+  .face--babel a { color: var(--bb-lapis); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.18em; text-decoration-color: rgba(36, 65, 143, 0.35); }
+  .face--babel a:hover { text-decoration-color: currentColor; }
+  .face--babel :focus-visible { outline: 2px solid var(--bb-lapis); outline-offset: 3px; }
+  .face--babel .bb-sc { font-variant: small-caps; letter-spacing: 0.06em; font-variant-numeric: lining-nums; }
+  .face--babel .bb-small { font: 0.78rem/1.45 var(--bb-small); color: var(--bb-ink-soft); margin: 0 0 0.5rem; }
+
+  /* -------------------------------------------------------------------------------- running head */
+  .face--babel .bb-rh {
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; gap: 0.9rem;
+    max-width: var(--bb-leaf-w);
+    margin: 0 auto;
+    padding: 0.55rem clamp(0.9rem, 3vw, 2.2rem);
+    background: rgba(241, 239, 232, 0.94);
+    border-bottom: 1px solid var(--bb-rule);
+    box-shadow: 0 10px 22px -14px rgba(0, 0, 0, 0.7);
+    font: 0.7rem/1.2 var(--bb-small);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--bb-ink-soft);
+  }
+  .face--babel .bb-rh p { margin: 0; }
+  .face--babel .bb-rh-home { color: var(--bb-ink); text-decoration: none; white-space: nowrap; }
+  .face--babel .bb-rh-home-short { display: none; font-size: 1.3rem; letter-spacing: 0; line-height: 0.8; }
+  .face--babel .bb-rh-ref {
+    flex: 1 1 auto; min-width: 0;
+    text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    color: var(--bb-ink);
+  }
+  .face--babel .bb-rh-ch { color: var(--bb-lapis); letter-spacing: 0.1em; }
+  .face--babel .bb-rh-meta { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 24rem; text-transform: none; letter-spacing: 0.04em; font-style: italic; }
+  .face--babel .bb-rh-status { color: var(--bb-crimson); }
+  .face--babel .bb-rh-sky { display: flex; align-items: center; gap: 0.3rem; color: var(--bb-ink); letter-spacing: 0; }
+  .face--babel .bb-moon { width: 1rem; height: 1rem; display: block; }
+  .face--babel .bb-moon-dark { fill: var(--bb-ink); }
+  .face--babel .bb-moon-lit { fill: #fbf6e4; }
+  .face--babel .bb-rh-planet { font: 0.95rem/1 'Segoe UI Symbol', var(--bb-serif); }
+  .face--babel .bb-rh-asc { display: none; color: var(--bb-lapis); font-size: 0.9rem; }
+  html[data-ascended] .face--babel .bb-rh-asc { display: inline; }
+  .face--babel .bb-wander { white-space: nowrap; text-decoration: none; }
+  .face--babel .bb-intone {
+    display: inline-flex; align-items: center; gap: 0.35rem;
+    padding: 0.3rem 0.65rem 0.28rem;
+    border: 1px solid var(--bb-lapis); border-radius: 999px;
+    background: transparent; color: var(--bb-lapis);
+    font: inherit; letter-spacing: 0.14em; text-transform: uppercase;
+    cursor: pointer;
+    transition: background-color 0.4s, color 0.4s;
+  }
+  .face--babel .bb-intone:hover, .face--babel .bb-intone.is-on { background: var(--bb-lapis); color: var(--bb-paper); }
+  .face--babel .bb-intone-mark { font: 1rem/1 'Segoe UI Symbol', var(--bb-serif); letter-spacing: 0; }
+
+  /* ------------------------------------------------------------------------------------- leaves */
+  .face--babel .bb-stair { padding: 0 clamp(6px, 3.5vw, 4rem); }
+  .face--babel .bb-leaf {
+    position: relative;
+    isolation: isolate;
+    max-width: var(--bb-leaf-w);
+    margin: 0 auto 3.4rem;
+    padding: clamp(1.6rem, 4.5vw, 3.8rem) clamp(1rem, 5vw, 4.4rem) clamp(1.4rem, 3.5vw, 2.6rem);
+    background-color: var(--bb-paper);
+    background-image:
+      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .12  0 0 0 0 .11  0 0 0 0 .09  0 0 0 .075 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>"),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.35), transparent 30rem),
+      linear-gradient(to right, rgba(60, 54, 40, 0.13), transparent 2.6rem, transparent calc(100% - 1rem), rgba(60, 54, 40, 0.05));
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.4) inset, 0 28px 60px -20px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(0, 0, 0, 0.45);
+    overflow-wrap: break-word;
+  }
+  .face--babel .bb-leaf.is-verso {
+    background-image:
+      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .12  0 0 0 0 .11  0 0 0 0 .09  0 0 0 .075 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>"),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.35), transparent 30rem),
+      linear-gradient(to left, rgba(60, 54, 40, 0.13), transparent 2.6rem, transparent calc(100% - 1rem), rgba(60, 54, 40, 0.05));
+  }
+  .face--babel .bb-front { margin-top: clamp(1rem, 3vw, 2.4rem); }
+  .face--babel .bb-chapter {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 2400px;
+  }
+  /* The reverse of the leaf, showing through the thin paper: the next chapter, read from behind.
+     Mirrored with bidi-override rather than a transform (a transformed pseudo-element full of text
+     rasterises badly inside content-visibility), and faded with colour rather than opacity. */
+  .face--babel .bb-chapter::before {
+    content: attr(data-ghost);
+    position: absolute; z-index: -1;
+    /* the verso's text column, seen from behind, sits where this side keeps its tongues */
+    inset: 15rem calc(clamp(1rem, 5vw, 4.4rem) + var(--bb-mark) + var(--bb-num) + var(--bb-gap) * 2) 7rem calc(clamp(1rem, 5vw, 4.4rem) + var(--bb-tongue) + var(--bb-gap));
+    overflow: hidden;
+    direction: rtl;
+    unicode-bidi: bidi-override;
+    font: 1.06rem/1.62 var(--bb-serif);
+    text-align: justify;
+    color: rgba(27, 26, 23, 0.026);
+    pointer-events: none;
+    user-select: none;
+    transition: color 5s ease;
+  }
+  .face--babel .bb[data-still] .bb-chapter::before { color: rgba(27, 26, 23, 0.056); }
+
+  /* ----------------------------------------------------------------------------- the frontispiece */
+  .face--babel .bb-kicker {
+    display: flex; align-items: center; gap: 1rem;
+    margin: 0 0 clamp(1.4rem, 3vw, 2.4rem);
+    font: 0.68rem/1.3 var(--bb-small); letter-spacing: 0.24em; text-transform: uppercase;
+    color: var(--bb-lapis);
+  }
+  .face--babel .bb-kicker::before, .face--babel .bb-kicker::after { content: ''; flex: 1 1 2rem; border-top: 3px double var(--bb-rule); }
+  .face--babel .bb-kicker::before { order: -1; flex: 0 0 2rem; }
+  .face--babel .bb-kicker-path {
+    order: 2; max-width: 50%;
+    font: 0.72rem/1.3 var(--font-mono); letter-spacing: 0.02em; text-transform: none;
+    color: var(--bb-ink-soft);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+
+  .face--babel .bb-incipit {
+    margin: 0 0 0.9rem;
+    font: 400 clamp(2.6rem, 8.6vw, 6.6rem)/1 var(--bb-display);
+    letter-spacing: 0.035em;
+    text-transform: uppercase;
+    text-align: center;
+    overflow-wrap: anywhere;
+  }
+  .face--babel .bb-incipit[data-size="l"] { font-size: clamp(2.1rem, 6.4vw, 4.8rem); }
+  .face--babel .bb-incipit[data-size="m"] { font-size: clamp(1.7rem, 4.6vw, 3.4rem); }
+  .face--babel .bb-incipit[data-size="s"] { font-size: clamp(1.3rem, 3.2vw, 2.3rem); }
+  .face--babel .bb-iw {
+    display: inline-flex; flex-direction: column; align-items: center;
+    margin: 0 0.12em 0.18em;
+    vertical-align: bottom;
+  }
+  .face--babel .bb-iw-sigil {
+    display: block; box-sizing: content-box;
+    width: 0.5em; height: 0.5em; padding: 0.07em;
+    margin-bottom: 0.14em;
+    border: 1px solid rgba(36, 65, 143, 0.28);
+    border-radius: 50%;
+    box-shadow: 0 0 0 0.035em var(--bb-paper), 0 0 0 calc(0.035em + 1px) rgba(36, 65, 143, 0.14);
+    color: var(--bb-lapis);
+  }
+  .face--babel .bb-iw-sigil svg { width: 100%; height: 100%; overflow: visible; }
+  .face--babel .bb-iw-sigil path, .face--babel .bb-iw-sigil circle {
+    stroke-width: 5.5;
+    stroke-dasharray: 1;
+    animation: bb-draw 2.6s cubic-bezier(0.55, 0.05, 0.3, 1) both;
+    animation-delay: calc(0.35s + var(--i, 0) * 0.45s);
+  }
+  @keyframes bb-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+  .face--babel .bb-iw--more { color: var(--bb-ink-soft); }
+
+  .face--babel .bb-subtitle {
+    margin: 0 auto clamp(1.8rem, 4vw, 3rem);
+    max-width: 36em;
+    text-align: center;
+    font: italic 1.12rem/1.45 var(--bb-head);
+    color: var(--bb-ink-soft);
+  }
+  .face--babel .bb-subtitle em { font-style: normal; color: var(--bb-ink); }
+
+  .face--babel .bb-front-slot { display: grid; justify-items: center; gap: 0.8rem; }
+  .face--babel .bb-front-slot:not(:empty) { margin: -1rem 0 2rem; }
+  .face--babel .bb-front-slot .bb-pencil { text-align: center; justify-self: center; transform-origin: center; margin: 0; }
+  .face--babel .bb-front-slot .bb-crimson { max-width: 44rem; margin: 0; }
+  .face--babel .bb-front-grid {
+    display: grid;
+    grid-template-columns: minmax(15rem, 23rem) minmax(0, 1fr);
+    gap: clamp(1.4rem, 4vw, 3.2rem);
+    align-items: start;
+    padding-top: 1.6rem;
+    border-top: 3px double var(--bb-rule);
+  }
+
+  /* The plan of the hexagon. */
+  .face--babel .bb-plan { margin: 0; }
+  .face--babel .bb-plan-svg { color: var(--bb-ink); }
+  .face--babel .hx { display: block; width: 100%; height: auto; overflow: hidden; }
+  .face--babel .hx-far { stroke-width: 1.2; stroke-dasharray: 3 5; opacity: 0.28; }
+  .face--babel .hx-wall { stroke-width: 2.6; }
+  .face--babel .hx-hall { stroke-width: 1.3; opacity: 0.7; }
+  .face--babel .hx-stair { stroke-width: 1.1; opacity: 0.8; }
+  .face--babel .hx-mirror { stroke-width: 4.5; color: var(--bb-lapis); stroke: currentColor; opacity: 0.7; }
+  .face--babel .hx-shelf { stroke-width: 1.4; opacity: 0.55; }
+  .face--babel .hx-here { stroke: var(--bb-lapis); stroke-width: 3.4; opacity: 1; }
+  .face--babel .hx-vol { fill: var(--bb-lapis); stroke: var(--bb-paper); stroke-width: 2; }
+  .face--babel .hx-shaft { stroke-width: 1; fill: rgba(27, 26, 23, 0.07); }
+  .face--babel .hx-rail { stroke-width: 1; stroke-dasharray: 1.5 3; opacity: 0.8; }
+  .face--babel .hx-glow { stroke: none; color: rgb(var(--bb-lamp)); animation: bb-lamp 7s ease-in-out infinite alternate; }
+  .face--babel .hx-lamp { fill: #c9a24a; stroke: none; }
+  @keyframes bb-lamp { from { opacity: 0.55; } to { opacity: 1; } }
+  .face--babel .hx-label { font: 13px var(--bb-small); fill: var(--bb-ink-soft); stroke: none; letter-spacing: 0.08em; }
+  .face--babel .hx-label--here { fill: var(--bb-lapis); font-weight: 700; }
+  .face--babel .hx-label--small { font-size: 10px; font-style: italic; }
+  .face--babel .bb[data-crimson] .bb-front .hx-here,
+  .face--babel .bb[data-crimson] .bb-front .hx-wall { stroke: var(--bb-crimson); }
+  .face--babel .bb[data-crimson] .bb-front .hx-vol { fill: var(--bb-crimson); }
+  html[data-eclipse] .face--babel .hx-glow { opacity: 0.05; animation: none; }
+
+  .face--babel .bb-addr {
+    display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.7rem 1rem;
+    margin: 0.8rem 0 0;
+  }
+  .face--babel .bb-addr > div:first-child { grid-column: 1 / -1; }
+  .face--babel .bb-addr dt { font: 0.6rem/1.2 var(--bb-small); letter-spacing: 0.2em; text-transform: uppercase; color: var(--bb-ink-soft); }
+  .face--babel .bb-addr dd { margin: 0.1rem 0 0; font: 1.35rem/1.1 var(--bb-display); font-variant-numeric: oldstyle-nums; color: var(--bb-ink); }
+  .face--babel .bb-addr dd small { font: 0.7rem var(--bb-small); color: var(--bb-ink-soft); }
+  .face--babel .bb-addr > div:first-child dd { font: 1.05rem/1.2 var(--font-mono); letter-spacing: 0.04em; color: var(--bb-lapis); cursor: help; }
+
+  .face--babel .bb-mirror-note {
+    margin: 1.1rem 0 0; padding-top: 0.8rem;
+    border-top: 1px solid var(--bb-rule);
+    font: italic 0.84rem/1.5 var(--bb-serif); color: var(--bb-ink-soft);
+  }
+  .face--babel .bb-mirror-note a { font: normal 0.8rem/1.4 var(--font-mono); overflow-wrap: anywhere; }
+  .face--babel .bb-mirror-mark { font-style: normal; color: var(--bb-lapis); font-family: 'Segoe UI Symbol', var(--bb-serif); }
+  .face--babel .bb-mirror-note.is-own { color: var(--bb-lapis); }
+
+  .face--babel .bb-front-notes { display: grid; gap: 1.4rem; }
+  .face--babel .bb-front-notes > section + section { padding-top: 1.2rem; border-top: 1px solid var(--bb-rule); }
+
+  /* The spine label: a strip of dark lapis leather with the Inscription tooled into it. */
+  .face--babel .bb-inscription {
+    margin: 0.3rem 0 0;
+    padding: 0.7rem 1rem 0.6rem;
+    background:
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.08), transparent 40%, rgba(0, 0, 0, 0.25)),
+      var(--bb-leather);
+    color: #e7e1cf;
+    font-family: var(--font-glyph);
+    font-size: 1.3rem;
+    line-height: 1.45;
+    letter-spacing: 0.1em;
+    text-align: center;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5), inset 0 0 0 3px var(--bb-leather), inset 0 0 0 4px rgba(231, 225, 207, 0.35);
+    border-radius: 2px;
+  }
+
+  /* Pencil: the hand of earlier readers. */
+  .face--babel .bb-pencil-inline, .face--babel .bb-pencil {
+    font-family: var(--bb-hand);
+    color: var(--bb-pencil);
+    letter-spacing: 0.01em;
+  }
+  .face--babel .bb-pencil-inline { margin: 0 0 0.35rem; font-size: 1.02rem; line-height: 1.35; }
+  .face--babel .bb-prophecy { color: #43413c; transform: rotate(-0.6deg); transform-origin: left; }
+
+  /* The key, as a reader copied it out of a primer: glyph, letter, and the letter's name. */
+  .face--babel .bb-rosetta {
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+    justify-content: stretch; gap: 0.8rem 1.6rem;
+    margin: 0.5rem 0 0; font-size: 1rem;
+  }
+  .face--babel .bb-rosetta .rosetta-pair {
+    display: grid; grid-template-columns: auto minmax(0, 1fr);
+    justify-items: start; align-items: baseline; column-gap: 0.55rem; row-gap: 0.1rem;
+    min-width: 0;
+  }
+  .face--babel .bb-rosetta dt {
+    grid-row: 1 / span 2;
+    padding: 0.1rem 0.45rem 0.25rem; border: 0;
+    font-family: var(--font-glyph); font-size: 2.3rem; line-height: 1; color: var(--bb-ink);
+    box-shadow: inset 0 -1px 0 rgba(27, 26, 23, 0.3);
+  }
+  .face--babel .bb-rosetta dd { margin: 0; opacity: 1; letter-spacing: 0; }
+  .face--babel .bb-rosetta dd:not(.bb-rosetta-name) { font: 1.4rem/1 var(--bb-hand); color: var(--bb-pencil); transform: rotate(-3deg); transform-origin: left; }
+  .face--babel .bb-rosetta dd:not(.bb-rosetta-name)::before { content: '= '; opacity: 0.7; }
+  .face--babel .bb-rosetta-name { grid-column: 2; font: italic 0.74rem/1.35 var(--bb-small); color: var(--bb-ink-soft); }
+  .face--babel .bb-rosetta-glyphname { font-style: normal; font-variant: small-caps; letter-spacing: 0.06em; color: var(--bb-lapis); }
+
+  .face--babel .bb-readers { margin: 0 0 0.7rem; font: italic 0.92rem/1.4 var(--bb-serif); color: var(--bb-ink); }
+  .face--babel .bb-wall { list-style: none; margin: 0 0 1rem; padding: 0; display: grid; gap: 0.35rem; }
+  .face--babel .bb-wall li {
+    font-size: 1.12rem; line-height: 1.35; color: #3b3934;
+    padding-bottom: 0.3rem;
+    border-bottom: 1px dashed rgba(27, 26, 23, 0.18);
+    overflow-wrap: anywhere;
+  }
+  .face--babel .bb-wall .glyph { font-family: var(--font-glyph); letter-spacing: 0.06em; }
+  .face--babel .bb-wall-empty { font: 1rem/1.3 var(--bb-hand); color: var(--bb-pencil); border: 0; }
+
+  .face--babel .bb-bell {
+    display: inline-flex; align-items: center; gap: 0.45rem;
+    padding: 0.4rem 0.85rem 0.38rem 0.6rem;
+    border: 1px solid var(--bb-rule); border-radius: 999px;
+    background: rgba(255, 255, 255, 0.35);
+    color: var(--bb-ink);
+    font: 0.72rem/1 var(--bb-small); letter-spacing: 0.16em; text-transform: uppercase;
+    cursor: pointer;
+  }
+  .face--babel .bb-bell:hover { border-color: var(--bb-lapis); color: var(--bb-lapis); }
+  .face--babel .bb-bell-mark { display: block; width: 1.25rem; height: 1.25rem; color: var(--bb-lapis); transform-origin: 50% 12%; }
+  .face--babel .bb-bell-mark svg { width: 100%; height: 100%; }
+  .face--babel .bb-bell.is-rung .bb-bell-mark { animation: bb-swing 1.8s ease-out; }
+  @keyframes bb-swing {
+    0% { transform: rotate(0); } 15% { transform: rotate(16deg); } 35% { transform: rotate(-12deg); }
+    55% { transform: rotate(7deg); } 75% { transform: rotate(-3deg); } 100% { transform: rotate(0); }
+  }
+
+  /* The finder: every sentence is already shelved. */
+  .face--babel .bb-find {
+    margin-top: clamp(1.8rem, 4vw, 2.8rem);
+    padding-top: 1.4rem;
+    border-top: 3px double var(--bb-rule);
+  }
+  .face--babel .bb-find label { display: block; max-width: 40em; font: italic 1.02rem/1.5 var(--bb-serif); color: var(--bb-ink-soft); }
+  .face--babel .bb-find-row { display: flex; gap: 0.8rem; align-items: flex-end; margin-top: 0.7rem; }
+  .face--babel .bb-find-input {
+    flex: 1 1 auto; min-width: 0;
+    padding: 0.35rem 0.1rem;
+    border: 0; border-bottom: 1px solid var(--bb-ink);
+    background: transparent;
+    font: 1.35rem/1.3 var(--bb-serif);
+    color: var(--bb-ink);
+  }
+  .face--babel .bb-find-input::placeholder { color: rgba(27, 26, 23, 0.32); font-style: italic; }
+  .face--babel .bb-find-input:focus-visible { outline: none; border-bottom: 2px solid var(--bb-lapis); }
+  .face--babel .bb-find-go {
+    flex: none;
+    padding: 0.5rem 0.9rem;
+    border: 1px solid var(--bb-lapis);
+    background: var(--bb-lapis); color: var(--bb-paper);
+    font: 0.7rem/1 var(--bb-small); letter-spacing: 0.16em; text-transform: uppercase;
+    cursor: pointer;
+  }
+  .face--babel .bb-find-go:hover { background: var(--bb-leather); }
+  .face--babel .bb-find-out { display: block; min-height: 1.4em; margin-top: 0.6rem; font: 0.82rem/1.45 var(--bb-small); color: var(--bb-lapis); }
+
+  /* /verse: the catalogue of books, as spines. */
+  .face--babel .bb-books { margin-top: clamp(1.8rem, 4vw, 2.6rem); padding-top: 1.4rem; border-top: 3px double var(--bb-rule); }
+  .face--babel .bb-books-row {
+    list-style: none; margin: 0.8rem 0 0; padding: 0 0 6px;
+    display: flex; flex-wrap: wrap; row-gap: 1.2rem; align-items: flex-end;
+  }
+  .face--babel .bb-books-row li { padding-right: 3px; border-bottom: 6px solid #463f33; box-shadow: 0 5px 0 -2px rgba(0, 0, 0, 0.25); }
+  .face--babel .bb-spine {
+    --c: #3a2922;
+    display: flex; flex-direction: column; align-items: center; justify-content: space-between; gap: 0.4rem;
+    width: 2.8rem; height: var(--h, 13rem);
+    padding: 0.9rem 0 0.55rem;
+    background:
+      linear-gradient(to right, rgba(255, 255, 255, 0.14), transparent 30%, transparent 70%, rgba(0, 0, 0, 0.35)),
+      linear-gradient(to bottom, transparent 0.45rem, rgba(216, 195, 138, 0.5) 0.45rem 0.52rem, transparent 0.52rem calc(100% - 2rem), rgba(216, 195, 138, 0.5) calc(100% - 2rem) calc(100% - 1.93rem), transparent calc(100% - 1.93rem)),
+      var(--c);
+    color: #e9e2cc;
+    text-decoration: none;
+    transition: transform 0.35s ease;
+  }
+  .face--babel .bb-books-row li:nth-child(5n + 2) .bb-spine { --c: #283127; }
+  .face--babel .bb-books-row li:nth-child(5n + 3) .bb-spine { --c: #25294a; }
+  .face--babel .bb-books-row li:nth-child(5n + 4) .bb-spine { --c: #4a3524; }
+  .face--babel .bb-books-row li:nth-child(5n + 5) .bb-spine { --c: #3e2230; }
+  .face--babel .bb-spine:hover, .face--babel .bb-spine:focus-visible { transform: translateY(-0.7rem); }
+  .face--babel .bb-spine-title {
+    writing-mode: vertical-rl;
+    flex: 1 1 auto; min-height: 0;
+    overflow: hidden;
+    font: 0.62rem/1.2 var(--bb-small); letter-spacing: 0.1em; text-transform: uppercase;
+    text-align: center;
+  }
+  .face--babel .bb-spine-no { order: 2; font: 0.62rem/1 var(--bb-small); letter-spacing: 0.04em; color: #d8c38a; }
+
+  /* The catalogue of catalogues. */
+  .face--babel .bb-catalogues { margin-top: clamp(1.8rem, 4vw, 2.6rem); padding-top: 1.4rem; border-top: 3px double var(--bb-rule); }
+  .face--babel .bb-cc-title { margin: 0 0 0.4rem; font: 400 1.8rem/1.1 var(--bb-display); color: var(--bb-crimson); }
+  .face--babel .bb-cc-scroll { overflow-x: auto; max-width: 100%; }
+  .face--babel .bb-cc { width: 100%; border-collapse: collapse; font: 0.88rem/1.35 var(--bb-serif); }
+  .face--babel .bb-cc th { font: 0.6rem/1.2 var(--bb-small); letter-spacing: 0.18em; text-transform: uppercase; text-align: left; color: var(--bb-ink-soft); padding: 0.4rem 0.6rem 0.4rem 0; border-bottom: 3px double var(--bb-rule); }
+  .face--babel .bb-cc td { padding: 0.35rem 0.6rem 0.35rem 0; border-bottom: 1px solid rgba(27, 26, 23, 0.12); vertical-align: baseline; }
+  .face--babel .bb-cc-no { color: var(--bb-lapis); font-variant-numeric: oldstyle-nums; }
+  .face--babel .bb-cc-addr, .face--babel .bb-cc-when { font: 0.74rem var(--font-mono); color: var(--bb-ink-soft); white-space: nowrap; }
+
+  /* ------------------------------------------------------------------------------- chapter head */
+  .face--babel .bb-chead { text-align: center; margin-bottom: 1.6rem; }
+  .face--babel .bb-crumbs {
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 0.1rem 0.35rem;
+    margin-bottom: 1.1rem;
+    font: 0.68rem/1.4 var(--bb-small); letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--bb-ink-soft);
+  }
+  .face--babel .bb-crumbs a { text-decoration: none; }
+  .face--babel .bb-crumbs a:hover { text-decoration: underline; }
+  .face--babel .bb-crumb-sep { opacity: 0.4; }
+  .face--babel .bb-crumbs [aria-current] { color: var(--bb-ink); }
+  .face--babel .bb-ctitle { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; font-weight: 400; }
+  .face--babel .bb-cbook { font: italic 400 clamp(1.45rem, 3.4vw, 2.3rem)/1.1 var(--bb-head); }
+  .face--babel .bb-cnum {
+    display: flex; align-items: center; gap: 0.8rem; width: min(22rem, 100%);
+    font: 0.8rem/1 var(--bb-small); letter-spacing: 0.3em; text-transform: uppercase; color: var(--bb-lapis);
+  }
+  .face--babel .bb-cnum::before, .face--babel .bb-cnum::after { content: ''; flex: 1; border-top: 1px solid var(--bb-lapis-soft); }
+  .face--babel .bb-cnum .bb-sc { font-variant: normal; letter-spacing: 0.14em; }
+  .face--babel .bb-caddr {
+    display: flex; justify-content: center; align-items: center; gap: 0.5rem;
+    margin: 0.8rem 0 0;
+    font: 0.72rem/1.35 var(--bb-small); letter-spacing: 0.05em; color: var(--bb-ink-soft);
+  }
+  .face--babel .bb-caddr-plan { flex: none; width: 1.5rem; height: 1.5rem; color: var(--bb-ink-soft); }
+  .face--babel .hx--mini .hx-wall { stroke-width: 6; }
+  .face--babel .hx--mini .hx-shelf { stroke-width: 4; opacity: 0.45; }
+  .face--babel .hx--mini .hx-here { stroke-width: 8; opacity: 1; }
+  .face--babel .hx--mini .hx-shaft, .face--babel .hx--mini .hx-rail { stroke-width: 3; }
+  .face--babel .bb-shelfnote {
+    max-width: 38em; margin: 0.9rem auto 0;
+    font: italic 0.95rem/1.5 var(--bb-serif); color: var(--bb-lapis);
+  }
+  .face--babel .bb-shelfnote--again { color: var(--bb-crimson); }
+
+  /* Column heads, as in the polyglots. */
+  .face--babel .bb-colheads {
+    display: grid;
+    grid-template-columns: var(--bb-mark) var(--bb-num) minmax(0, 1fr) var(--bb-tongue);
+    column-gap: var(--bb-gap);
+    margin-top: 1.6rem;
+    padding-bottom: 0.35rem;
+    border-bottom: 3px double var(--bb-rule);
+    font: 0.6rem/1.2 var(--bb-small); letter-spacing: 0.22em; text-transform: uppercase; color: var(--bb-ink-soft);
+    text-align: left;
+  }
+  .face--babel .bb-colhead--word { grid-column: 3; }
+  .face--babel .bb-colhead--tongue { grid-column: 4; padding-left: 0.9rem; }
+
+  /* ------------------------------------------------------------------------------------ verses */
+  .face--babel .bb-verses { position: relative; list-style: none; margin: 0; padding: 0.8rem 0 0; }
+  .face--babel .bb-verses::before, .face--babel .bb-verses::after {
+    content: ''; position: absolute; top: 0; bottom: 0; width: 3px;
+    border-left: 3px double var(--bb-rule);
+    pointer-events: none;
+  }
+  .face--babel .bb-verses::before { right: calc(var(--bb-tongue) + var(--bb-gap) / 2 - 1px); }
+  .face--babel .bb-verses::after { left: calc(var(--bb-mark) + var(--bb-num) + var(--bb-gap) * 1.5 - 1px); opacity: 0.55; }
+
+  .face--babel .bb-verse {
+    display: grid;
+    grid-template-columns: [mark] var(--bb-mark) [num] var(--bb-num) [text] minmax(0, 1fr) [tongue] var(--bb-tongue);
+    column-gap: var(--bb-gap);
+    padding: 0.15rem 0 0.75rem;
+    scroll-margin-top: 4.5rem;
+    transition: background-color 1.2s ease;
+  }
+  .face--babel .bb-vmark, .face--babel .bb-vnum, .face--babel .bb-vtext, .face--babel .bb-tongue { grid-row: 1; }
+  .face--babel .bb-vmark { grid-column: mark; display: flex; flex-direction: column; align-items: center; gap: 0.15rem; padding-top: 0.2rem; color: var(--bb-lapis); cursor: help; }
+  .face--babel .bb-vmark-sigil { display: block; width: 2.3rem; height: 2.3rem; }
+  .face--babel .bb-vmark-sigil svg { width: 100%; height: 100%; overflow: visible; }
+  .face--babel .bb-vmark-word { font: 0.56rem/1 var(--bb-small); letter-spacing: 0.12em; text-transform: uppercase; color: var(--bb-lapis-soft); max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+  .face--babel .bb-vnum {
+    grid-column: num;
+    justify-self: end;
+    padding-top: 0.28rem;
+    font: 0.74rem/1 var(--bb-small); font-variant-numeric: oldstyle-nums;
+    color: var(--bb-lapis);
+    text-decoration: none;
+  }
+  .face--babel .bb-vnum:hover { text-decoration: underline; }
+  .face--babel .bb-vnum--chapter {
+    grid-row: 1 / span 2;
+    padding-top: 0.05rem;
+    font: 400 3.5rem/0.82 var(--bb-display);
+    font-variant-numeric: lining-nums;
+    letter-spacing: -0.02em;
+  }
+  .face--babel .bb-vtext {
+    grid-column: text;
+    margin: 0;
+    font: 1.07rem/1.62 var(--bb-serif);
+    text-wrap: pretty;
+    hyphens: auto;
+  }
+  .face--babel .bb-tongue {
+    grid-column: tongue;
+    padding: 0.15rem 0 0 0.9rem;
+    min-width: 0;
+  }
+  .face--babel .bb-tongue-name { display: block; margin-bottom: 0.2rem; font: 0.56rem/1.2 var(--bb-small); letter-spacing: 0.2em; text-transform: uppercase; color: var(--bb-ink-soft); }
+  .face--babel .bb-frag { display: block; quotes: none; font: 1.12rem/1.35 var(--bb-serif); color: var(--bb-ink); }
+  .face--babel .bb-tongue--la .bb-frag, .face--babel .bb-tongue--enochian .bb-frag { font-style: italic; }
+  .face--babel .bb-tongue--he .bb-frag { font: 1.3rem/1.3 'Segoe UI', 'Times New Roman', serif; text-align: right; }
+  .face--babel .bb-tongue--sa .bb-frag { font: 1.2rem/1.5 'Nirmala UI', 'Mangal', serif; }
+  .face--babel .bb-tongue--bo .bb-frag { font: 1.75rem/1.25 'Microsoft Himalaya', 'Noto Serif Tibetan', serif; }
+  .face--babel .bb-tongue--cu .bb-frag { font: 1.12rem/1.4 'Segoe UI Historic', 'Segoe UI', serif; }
+  .face--babel .bb-tongue--ja .bb-frag { font: 1.6rem/1.2 'Yu Mincho', 'MS Mincho', 'Yu Gothic', serif; }
+  .face--babel .bb-gloss { display: block; margin-top: 0.25rem; font: italic 0.76rem/1.38 var(--bb-small); color: var(--bb-ink-soft); }
+  .face--babel .bb-tongue--glyph { padding-top: 0.3rem; }
+  .face--babel .bb-echo {
+    display: block;
+    font-family: var(--font-glyph);
+    font-size: 0.9rem; line-height: 1.55; letter-spacing: 0.05em;
+    color: var(--bb-lapis-soft);
+    overflow-wrap: anywhere;
+  }
+  .face--babel .bb-tongue--note .bb-tongue-name { color: var(--bb-lapis); }
+
+  .face--babel .bb-verse--vindication .bb-vtext { font-style: italic; color: var(--bb-lapis); }
+  .face--babel .bb-verse.is-echo .bb-vtext { color: var(--bb-ink-soft); }
+  .face--babel .bb-verse--vindication .bb-vnum { font-style: italic; }
+  .face--babel .bb-verse .bb-vtext { transition: color 1.2s ease, text-decoration-color 1.2s ease; text-decoration: underline 1px transparent; text-underline-offset: 0.34em; }
+  .face--babel .bb-verse.is-intoned .bb-vtext { color: #16254f; text-decoration-color: rgba(36, 65, 143, 0.5); }
+  .face--babel .bb-verse.is-intoned .bb-vnum:not(.bb-vnum--chapter)::before { content: '\2123\00a0'; font-family: 'Segoe UI Symbol', var(--bb-serif); }
+
+  /* A rubric in no colour, left by the Secrets at the end of a verse: it keeps to the Word's column,
+     one line below the verse, and appears only to the reader who selects it. */
+  .face--babel .bb-verse > .rubric {
+    grid-column: text; grid-row: auto;
+    margin-top: -0.2rem;
+    font: italic 0.92rem/1.4 var(--bb-serif);
+  }
+
+  .face--babel .bb-lacuna {
+    padding: 0 0.15em;
+    color: #8f887b;
+    background: repeating-linear-gradient(-45deg, rgba(90, 80, 60, 0.12) 0 2px, transparent 2px 5px);
+    border-radius: 2px;
+    letter-spacing: 0.05em;
+    font-size: 0.92em;
+  }
+  .face--babel .bb-vtext.is-gone { font-style: italic; }
+  .face--babel .bb-vtext.is-gone .bb-lacuna { background: none; }
+
+  /* Marginal notes, in pencil. */
+  .face--babel .bb-pencil {
+    grid-column: text / -1;
+    justify-self: end;
+    max-width: min(30em, 100%);
+    margin: 0.1rem 0.4rem 0.3rem 0;
+    font-size: 1.02rem; line-height: 1.3;
+    text-align: right;
+    transform: rotate(var(--tilt, -1deg));
+    transform-origin: right center;
+  }
+  .face--babel .bb-pencil::before { content: '\2196\00a0'; opacity: 0.55; }
+  .face--babel .bb-pencil-hand { font-size: 0.88em; opacity: 0.8; white-space: nowrap; }
+  .face--babel .bb-pencil.is-live { color: #3f3d39; }
+  .face--babel .bb-pencil-link { color: inherit; text-decoration: underline wavy rgba(63, 61, 57, 0.5); text-underline-offset: 0.25em; opacity: 0; transition: opacity 1.6s ease; }
+  .face--babel .bb-pencil.is-written .bb-pencil-link { opacity: 1; }
+
+  /* The Crimson Hexagon (108 s of stillness). */
+  .face--babel .bb-crimson {
+    grid-column: 1 / -1;
+    display: flex; gap: 1.2rem; align-items: flex-start;
+    margin: 1rem 0 0.6rem;
+    padding: 1rem 1.2rem;
+    border: 1px solid var(--bb-crimson);
+    background: rgba(155, 28, 44, 0.06);
+    font: 0.95rem/1.5 var(--bb-serif);
+    animation: bb-bloom 3.5s ease both;
+  }
+  @keyframes bb-bloom { from { opacity: 0; background-color: rgba(155, 28, 44, 0); } }
+  .face--babel .bb-crimson p { margin: 0 0 0.45rem; }
+  .face--babel .bb-crimson a { color: var(--bb-crimson); }
+  .face--babel .bb-crimson-plan { flex: none; width: 4.2rem; height: 4.2rem; color: var(--bb-crimson); }
+  .face--babel .bb-crimson-title { font: 400 1.45rem/1.1 var(--bb-display); color: var(--bb-crimson); }
+
+  /* ------------------------------------------------------------------------------ chapter foot */
+  .face--babel .bb-cfoot {
+    margin-top: 1.8rem;
+    padding-top: 1rem;
+    border-top: 3px double var(--bb-rule);
+    font: 0.84rem/1.5 var(--bb-serif);
+  }
+  .face--babel .bb-foot-label { margin: 0 0.7rem 0.3rem 0; font: 0.6rem/1.2 var(--bb-small); letter-spacing: 0.22em; text-transform: uppercase; color: var(--bb-lapis); }
+  .face--babel .bb-concord { margin: 0 0 1rem; }
+  .face--babel .bb-concord .bb-foot-label { display: inline; }
+  .face--babel .bb-concord-entry + .bb-concord-entry::before { content: ' \00b7  '; color: var(--bb-ink-soft); }
+  .face--babel .bb-concord-entry .bb-sc { color: var(--bb-ink); font-size: 1.05em; }
+  .face--babel .bb-xrefs { margin: 0 0 1rem; }
+  .face--babel .bb-xref-list { list-style: none; margin: 0.3rem 0 0; padding: 0; display: grid; gap: 0.15rem; }
+  .face--babel .bb-xref-list li {
+    display: grid;
+    grid-template-columns: 1.3rem 8.5rem minmax(0, 1fr) minmax(0, auto);
+    column-gap: 0.7rem; align-items: baseline;
+    padding: 0.18rem 0.3rem;
+  }
+  .face--babel .bb-xway { color: var(--bb-lapis); font-family: 'Segoe UI Symbol', var(--bb-serif); }
+  .face--babel .bb-xlabel { font: 0.64rem/1.2 var(--bb-small); letter-spacing: 0.18em; text-transform: uppercase; color: var(--bb-ink-soft); }
+  .face--babel .bb-xref-list a { font: 0.8rem/1.4 var(--font-mono); overflow-wrap: anywhere; }
+  .face--babel .bb-xref { font-style: italic; color: var(--bb-ink-soft); text-align: right; }
+  .face--babel .bb-xref-list li.is-taken { background: rgba(36, 65, 143, 0.07); }
+  .face--babel .bb-xtaken { grid-column: 3 / -1; font: 0.98rem/1.2 var(--bb-hand); color: var(--bb-pencil); }
+  .face--babel .bb-colophon {
+    columns: 2 18rem; column-gap: 2.4rem;
+    margin: 1.2rem 0 0.6rem; padding-top: 1rem;
+    border-top: 1px solid var(--bb-rule);
+    font: italic 0.82rem/1.5 var(--bb-serif); color: var(--bb-ink-soft);
+  }
+  .face--babel .bb-colophon p { margin: 0 0 0.6rem; break-inside: avoid; }
+  .face--babel .bb-colophon p:first-child::first-letter { font: 400 2.1em/0.8 var(--bb-display); color: var(--bb-lapis); float: left; margin: 0.08em 0.1em 0 0; font-style: normal; }
+  .face--babel .bb-catch {
+    display: grid; grid-template-columns: 1fr auto 1fr; align-items: baseline;
+    margin: 1.2rem 0 0;
+    font: 0.8rem/1 var(--bb-serif); color: var(--bb-ink-soft);
+  }
+  .face--babel .bb-sig { grid-column: 2; font: 0.68rem/1 var(--bb-small); letter-spacing: 0.2em; }
+  .face--babel .bb-catchword { grid-column: 3; justify-self: end; font-style: italic; }
+
+  .face--babel .bb-end { text-align: center; font: italic 1.05rem/1.6 var(--bb-serif); color: var(--bb-ink-soft); }
+  .face--babel .bb-end-orn { font: 2.2rem/1 var(--bb-display); color: var(--bb-lapis); margin: 0 0 0.6rem; }
+  .face--babel .bb-sentinel { height: 1px; }
+
+  /* ------------------------------------------------------------ 404: the leaf of the Lost (foxed) */
+  .face--babel .bb-chapter.is-lost {
+    background-color: #ebe5d6;
+    background-image:
+      radial-gradient(circle at 12% 18%, rgba(120, 84, 40, 0.16) 0 1.2rem, transparent 3.5rem),
+      radial-gradient(circle at 86% 9%, rgba(120, 84, 40, 0.12) 0 0.8rem, transparent 2.6rem),
+      radial-gradient(circle at 78% 64%, rgba(120, 84, 40, 0.1) 0 1.6rem, transparent 4.5rem),
+      radial-gradient(circle at 22% 88%, rgba(120, 84, 40, 0.14) 0 1rem, transparent 3rem),
+      linear-gradient(to right, rgba(90, 60, 30, 0.2), transparent 3rem, transparent calc(100% - 3rem), rgba(90, 60, 30, 0.2));
+  }
+  .face--babel .bb-chapter.is-lost .bb-vnum--chapter { color: var(--bb-crimson); font-size: 3rem; }
+
+  /* ---------------------------------------- 1996: the Nativity. A leaf that obeys only the Old Law. */
+  .face--babel .bb-chapter.is-old-law {
+    padding: 8px;
+    background: #c0c0c0;
+    box-shadow: none;
+    border: 0;
+    font: 16px/1.15 'Times New Roman', Times, serif;
+    color: #000;
+  }
+  .face--babel .bb-chapter.is-old-law::before { content: none; }
+  .face--babel .bb-chapter.is-old-law * { font-family: 'Times New Roman', Times, serif; letter-spacing: normal; text-transform: none; font-style: normal; font-variant: normal; color: #000; }
+  .face--babel .bb-chapter.is-old-law a, .face--babel .bb-chapter.is-old-law a * { color: #0000ee; text-decoration: underline; text-decoration-color: currentColor; }
+  .face--babel .bb-chapter.is-old-law .bb-chead { text-align: left; margin: 0; }
+  .face--babel .bb-chapter.is-old-law .bb-crumbs { display: block; margin: 0 0 8px; font-size: 16px; }
+  .face--babel .bb-chapter.is-old-law .bb-ctitle { display: block; font-size: 2em; font-weight: bold; margin: 0.67em 0; }
+  .face--babel .bb-chapter.is-old-law .bb-cbook { font-size: inherit; font-weight: bold; }
+  .face--babel .bb-chapter.is-old-law .bb-cnum { display: inline; width: auto; font-size: inherit; }
+  .face--babel .bb-chapter.is-old-law .bb-cnum::before { content: ' '; border: 0; flex: none; }
+  .face--babel .bb-chapter.is-old-law .bb-cnum::after { content: none; }
+  .face--babel .bb-chapter.is-old-law .bb-caddr { display: block; font-size: 16px; margin: 1em 0; }
+  .face--babel .bb-chapter.is-old-law .bb-caddr-plan { display: none; }
+  .face--babel .bb-chapter.is-old-law .bb-shelfnote { font-size: 16px; margin: 1em 0; max-width: none; }
+  .face--babel .bb-chapter.is-old-law .bb-verses { list-style: decimal; padding: 0 0 0 40px; margin: 1em 0; }
+  .face--babel .bb-chapter.is-old-law .bb-verses::before, .face--babel .bb-chapter.is-old-law .bb-verses::after { content: none; }
+  .face--babel .bb-chapter.is-old-law .bb-verse { display: list-item; padding: 0; }
+  .face--babel .bb-chapter.is-old-law .bb-vnum, .face--babel .bb-chapter.is-old-law .bb-vmark, .face--babel .bb-chapter.is-old-law .bb-tongue { display: none; }
+  .face--babel .bb-chapter.is-old-law .bb-vtext { font-size: 16px; line-height: 1.15; hyphens: manual; }
+  .face--babel .bb-chapter.is-old-law .bb-pencil { display: block; justify-self: auto; max-width: none; transform: none; text-align: left; font-size: 16px; margin: 0; }
+  .face--babel .bb-chapter.is-old-law .bb-pencil::before { content: none; }
+  .face--babel .bb-chapter.is-old-law .bb-cfoot { border-top: 2px inset #fff; font-size: 16px; margin-top: 1em; }
+  .face--babel .bb-chapter.is-old-law .bb-xref-list li { display: list-item; list-style: disc; margin-left: 40px; padding: 0; }
+  .face--babel .bb-chapter.is-old-law .bb-xref-list li.is-taken { background: none; }
+  .face--babel .bb-chapter.is-old-law .bb-xref-list a { font-size: 16px; }
+  .face--babel .bb-chapter.is-old-law .bb-xway { display: none; }
+  .face--babel .bb-chapter.is-old-law .bb-xref-list > li > * + *::before { content: ' '; }
+  .face--babel .bb-chapter.is-old-law .bb-foot-label, .face--babel .bb-chapter.is-old-law .bb-xlabel,
+  .face--babel .bb-chapter.is-old-law .bb-xtaken, .face--babel .bb-chapter.is-old-law .bb-colophon,
+  .face--babel .bb-chapter.is-old-law .bb-catch, .face--babel .bb-chapter.is-old-law .bb-sig,
+  .face--babel .bb-chapter.is-old-law .bb-pencil-hand { font-size: 16px; }
+  .face--babel .bb-chapter.is-old-law .bb-foot-label { margin: 1em 0 0.3em; font-weight: bold; }
+  .face--babel .bb-chapter.is-old-law .bb-colophon { columns: auto; border-top: 2px inset #fff; }
+  .face--babel .bb-chapter.is-old-law .bb-colophon p:first-child::first-letter { float: none; font-size: inherit; margin: 0; }
+  .face--babel .bb-chapter.is-old-law .bb-verse--vindication { list-style: none; }
+  .face--babel .bb-chapter.is-old-law .bb-verse--vindication .bb-vnum {
+    display: block; float: left; width: 2.2em; margin-left: -2.45em; text-align: right;
+    color: #000; text-decoration: none; padding: 0; font-size: 16px;
+  }
+  .face--babel .bb-chapter.is-old-law .bb-verse--vindication .bb-vnum::after { content: '.'; }
+
+  /* ------------------------------------------------------------------ scroll-driven marginalia */
+  @supports (animation-timeline: view()) {
+    .face--babel .bb-vmark-sigil path, .face--babel .bb-vmark-sigil circle {
+      stroke-dasharray: 1;
+      animation: bb-draw linear both;
+      animation-timeline: view();
+      animation-range: entry 20% cover 45%;
+    }
+    .face--babel .bb-chapter .bb-chead {
+      animation: bb-rise linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 90%;
+    }
+    @keyframes bb-rise { from { opacity: 0.2; translate: 0 1.6rem; } to { opacity: 1; translate: 0 0; } }
+  }
+  /* Mercy stops even the motion that follows the scroll. */
+  html[data-mercy="on"] .face--babel .bb-vmark-sigil path,
+  html[data-mercy="on"] .face--babel .bb-vmark-sigil circle,
+  html[data-mercy="on"] .face--babel .bb-iw-sigil path,
+  html[data-mercy="on"] .face--babel .bb-iw-sigil circle,
+  html[data-mercy="on"] .face--babel .bb-chapter .bb-chead,
+  html[data-mercy="on"] .face--babel .hx-glow { animation-name: none; stroke-dashoffset: 0; opacity: 1; translate: none; }
+  html[data-mercy="on"] .face--babel .hx-glow { opacity: 0.8; }
+
+  /* ------------------------------------------------------------------------------ the mercy knob */
+  html[data-face="babel"] #mercy {
+    font-family: 'Sitka Small', var(--font-mono);
+    background: rgba(241, 239, 232, 0.92); color: #1b1a17;
+    border-color: rgba(27, 26, 23, 0.45);
+    letter-spacing: 0.16em;
+    opacity: 0.8;
+  }
+  html[data-face="babel"] #mercy[aria-pressed="true"] { background: #1f2a4d; color: #f1efe8; border-color: #1f2a4d; opacity: 1; }
+
+  /* -------------------------------------------------------------------------------- narrower */
+  @media (max-width: 1000px) {
+    .face--babel { --bb-mark: 2.6rem; --bb-num: 2.2rem; --bb-tongue: 10.5rem; --bb-gap: 0.9rem; }
+    .face--babel .bb-rh-meta { display: none; }
+    .face--babel .bb-vmark-sigil { width: 1.9rem; height: 1.9rem; }
+  }
+  @media (max-width: 760px) {
+    .face--babel { --bb-num: 1.9rem; --bb-gap: 0.7rem; }
+    .face--babel .bb-rh { gap: 0.7rem; letter-spacing: 0.12em; }
+    .face--babel .bb-rh-home-long { display: none; }
+    .face--babel .bb-rh-home-short { display: inline; }
+    .face--babel .bb-front-grid { grid-template-columns: minmax(0, 1fr); }
+    .face--babel .bb-plan { max-width: 24rem; margin: 0 auto; width: 100%; }
+    .face--babel .bb-colheads { display: none; }
+    .face--babel .bb-verses::before, .face--babel .bb-verses::after { content: none; }
+    .face--babel .bb-verse { grid-template-columns: [num] var(--bb-num) [text] minmax(0, 1fr); row-gap: 0.25rem; padding-bottom: 0.9rem; }
+    .face--babel .bb-vmark { grid-column: num; grid-row: 2 / span 2; padding-top: 0.1rem; }
+    .face--babel .bb-vmark-sigil { width: 1.6rem; height: 1.6rem; }
+    .face--babel .bb-vmark-word { display: none; }
+    .face--babel .bb-vnum--chapter { grid-row: 1; font-size: 2.5rem; }
+    .face--babel .bb-tongue { grid-column: text; grid-row: 2; padding: 0.1rem 0 0 0.7rem; border-left: 3px double var(--bb-rule); }
+    .face--babel .bb-tongue--glyph { display: none; }
+    .face--babel .bb-pencil { grid-column: text; }
+    .face--babel .bb-crimson { flex-direction: column; }
+    .face--babel .bb-xref-list li { grid-template-columns: 1.2rem minmax(0, 1fr); }
+    .face--babel .bb-xref-list li > .bb-xlabel { grid-column: 2; }
+    .face--babel .bb-xref-list li > a, .face--babel .bb-xref-list li > .bb-xref, .face--babel .bb-xtaken { grid-column: 2; text-align: left; }
+    .face--babel .bb-chapter::before { inset: 12rem 1rem 5rem calc(1rem + var(--bb-num)); font-size: 1rem; color: rgba(27, 26, 23, 0.022); }
+    /* On a narrow page the lamps stand closer: the dark keeps to the very edges of the leaf. */
+    .face--babel .bb::before {
+      background:
+        linear-gradient(to right, rgba(6, 6, 5, 0.4), transparent 5%, transparent 95%, rgba(6, 6, 5, 0.4)),
+        radial-gradient(ellipse 120% 90% at 50% 40%, transparent 60%, rgba(6, 6, 5, 0.35));
+    }
+    .face--babel .bb[data-crimson]::before {
+      background:
+        linear-gradient(to right, rgba(60, 4, 10, 0.45), transparent 5%, transparent 95%, rgba(60, 4, 10, 0.45)),
+        radial-gradient(ellipse 120% 90% at 50% 40%, transparent 60%, rgba(40, 3, 8, 0.32));
+    }
+  }
+  @media (max-width: 480px) {
+    .face--babel .bb-leaf { margin-bottom: 2rem; }
+    .face--babel .bb-vtext { font-size: 1.02rem; line-height: 1.58; }
+    .face--babel .bb-find-row { flex-direction: column; align-items: stretch; }
+    .face--babel .bb-find-input { font-size: 1.15rem; }
+    .face--babel .bb-addr { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .face--babel .bb-rosetta { grid-template-columns: minmax(0, 1fr); }
+    .face--babel .bb-wander { font-size: 0; }
+    .face--babel .bb-wander span { font-size: 0.95rem; }
+    .face--babel .bb-intone { padding: 0.3rem 0.5rem; }
+    .face--babel .bb-spine { width: 2.45rem; }
+    .face--babel .bb-kicker-path { display: none; }
+  }
+}

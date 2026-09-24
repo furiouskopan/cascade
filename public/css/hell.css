@@ -1,0 +1,487 @@
+/* CSS HELL (the hell layer). Canon §8.
+   Everything here lives in @layer hell, after the faces and the glyphs: when a curse takes an element,
+   the curse is heard. Every rule that changes a face's element is gated on mercy not being asked
+   (html:not([data-mercy="on"])), so mercy restores the temple in the same frame, before any script runs.
+   The only !important in this layer is written by the War of Grace, on purpose, into its own sheet. */
+
+@layer hell {
+  /* ── The clothes each face lends its curses ─────────────────────────────────────────────────── */
+  :root {
+    --hell-ink: #ece6d6;
+    --hell-paper: #0d0c0b;
+    --hell-accent: #d0402a;
+    --hell-accent-2: #7cc58a;
+    --hell-war-a: #e0452b;
+    --hell-war-b: #5b9bff;
+    --hell-tag-bg: rgba(13, 12, 11, 0.9);
+    --hell-tag-ink: #ece6d6;
+    --hell-tag-dim: rgba(236, 230, 214, 0.55);
+    --hell-tag-line: rgba(236, 230, 214, 0.28);
+    --hell-tag-font: 500 10.5px/1.4 var(--font-mono, monospace);
+    --hell-tag-radius: 2px;
+    --hell-tag-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+    --hell-whisper-font: italic 15px/1.35 var(--font-scripture, serif);
+    --hell-whisper-ink: #ece6d6;
+    --hell-whisper-halo: rgba(0, 0, 0, 0.75);
+    --hell-banner-bg: rgba(10, 9, 8, 0.92);
+    --hell-banner-ink: #ece6d6;
+    --hell-banner-accent: #e0452b;
+    --hell-banner-font: var(--font-scripture, serif);
+    --hell-phantom-fill: rgba(12, 12, 12, 0.72);
+    --hell-phantom-stroke: rgba(240, 236, 224, 0.9);
+  }
+
+  [data-face="sanctum"] {
+    /* iron-gall ink on vellum; vermilion rubric against lapis */
+    --hell-ink: #2c1d0f;
+    --hell-paper: #f1e5c8;
+    --hell-accent: #a4161a;
+    --hell-accent-2: #1f3f94;
+    --hell-war-a: #a4161a;
+    --hell-war-b: #1d3f9a;
+    --hell-tag-bg: rgba(246, 236, 212, 0.96);
+    --hell-tag-ink: #3a2614;
+    --hell-tag-dim: rgba(58, 38, 20, 0.55);
+    --hell-tag-line: rgba(164, 22, 26, 0.45);
+    --hell-tag-font: italic 12px/1.35 var(--font-scripture, serif);
+    --hell-tag-radius: 0;
+    --hell-tag-shadow: 0 1px 0 rgba(164, 22, 26, 0.25), 0 8px 18px rgba(60, 35, 10, 0.18);
+    --hell-whisper-font: italic 16px/1.3 var(--font-scripture, serif);
+    --hell-whisper-ink: #7d1012;
+    --hell-whisper-halo: rgba(246, 236, 212, 0.95);
+    --hell-banner-bg: rgba(244, 234, 210, 0.97);
+    --hell-banner-ink: #2c1d0f;
+    --hell-banner-accent: #a4161a;
+    --hell-phantom-fill: rgba(44, 29, 15, 0.62);
+    --hell-phantom-stroke: rgba(246, 236, 212, 0.95);
+  }
+  [data-face="possession"] {
+    /* readable on the white corporate page and on the black below it */
+    --hell-accent: #e0182d;
+    --hell-accent-2: #86d63a;
+    --hell-war-a: #d9142b;
+    --hell-war-b: #3f9a2a;
+    --hell-tag-bg: rgba(32, 33, 36, 0.96);
+    --hell-tag-ink: #e8eaed;
+    --hell-tag-dim: rgba(232, 234, 237, 0.5);
+    --hell-tag-line: rgba(224, 24, 45, 0.55);
+    --hell-tag-font: 500 11px/1.4 Consolas, 'Cascadia Mono', Menlo, monospace;
+    --hell-whisper-font: 500 13px/1.35 Consolas, 'Cascadia Mono', monospace;
+    --hell-whisper-ink: #ff4d5e;
+    --hell-banner-bg: rgba(8, 5, 6, 0.95);
+    --hell-banner-accent: #e0182d;
+    --hell-banner-font: 'Segoe UI', system-ui, sans-serif;
+    --hell-phantom-fill: rgba(120, 6, 16, 0.55);
+    --hell-phantom-stroke: rgba(255, 230, 230, 0.85);
+  }
+  [data-face="recruitment"] {
+    /* the tooltip of 1997: pale yellow, one black pixel of border, Tahoma */
+    --hell-accent: #cc00cc;
+    --hell-accent-2: #0000ee;
+    --hell-war-a: #d4007a;
+    --hell-war-b: #0050e0;
+    --hell-tag-bg: #ffffe1;
+    --hell-tag-ink: #000;
+    --hell-tag-dim: #666;
+    --hell-tag-line: #000;
+    --hell-tag-font: 11px/1.35 Tahoma, Verdana, 'Segoe UI', sans-serif;
+    --hell-tag-radius: 0;
+    --hell-tag-shadow: 2px 2px 0 rgba(0, 0, 0, 0.45);
+    --hell-whisper-font: bold 15px/1.3 'Comic Sans MS', 'Comic Neue', cursive;
+    --hell-whisper-ink: #ffff00;
+    --hell-whisper-halo: #000080;
+    --hell-banner-bg: #000080;
+    --hell-banner-ink: #ffff00;
+    --hell-banner-accent: #ff00ff;
+    --hell-banner-font: 'Comic Sans MS', 'Comic Neue', cursive;
+    --hell-phantom-fill: rgba(255, 255, 255, 0.8);
+    --hell-phantom-stroke: rgba(0, 0, 0, 0.9);
+  }
+  [data-face="ashram"] {
+    --hell-ink: #f6e7c8;
+    --hell-accent: #f4a93b;
+    --hell-accent-2: #e56b9c;
+    --hell-war-a: #f4a93b;
+    --hell-war-b: #ec7fb0;
+    --hell-tag-bg: rgba(27, 21, 64, 0.94);
+    --hell-tag-ink: #f6e7c8;
+    --hell-tag-dim: rgba(246, 231, 200, 0.55);
+    --hell-tag-line: rgba(244, 169, 59, 0.5);
+    --hell-tag-radius: 999px;
+    --hell-whisper-ink: #f4c77a;
+    --hell-whisper-halo: rgba(20, 15, 50, 0.85);
+    --hell-banner-bg: rgba(24, 18, 58, 0.94);
+    --hell-banner-ink: #f6e7c8;
+    --hell-banner-accent: #f4a93b;
+    --hell-phantom-fill: rgba(244, 169, 59, 0.35);
+    --hell-phantom-stroke: rgba(255, 240, 210, 0.8);
+  }
+  [data-face="departure"] {
+    --hell-ink: #dff7ff;
+    --hell-accent: #8fe8ff;
+    --hell-accent-2: #f3b25b;
+    --hell-war-a: #f3b25b;
+    --hell-war-b: #7fdcff;
+    --hell-tag-bg: rgba(6, 12, 28, 0.9);
+    --hell-tag-ink: #bff4ff;
+    --hell-tag-dim: rgba(191, 244, 255, 0.5);
+    --hell-tag-line: rgba(143, 232, 255, 0.45);
+    --hell-tag-font: 500 10px/1.45 var(--font-mono, monospace);
+    --hell-whisper-font: 500 12px/1.4 var(--font-mono, monospace);
+    --hell-whisper-ink: #8fe8ff;
+    --hell-banner-bg: rgba(4, 8, 22, 0.94);
+    --hell-banner-ink: #dff7ff;
+    --hell-banner-accent: #f3b25b;
+    --hell-banner-font: var(--font-mono, monospace);
+    --hell-phantom-fill: rgba(143, 232, 255, 0.28);
+    --hell-phantom-stroke: rgba(191, 244, 255, 0.85);
+  }
+  [data-face="babel"] {
+    --hell-ink: #1f1e1b;
+    --hell-accent: #8a2323;
+    --hell-accent-2: #2a4a9b;
+    --hell-war-a: #9b2a2a;
+    --hell-war-b: #2a4a9b;
+    --hell-tag-bg: rgba(238, 235, 227, 0.97);
+    --hell-tag-ink: #2b2a26;
+    --hell-tag-dim: rgba(43, 42, 38, 0.5);
+    --hell-tag-line: rgba(42, 74, 155, 0.4);
+    --hell-tag-font: italic 11.5px/1.4 var(--font-scripture, serif);
+    --hell-whisper-font: italic 15px/1.35 var(--font-scripture, serif);
+    --hell-whisper-ink: #2a4a9b;
+    --hell-whisper-halo: rgba(238, 235, 227, 0.95);
+    --hell-banner-bg: rgba(238, 235, 227, 0.97);
+    --hell-banner-ink: #1f1e1b;
+    --hell-banner-accent: #2a4a9b;
+    --hell-phantom-fill: rgba(31, 30, 27, 0.55);
+    --hell-phantom-stroke: rgba(238, 235, 227, 0.95);
+  }
+
+  /* ── The veils ─────────────────────────────────────────────────────────────────────────────── */
+  .hell-veil {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 4;
+  }
+  #layers > .hell-veil, #layers > .hell-veil * { pointer-events: none; }
+  .hell-marks {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 0;
+    height: 0;
+    overflow: visible;
+    pointer-events: none;
+    z-index: 999;
+  }
+  .hell-defs { position: absolute; width: 0; height: 0; overflow: hidden; pointer-events: none; }
+
+  /* ── Tags: small annotations that follow an element ─────────────────────────────────────────── */
+  .hell-tag {
+    position: absolute;
+    left: 0;
+    top: 0;
+    /* The sheet of marks has no width of its own, so a tag must ask for its own. */
+    width: max-content;
+    max-width: min(calc(100vw - 16px), 40em);
+    padding: 4px 7px 5px;
+    font: var(--hell-tag-font);
+    color: var(--hell-tag-ink);
+    background: var(--hell-tag-bg);
+    border: 1px solid var(--hell-tag-line);
+    border-radius: var(--hell-tag-radius);
+    box-shadow: var(--hell-tag-shadow);
+    white-space: nowrap;
+    text-align: start;
+    letter-spacing: 0;
+    text-transform: none;
+    font-variant: normal;
+    opacity: 0;
+    animation: hell-tag-in 0.45s ease-out forwards;
+    transition: opacity 0.6s ease;
+    user-select: none;
+    contain: layout style;
+  }
+  .hell-tag.is-ending { animation: none; opacity: 0; }
+  .hell-tag[hidden] { display: none; }
+  @keyframes hell-tag-in {
+    from { opacity: 0; transform: translateY(3px); }
+    to { opacity: 1; transform: none; }
+  }
+
+  /* The War of Grace */
+  .hell-war { display: grid; gap: 1px; min-width: 15em; }
+  .hell-war__head {
+    display: flex;
+    justify-content: space-between;
+    gap: 1.5em;
+    padding-bottom: 2px;
+    margin-bottom: 1px;
+    border-bottom: 1px solid var(--hell-tag-line);
+    color: var(--hell-tag-dim);
+    font-size: 0.92em;
+  }
+  .hell-war__head b { color: var(--hell-accent); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; font-style: normal; }
+  .hell-war__row {
+    display: grid;
+    grid-template-columns: auto 1fr auto auto;
+    align-items: center;
+    gap: 0.6em;
+    opacity: 0.5;
+    transition: opacity 0.5s ease;
+  }
+  .hell-war__row.is-winning { opacity: 1; }
+  .hell-war__row.is-winning .hell-war__score::after { content: ' ◂'; color: var(--hell-accent); }
+  .hell-war__swatch { width: 0.8em; height: 0.8em; border: 1px solid var(--hell-tag-line); }
+  .hell-war__row[data-side="a"] .hell-war__swatch { background: var(--hell-war-a); }
+  .hell-war__row[data-side="b"] .hell-war__swatch { background: var(--hell-war-b); }
+  .hell-war__sel {
+    font: inherit;
+    font-style: normal;
+    font-family: var(--font-mono, monospace);
+    font-size: 0.95em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .hell-war__imp { color: var(--hell-accent); font-family: var(--font-mono, monospace); font-style: normal; font-size: 0.9em; }
+  .hell-war__score { font-family: var(--font-mono, monospace); font-style: normal; font-variant-numeric: tabular-nums; }
+  .hell-war__status { margin-top: 2px; color: var(--hell-tag-dim); font-size: 0.92em; white-space: normal; max-width: 26em; }
+  .hell-war.is-struck .hell-war__sel { text-decoration: line-through; text-decoration-color: var(--hell-accent); }
+  [data-face="sanctum"] .hell-war__head b { font-variant: small-caps; text-transform: none; letter-spacing: 0.12em; }
+  [data-face="recruitment"] .hell-war__head b { color: #000080; letter-spacing: 0; }
+
+  /* The elements at war (the rules themselves are written into #hell-grace) */
+  html:not([data-mercy="on"]) [data-war] {
+    transition: color 0.8s ease, letter-spacing 0.8s ease;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+  }
+
+  /* The Union */
+  .hell-union { display: grid; gap: 1px; text-align: end; }
+  .hell-union__kicker { color: var(--hell-accent); font-weight: 700; letter-spacing: 0.06em; }
+  .hell-union__sum { font-family: var(--font-mono, monospace); font-style: normal; }
+  .hell-union__line { color: var(--hell-tag-dim); }
+  html:not([data-mercy="on"]) [data-hell-union] { opacity: 0.86; transition: opacity 2s ease; }
+
+  /* The Z-war */
+  .hell-z { display: flex; align-items: baseline; gap: 0.1em; }
+  .hell-z code { font: inherit; font-family: var(--font-mono, monospace); font-style: normal; color: var(--hell-tag-dim); }
+  .hell-z b { font-family: var(--font-mono, monospace); font-style: normal; font-variant-numeric: tabular-nums; }
+  .hell-z span { color: var(--hell-tag-dim); }
+  .hell-z.is-top { border-color: var(--hell-accent); }
+  .hell-z.is-top b { color: var(--hell-accent); }
+  .hell-z.is-top b::after { content: ' ▲'; font-size: 0.8em; }
+  .hell-z.is-refused b { text-decoration: line-through; text-decoration-color: var(--hell-accent); }
+  .hell-z.is-refused span { color: var(--hell-accent); white-space: normal; }
+  html:not([data-mercy="on"]) [data-hell-z] { z-index: var(--hell-z, auto); }
+  html:not([data-mercy="on"]) [data-hell-z="lift"] { position: relative; }
+  html:not([data-mercy="on"]) [data-hell-z]:not([data-hell-possessed]) {
+    box-shadow: 0 10px 30px -12px color-mix(in srgb, var(--hell-paper) 30%, rgba(0, 0, 0, 0.55));
+  }
+
+  /* ── Glyph rot and possession ──────────────────────────────────────────────────────────────── */
+  html:not([data-mercy="on"]) [data-hell-rot] {
+    font-family: var(--hell-rot-family);
+    font-kerning: none;
+    font-variant-ligatures: none;
+  }
+  /* A possessed element: its outline doubles, and it shudders slowly (one breath in 2.6 s). */
+  html:not([data-mercy="on"]) [data-hell-possessed] {
+    text-shadow:
+      0.05em 0 0 color-mix(in srgb, var(--hell-accent) 55%, transparent),
+      -0.04em 0.02em 0 color-mix(in srgb, var(--hell-accent-2) 40%, transparent);
+    animation: hell-shudder 2.6s ease-in-out infinite alternate;
+  }
+  @keyframes hell-shudder {
+    0% { rotate: 0deg; scale: 1; }
+    40% { rotate: -0.5deg; scale: 1.006; }
+    100% { rotate: 0.45deg; scale: 0.996; }
+  }
+
+  /* A possessed word: first it turns into glyphs, then it says what it means */
+  .hell-possessed { transition: color 0.35s ease, text-shadow 0.35s ease; }
+  .hell-possessed.is-turning {
+    font-family: var(--font-glyph, 'Cascade Glyphs', serif);
+    font-kerning: none;
+    color: var(--hell-accent);
+  }
+  .hell-possessed.is-possessed {
+    color: var(--hell-accent);
+    text-shadow: 0 0 0.6em color-mix(in srgb, var(--hell-accent) 35%, transparent);
+  }
+  .hell-possessed.is-possessed.is-doctrine { font-style: italic; }
+  .hell-possessed.is-possessed.is-truth {
+    font-family: var(--font-mono, monospace);
+    font-size: 0.86em;
+    font-style: normal;
+    letter-spacing: -0.01em;
+    padding: 0 0.15em;
+    border-radius: 2px;
+    background: color-mix(in srgb, var(--hell-accent) 10%, transparent);
+  }
+  [data-face="recruitment"] .hell-possessed.is-possessed { color: #cc00cc; }
+  [data-face="departure"] .hell-possessed.is-possessed { color: var(--hell-accent-2); }
+
+  /* Melting: the filter is set by script; this only keeps the melting thing above its neighbours' ink */
+  html:not([data-mercy="on"]) [data-hell-melting] { will-change: filter; }
+
+  /* ── The phantom cursor ───────────────────────────────────────────────────────────────────── */
+  .hell-phantom {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 20px;
+    height: 28px;
+    margin: -1px 0 0 -1px;
+    opacity: 0;
+    transition: opacity 0.9s ease;
+    will-change: translate;
+    filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.25));
+  }
+  .hell-phantom svg { display: block; width: 20px; height: 28px; }
+  .hell-phantom path { fill: var(--hell-phantom-fill); stroke: var(--hell-phantom-stroke); stroke-width: 1.3; stroke-linejoin: round; }
+  .hell-phantom.is-shown { opacity: 0.42; }
+  /* A mirrored phantom is a mirrored arrow, with its point kept on the spot it follows. */
+  .hell-phantom[data-mode="mirror"] { margin-left: -19px; }
+  .hell-phantom[data-mode="mirror"] svg { transform: scaleX(-1); }
+  .hell-phantom[data-mode="reflection"] { margin-top: -27px; }
+  .hell-phantom[data-mode="reflection"] svg { transform: scaleY(-1); }
+  .hell-phantom[data-mode="antipode"] { margin: -27px 0 0 -19px; }
+  .hell-phantom[data-mode="antipode"] svg { transform: scale(-1, -1); }
+  .hell-phantom.is-wandering { opacity: 0.55; }
+  .hell-phantom.is-resting::after {
+    /* where it rests, a small ring: the Laying on of Hands */
+    content: '';
+    position: absolute;
+    left: -9px;
+    top: -9px;
+    width: 18px;
+    height: 18px;
+    border: 1px solid var(--hell-phantom-stroke);
+    border-radius: 50%;
+    opacity: 0;
+    animation: hell-ring 2.4s ease-out 1;
+  }
+  @keyframes hell-ring {
+    0% { opacity: 0; transform: scale(0.3); }
+    30% { opacity: 0.7; }
+    100% { opacity: 0; transform: scale(2.2); }
+  }
+
+  /* ── Whispers ─────────────────────────────────────────────────────────────────────────────── */
+  .hell-whisper {
+    position: absolute;
+    left: 0;
+    top: 0;
+    margin: 0;
+    max-width: min(22em, calc(100vw - 32px));
+    translate: var(--x) var(--y);
+    font: var(--hell-whisper-font);
+    color: var(--hell-whisper-ink);
+    text-shadow: 0 0 2px var(--hell-whisper-halo), 0 0 10px var(--hell-whisper-halo);
+    letter-spacing: 0.02em;
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 1s ease, transform 3.2s ease-out;
+  }
+  .hell-whisper.is-left { transform: translate(-100%, 4px); }
+  .hell-whisper.is-left.is-shown { transform: translate(-100%, -6px); }
+  .hell-whisper.is-shown { opacity: 0.92; transform: translateY(-6px); }
+
+  /* ── The Inversion ────────────────────────────────────────────────────────────────────────── */
+  html[data-hell-inversion] #temple {
+    transform-origin: var(--hell-ox, 50%) var(--hell-oy, 50vh);
+    transition: rotate 1.25s cubic-bezier(0.7, 0, 0.25, 1);
+  }
+  html[data-hell-inversion="on"]:not([data-mercy="on"]) #temple { rotate: 180deg; }
+
+  .hell-inversion {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    translate: -50% -50%;
+    width: min(30em, calc(100vw - 32px));
+    margin: 0;
+    padding: 22px 26px 18px;
+    text-align: center;
+    color: var(--hell-banner-ink);
+    background: var(--hell-banner-bg);
+    border: 1px solid color-mix(in srgb, var(--hell-banner-accent) 60%, transparent);
+    box-shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.6), inset 0 0 0 4px color-mix(in srgb, var(--hell-banner-bg) 70%, transparent), inset 0 0 0 5px color-mix(in srgb, var(--hell-banner-accent) 35%, transparent);
+    font-family: var(--hell-banner-font);
+    opacity: 0;
+    transform: scale(0.97) rotate(180deg);
+    transition: opacity 0.6s ease, transform 1.1s cubic-bezier(0.7, 0, 0.25, 1);
+  }
+  .hell-inversion.is-shown { opacity: 1; transform: none; }
+  .hell-inversion__kicker {
+    margin: 0;
+    font: 600 11px/1.4 var(--font-mono, monospace);
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--hell-banner-accent);
+  }
+  .hell-inversion__title {
+    margin: 8px 0 0;
+    font-size: clamp(20px, 4.4vw, 30px);
+    line-height: 1.15;
+    font-weight: 600;
+  }
+  .hell-inversion__origins {
+    margin: 12px 0 0;
+    font: 12px/1.5 var(--font-mono, monospace);
+    letter-spacing: 0.04em;
+    color: var(--hell-banner-accent);
+  }
+  .hell-inversion__origins i { font-style: normal; opacity: 0.6; }
+  .hell-inversion__gloss { margin: 8px 0 0; font-style: italic; font-size: 14px; line-height: 1.45; opacity: 0.85; }
+  .hell-inversion__breaths {
+    display: flex;
+    justify-content: center;
+    gap: 9px;
+    margin: 14px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .hell-inversion__breaths li {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--hell-banner-accent);
+    animation: hell-breath 1s linear forwards;
+    animation-delay: calc(var(--i) * 1s);
+  }
+  @keyframes hell-breath { to { opacity: 0.12; transform: scale(0.6); } }
+  [data-face="recruitment"] .hell-inversion { border: 3px ridge #c0c0c0; }
+  [data-face="recruitment"] .hell-inversion__title { text-shadow: 2px 2px 0 #ff00ff; }
+  [data-face="sanctum"] .hell-inversion__title { font-variant: small-caps; letter-spacing: 0.04em; color: #7d1012; }
+  [data-face="departure"] .hell-inversion__title { letter-spacing: 0.12em; text-transform: uppercase; font-size: clamp(16px, 3.4vw, 22px); }
+
+  /* ── ?debug=hell ──────────────────────────────────────────────────────────────────────────── */
+  .hell-debug {
+    position: fixed;
+    left: 8px;
+    top: 8px;
+    z-index: 30;
+    max-width: min(26em, calc(100vw - 16px));
+    padding: 8px 10px;
+    font: 11px/1.5 var(--font-mono, monospace);
+    color: #e9e4d8;
+    background: rgba(8, 8, 8, 0.88);
+    border: 1px solid #e0452b;
+    pointer-events: auto;
+  }
+  .hell-debug h2 { margin: 0 0 4px; font: inherit; color: #e0452b; letter-spacing: 0.08em; text-transform: uppercase; }
+  .hell-debug p { margin: 4px 0 0; display: flex; flex-wrap: wrap; gap: 4px 8px; }
+  .hell-debug span { opacity: 0.45; }
+  .hell-debug span.is-on { opacity: 1; color: #9fe07a; }
+  .hell-debug button { padding: 1px 6px; font: inherit; color: inherit; background: #222; border: 1px solid #555; cursor: pointer; }
+  .hell-debug button:hover, .hell-debug button:focus-visible { border-color: #e0452b; }
+
+  @media print {
+    .hell-veil, .hell-marks, .hell-debug { display: none; }
+  }
+}
