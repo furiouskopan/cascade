@@ -24,7 +24,7 @@ import opentype from 'opentype.js'
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { ALPHABET, SCRIPT } from '../public/js/lib/glyphs.js'
+import { ALPHABET, ANATOMY, SCRIPT } from '../public/js/lib/glyphs.js'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const OUT = resolve(root, 'public/fonts/cascade-glyphs.otf')
@@ -77,10 +77,17 @@ const stamp = (x, y) => PEN.map(([px, py]) => [x + px, y + py])
 
 // ── The Scribe: moves the pen and keeps every mark it leaves ────────────────────────────────────
 // A stroke is the pen swept along a centre line: the hull of each pair of successive stamps. The
-// marks overlap freely; unite() makes one clean outline of them afterwards.
+// marks overlap freely; unite() makes one clean outline of them afterwards. The Scribe also keeps a
+// tally of the strokes it lays down, which must agree with the letter's ANATOMY in lib/glyphs.js.
 class Scribe {
   constructor() {
     this.contours = []
+    this.tally = {}
+  }
+
+  count(stroke, n = 1) {
+    this.tally[stroke] = (this.tally[stroke] ?? 0) + n
+    return this
   }
 
   // Sweep the pen through centre-line points [[x, y], ...].
@@ -90,33 +97,8 @@ class Scribe {
     return this
   }
 
-  // THE STEM: vertical, from y0 to y1.
-  stem(x, y0, y1) {
-    return this.ray(x, y0, x, y1)
-  }
-
-  // THE BAR: horizontal, from x0 to x1.
-  bar(y, x0, x1) {
-    return this.ray(x0, y, x1, y)
-  }
-
-  // THE RAY: any straight stroke.
-  ray(x0, y0, x1, y1) {
-    return this.trace([[x0, y0], [x1, y1]])
-  }
-
-  // A chain of rays through the given points, e.g. a chevron.
-  rays(...pts) {
-    return this.trace(pts)
-  }
-
-  // THE BOWL: a circular arc, angles in degrees (0 = east, counter-clockwise).
-  bowl(cx, cy, r, a0, a1) {
-    return this.oval(cx, cy, r, r, a0, a1)
-  }
-
-  // An elliptical bowl, angles in degrees.
-  oval(cx, cy, rx, ry, a0, a1) {
+  // The pen along an elliptical arc, angles in degrees (0 = east, counter-clockwise).
+  arc(cx, cy, rx, ry, a0, a1) {
     if (a1 < a0) [a0, a1] = [a1, a0]
     const n = Math.max(2, Math.ceil(((a1 - a0) * DEG) / ARC_STEP))
     const pts = []
@@ -127,9 +109,39 @@ class Scribe {
     return this.trace(pts)
   }
 
+  // THE STEM: vertical, from y0 to y1.
+  stem(x, y0, y1) {
+    return this.count('Stem').trace([[x, y0], [x, y1]])
+  }
+
+  // THE BAR: horizontal, from x0 to x1.
+  bar(y, x0, x1) {
+    return this.count('Bar').trace([[x0, y], [x1, y]])
+  }
+
+  // THE RAY: any straight stroke.
+  ray(x0, y0, x1, y1) {
+    return this.count('Ray').trace([[x0, y0], [x1, y1]])
+  }
+
+  // A chain of rays through the given points, e.g. a chevron (two Rays).
+  rays(...pts) {
+    return this.count('Ray', pts.length - 1).trace(pts)
+  }
+
+  // THE BOWL: a circular arc, angles in degrees.
+  bowl(cx, cy, r, a0, a1) {
+    return this.oval(cx, cy, r, r, a0, a1)
+  }
+
+  // An elliptical Bowl, angles in degrees.
+  oval(cx, cy, rx, ry, a0, a1) {
+    return this.count('Bowl').arc(cx, cy, rx, ry, a0, a1)
+  }
+
   // THE EYE: a closed ring. The pen goes all the way round; the counter stays open by itself.
   eye(cx, cy, r) {
-    return this.oval(cx, cy, r, r, 0, 360)
+    return this.count('Eye').arc(cx, cy, r, r, 0, 360)
   }
 
   // THE SEED: a lozenge, the mark the nib leaves when it is set down and turned.
@@ -137,7 +149,7 @@ class Scribe {
     const hx = 46 * s
     const hy = 64 * s
     this.contours.push([[x, y - hy], [x + hx, y], [x, y + hy], [x - hx, y]])
-    return this
+    return this.count('Seed')
   }
 }
 
@@ -207,8 +219,8 @@ const LETTERS = {
   // Urna, the Offering: seed above, bowl, ground.
   u: (s) => s.seed(170, 470, 0.95).bowl(170, 330, 150, 180, 360).bar(LINE, 30, 310),
 
-  // Vigil, the Hourglass: two triangles meeting at a point.
-  v: (s) => s.rays([20, LINTEL], [320, LINTEL], [20, LINE], [320, LINE], [20, LINTEL]),
+  // Vigil, the Hourglass: two triangles meeting at a point (two Bars, and two Rays that cross).
+  v: (s) => s.bar(LINTEL, 20, 320).ray(320, LINTEL, 20, LINE).bar(LINE, 20, 320).ray(320, LINE, 20, LINTEL),
 
   // Wyrd, the Fan: three roads from one threshold.
   w: (s) => s.ray(115, LINE, 0, LINTEL).stem(170, LINE, LINTEL + 60).ray(225, LINE, 340, LINTEL).bar(LINE, 60, 280),
@@ -461,10 +473,20 @@ function signedArea(pts) {
   return a / 2
 }
 
+// The strokes a Scribe laid down must be the strokes the lore says the letter is made of.
+function checkAnatomy(name, tally, expected) {
+  const kinds = new Set([...Object.keys(tally), ...Object.keys(expected)])
+  const wrong = [...kinds].filter((k) => (tally[k] ?? 0) !== (expected[k] ?? 0))
+  if (wrong.length) {
+    throw new Error(`${name} is written with ${JSON.stringify(tally)} but ANATOMY says ${JSON.stringify(expected)}`)
+  }
+}
+
 // Turns a scribe's contours into an opentype glyph, united and fitted with even side bearings.
-function make(name, unicodes, draw, { side = SIDE } = {}) {
+function make(name, unicodes, draw, { side = SIDE, anatomy } = {}) {
   const s = new Scribe()
   draw(s)
+  if (anatomy) checkAnatomy(name, s.tally, anatomy)
   const rings = unite(s.contours)
   let xMin = Infinity
   let xMax = -Infinity
@@ -513,7 +535,7 @@ glyphs.push(new opentype.Glyph({ name: 'space', unicodes: [0x20, 0xa0, PUA + 0x2
 for (const [letter, draw] of Object.entries(LETTERS)) {
   const lower = letter.charCodeAt(0)
   const upper = letter.toUpperCase().charCodeAt(0)
-  make(ALPHABET[letter].name.toLowerCase(), [lower, upper, PUA + lower, PUA + upper], draw)
+  make(ALPHABET[letter].name.toLowerCase(), [lower, upper, PUA + lower, PUA + upper], draw, { anatomy: ANATOMY[letter] })
 }
 
 const DIGIT_NAMES = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine']
@@ -569,8 +591,31 @@ const font = new opentype.Font({
 })
 font.names.windows.sampleText = { en: 'the glyphs were letters all along' }
 
+// The font is dated to the Nativity (1996-12-17), not to the hour it was built, so the same script always
+// writes the same bytes. opentype.js stamps the head table's `modified` date with `new Date()`, so the
+// clock is held at the Nativity while the file is written.
+const NATIVITY = Date.UTC(1996, 11, 17)
+function atTheNativity(fn) {
+  const RealDate = globalThis.Date
+  globalThis.Date = class extends RealDate {
+    constructor(...args) {
+      super(...(args.length ? args : [NATIVITY]))
+    }
+
+    static now() {
+      return NATIVITY
+    }
+  }
+  try {
+    return fn()
+  } finally {
+    globalThis.Date = RealDate
+  }
+}
+font.createdTimestamp = NATIVITY / 1000
+
 mkdirSync(dirname(OUT), { recursive: true })
-const buffer = Buffer.from(font.toArrayBuffer())
+const buffer = Buffer.from(atTheNativity(() => font.toArrayBuffer()))
 writeFileSync(OUT, buffer)
 
 // Read it back, as the temple's browsers will.

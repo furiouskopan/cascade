@@ -5,7 +5,7 @@
 
    Two tiers, on purpose:
    - @layer glyphs (after `face`): only what must hold on every face. Glyph text is set in the glyph hand
-     and is never given a counterfeit bold or slant. Also the layer's own apparitions in #layers.
+     and is never given a counterfeit bold or slant. Also the layer's own apparitions (on <body>).
    - @layer base.glyphs (a sub-layer of `base`, so BEFORE `face`): the default look of .inscription,
      .rosetta and the optional .glyph--* finishes. Any face can override all of it with plain rules. */
 
@@ -28,18 +28,24 @@
     font-kerning: none;
   }
 
-  /* ── Apparitions (#layers). Colours come from custom properties, which faces may set. ───────── */
+  /* ── Apparitions. Colours come from custom properties, which faces may set on [data-face]. ──────
+     They hang on <body>, above the temple, #layers and the eclipse's veil (ritual.css, 2147482000), and
+     below the hush (audio.css, 2147482980), mercy (2147483000) and the altar (2147483100). Whatever a face
+     sends up to the Highest Heaven itself (2147483647) still passes in front of them, as it should. */
   .glyph-veil {
     position: fixed;
     inset: 0;
     overflow: hidden;
     pointer-events: none;
     contain: strict;
-    z-index: 2;
+    z-index: 2147482400;
   }
   .glyph-veil > * { pointer-events: none; user-select: none; }
 
-  /* A letter typed into the air is written by the nib, left to right, then rises. */
+  /* A letter typed into the air is written by the nib, left to right, then rises.
+     The hand of the visit is inherited from the veil: --mx: -1 is the hand in the glass (each letter turned,
+     and since the reveal runs along the turned letter, written right to left); --skew is the leaning hand.
+     A negative --dy is the falling hand. */
   .glyph-rise {
     position: absolute;
     left: 0;
@@ -50,22 +56,46 @@
     white-space: pre;
     color: var(--glyph-ink);
     text-shadow: 0 0 1px var(--glyph-halo), 0 0 0.3em var(--glyph-halo), 0 0 0.9em var(--glyph-glow);
-    transform: translate(-50%, -85%);
+    transform: translate(-50%, -85%) scale(1) rotate(0deg) scale(var(--mx, 1), 1) skewX(var(--skew, 0deg));
     animation: glyph-rise var(--dur, 1.8s) cubic-bezier(0.16, 0.7, 0.3, 1) forwards;
     will-change: transform, opacity;
   }
   .glyph-rise.is-still { animation: none; opacity: 0.92; }
 
+  /* Every keyframe lists the same transform functions in the same order, so each is interpolated on its
+     own. (Mismatched lists fall back to matrix interpolation, and a mirrored matrix then squashes the
+     letter flat on its way up.) */
   @keyframes glyph-rise {
-    0% { opacity: 1; clip-path: inset(-100% 100% -100% -100%); transform: translate(-50%, -85%); }
+    0% {
+      opacity: 1;
+      clip-path: inset(-100% 100% -100% -100%);
+      transform: translate(-50%, -85%) scale(1) rotate(0deg) scale(var(--mx, 1), 1) skewX(var(--skew, 0deg));
+    }
     /* The stroke is laid down; then the letter lets go of the line. */
-    16% { clip-path: inset(-100%); transform: translate(-50%, -85%); }
+    16% {
+      clip-path: inset(-100%);
+      transform: translate(-50%, -85%) scale(1) rotate(0deg) scale(var(--mx, 1), 1) skewX(var(--skew, 0deg));
+    }
     55% { opacity: 0.9; }
     100% {
       opacity: 0;
       clip-path: inset(-100%);
-      transform: translate(calc(-50% + var(--dx, 0px)), calc(-85% - var(--dy, 100px))) scale(1.25) rotate(var(--rot, 0deg));
+      transform: translate(calc(-50% + var(--dx, 0px)), calc(-85% - var(--dy, 100px))) scale(1.25) rotate(var(--rot, 0deg)) scale(var(--mx, 1), 1) skewX(var(--skew, 0deg));
     }
+  }
+
+  /* The ascended write in gold leaf. During an eclipse every hand writes in shadow, with a corona. */
+  html[data-ascended] .glyph-rise {
+    --glyph-ink: #f4d27a;
+    --glyph-halo: rgb(46 26 2 / 0.9);
+    --glyph-glow: rgb(255 214 110 / 0.6);
+  }
+  html[data-eclipse] :is(.glyph-rise, .glyph-bloom) {
+    --glyph-ink: #08070b;
+    --glyph-halo: rgb(255 222 150 / 0.95);
+    --glyph-glow: rgb(255 176 64 / 0.7);
+    --glyph-aura: rgb(4 3 6 / 0.88);
+    --glyph-aura-edge: rgb(255 186 90 / 0.4);
   }
 
   /* A word of assent is pressed into the air as a seal: a legend of the word running round the rim
@@ -82,6 +112,8 @@
     color: var(--glyph-ink);
     --dur: 3.6s;
   }
+  /* The Great Seal of the Scribe (all twenty-six named) is pressed slowly and held longer. */
+  .glyph-bloom--grand { --dur: 6.4s; }
   .glyph-bloom > * { position: absolute; left: 0; top: 0; }
 
   /* An aura, so the seal reads over any page. Faces may give it a scorched or gilded edge. */
@@ -157,12 +189,15 @@
     max-width: min(calc(100vw - 24px), 26em);
     margin: 0;
     padding: 0.35em 0.9em;
-    font: italic 0.95rem/1.35 var(--font-scripture, serif);
-    letter-spacing: 0.02em;
+    /* Spoken in the temple's voice (the --glyph-voice-* properties below), like the whispers. */
+    font: var(--glyph-voice-style, italic) calc(var(--glyph-voice-size, 1rem) * 0.95)/1.35 var(--glyph-voice-family, serif);
+    letter-spacing: var(--glyph-voice-tracking, 0.02em);
     text-align: center;
     color: var(--glyph-whisper-ink);
     background: var(--glyph-whisper-bg);
     border: 1px solid var(--glyph-whisper-rule);
+    -webkit-backdrop-filter: blur(5px);
+    backdrop-filter: blur(5px);
     animation: glyph-seal-caption var(--dur) ease forwards;
   }
   .glyph-bloom__caption .glyph { font-style: normal; letter-spacing: 0.08em; margin-right: 0.2em; }
@@ -227,12 +262,31 @@
     border: 1px solid var(--glyph-whisper-rule);
     outline: 1px solid var(--glyph-whisper-rule);
     outline-offset: 4px;
+    /* The page behind the card is only a blur, so the gloss never has to be read through a paragraph. */
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
     animation: glyph-naming var(--dur, 4.2s) ease forwards;
   }
-  .glyph-naming__glyph { font-size: clamp(72px, 16vw, 132px); line-height: 1.05; color: var(--glyph-ink); text-shadow: 0 0 0.5em var(--glyph-glow); }
+  /* The halo keeps the letter legible whatever the card is painted with (yellow ink on a pale card, say). */
+  .glyph-naming__glyph {
+    font-size: clamp(72px, 16vw, 132px);
+    line-height: 1.05;
+    color: var(--glyph-ink);
+    text-shadow: 0 0 1px var(--glyph-halo), 0 0 2px var(--glyph-halo), 0 0 0.04em var(--glyph-halo), 0 0 0.5em var(--glyph-glow);
+  }
   .glyph-naming__name { font: 600 0.85rem/1.2 var(--font-mono, monospace); letter-spacing: 0.42em; text-transform: uppercase; margin-right: -0.42em; }
-  .glyph-naming__sign { font: italic 1.05rem/1.3 var(--font-scripture, serif); }
-  .glyph-naming__gloss { font: 0.9rem/1.45 var(--font-scripture, serif); opacity: 0.82; max-width: 20em; }
+  .glyph-naming__sign { font: var(--glyph-voice-style, italic) calc(var(--glyph-voice-size, 1rem) * 1.05)/1.3 var(--glyph-voice-family, serif); }
+  .glyph-naming__gloss { font: calc(var(--glyph-voice-size, 1rem) * 0.9)/1.45 var(--glyph-voice-family, serif); opacity: 0.82; max-width: 20em; }
+  /* How the letter is written: its stroke count in Katabasic numerals, then in words. */
+  .glyph-naming__anatomy {
+    margin-top: 0.55em;
+    padding-top: 0.55em;
+    border-top: 1px solid var(--glyph-whisper-rule);
+    font: 0.7rem/1.4 var(--font-mono, monospace);
+    letter-spacing: 0.1em;
+    opacity: 0.78;
+  }
+  .glyph-naming__anatomy .glyph { font-size: 1.5em; line-height: 0; vertical-align: -0.12em; margin-right: 0.2em; letter-spacing: 0; }
   .glyph-naming.is-still { animation: none; }
   @keyframes glyph-naming {
     0% { opacity: 0; transform: scale(0.94); filter: blur(3px); }
@@ -253,7 +307,12 @@
     width: max-content;
     max-width: min(calc(100vw - 32px), 30em);
     pointer-events: none;
-    z-index: 3;
+    z-index: 2147482410;
+  }
+  /* While a seal or a Naming stands at the foot, the voice speaks from the top of the page instead. */
+  .glyph-voice--aloft {
+    bottom: auto;
+    top: calc(14px + env(safe-area-inset-top, 0px));
   }
   .glyph-whisper {
     padding: 0.5em 1.1em 0.55em;
@@ -262,6 +321,8 @@
     background: var(--glyph-whisper-bg);
     border: 1px solid var(--glyph-whisper-rule);
     box-shadow: 0 0.6em 2em rgb(0 0 0 / 0.35);
+    -webkit-backdrop-filter: blur(5px);
+    backdrop-filter: blur(5px);
     animation: glyph-whisper var(--dur, 4.4s) ease forwards;
   }
   .glyph-whisper::before,
@@ -271,7 +332,8 @@
     content: '\E000' / '';
     font: normal 1.05em/1 var(--font-glyph, serif);
     font-synthesis: none;
-    color: var(--glyph-ink);
+    color: var(--glyph-whisper-mark, var(--glyph-ink));
+    text-shadow: 0 0 1px var(--glyph-halo), 0 0 2px var(--glyph-halo);
     opacity: 0.85;
   }
   .glyph-whisper::before { margin-right: 0.6em; }
@@ -290,9 +352,11 @@
     pointer-events: none;
   }
   .glyph-whisper.is-still { animation: none; }
+  /* The words arrive spaced out and draw together into the voice's own tracking, then hold still (the
+     tracking is not animated after 12%, so the line is laid out once and left alone). */
   @keyframes glyph-whisper {
-    0% { opacity: 0; transform: translateY(8px); letter-spacing: 0.12em; }
-    12% { opacity: 1; transform: none; letter-spacing: 0.02em; }
+    0% { opacity: 0; transform: translateY(8px); letter-spacing: calc(var(--glyph-voice-tracking, 0.02em) + 0.1em); }
+    12% { opacity: 1; transform: none; letter-spacing: var(--glyph-voice-tracking, 0.02em); }
     85% { opacity: 1; }
     100% { opacity: 0; transform: translateY(-6px); }
   }
@@ -302,7 +366,7 @@
     position: fixed;
     /* Clear of mercy (bottom-left) and the altar (bottom-right). */
     inset: 12px 12px 84px;
-    z-index: 5;
+    z-index: 2147482420;
     overflow: auto;
     padding: 24px clamp(16px, 4vw, 48px) 48px;
     color: #2a1d12;
@@ -322,10 +386,21 @@
   }
   .glyph-exemplar h2 { flex: 1 1 14em; margin: 0; font-size: 1.5rem; font-weight: 400; letter-spacing: 0.08em; }
   .glyph-exemplar__intro { margin: 0 0 16px; font-style: italic; opacity: 0.8; }
-  .glyph-exemplar__grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 10px; }
+  .glyph-exemplar__grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(118px, 25vw), 1fr)); gap: 10px; }
   .glyph-exemplar__cell { display: grid; justify-items: center; padding: 10px 6px 8px; border: 1px solid rgb(138 106 58 / 0.35); background: rgb(255 255 255 / 0.25); }
   .glyph-exemplar__cell .glyph { font-size: 64px; line-height: 1.15; }
   .glyph-exemplar__cell small { font: 11px/1.3 var(--font-mono, monospace); letter-spacing: 0.08em; text-align: center; }
+  .glyph-exemplar__cell .glyph-exemplar__anatomy { margin-top: 4px; font-size: 10px; letter-spacing: 0.02em; opacity: 0.7; }
+  .glyph-exemplar__strokes {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 22em), 1fr));
+    gap: 2px 20px;
+    margin: 0 0 18px;
+    padding: 0;
+    list-style: none;
+    font-size: 0.92rem;
+  }
+  .glyph-exemplar__strokes b { font-weight: 600; }
   .glyph-exemplar__line { margin: 10px 0 0; line-height: 1.3; overflow-wrap: anywhere; }
   .glyph-exemplar__close {
     flex: none;
@@ -350,6 +425,11 @@
     --glyph-whisper-rule: rgb(240 198 90 / 0.45);
     --glyph-aura: rgb(12 9 6 / 0.62);
     --glyph-aura-edge: transparent;
+    /* The temple's voice: whispers, the caption under a seal, the sign and gloss of a Naming. */
+    --glyph-voice-family: var(--font-scripture, serif);
+    --glyph-voice-style: italic;
+    --glyph-voice-size: 1rem;
+    --glyph-voice-tracking: 0.02em;
   }
   [data-face="sanctum"] {
     --glyph-ink: #b3261e;
@@ -379,6 +459,8 @@
     --glyph-whisper-ink: #000080;
     --glyph-whisper-bg: #ffffcc;
     --glyph-whisper-rule: #ff00ff;
+    /* On the pale card the watcher that signs a whisper is drawn in the magenta of the rule. */
+    --glyph-whisper-mark: #ff00ff;
     --glyph-aura: rgb(0 0 70 / 0.7);
     --glyph-aura-edge: rgb(255 0 255 / 0.22);
   }
@@ -412,11 +494,24 @@
     --glyph-aura: rgb(248 242 228 / 0.9);
     --glyph-aura-edge: rgb(160 110 40 / 0.16);
   }
+  /* The voice changes with the face: the Webmaster's hand on the homepage, the teletype on the
+     Mothership and in the demon's console, the scribe's italic everywhere else. */
+  [data-face="recruitment"] {
+    --glyph-voice-family: 'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', cursive;
+    --glyph-voice-style: normal;
+  }
+  [data-face="departure"],
+  [data-face="possession"] {
+    --glyph-voice-family: var(--font-mono, monospace);
+    --glyph-voice-style: normal;
+    --glyph-voice-size: 0.9rem;
+    --glyph-voice-tracking: 0.06em;
+  }
   /* The whisper's voice (colours are the --glyph-whisper-* properties above). */
-  .glyph-whisper { font: italic 1rem/1.35 var(--font-scripture, serif); letter-spacing: 0.02em; }
-  [data-face="recruitment"] .glyph-whisper { font: 1rem/1.35 'Comic Sans MS', 'Comic Sans', cursive; }
-  [data-face="departure"] .glyph-whisper,
-  [data-face="possession"] .glyph-whisper { font: 0.9rem/1.35 var(--font-mono, monospace); letter-spacing: 0.06em; font-style: normal; }
+  .glyph-whisper {
+    font: var(--glyph-voice-style) var(--glyph-voice-size)/1.35 var(--glyph-voice-family);
+    letter-spacing: var(--glyph-voice-tracking);
+  }
 
   /* The Inscription: set wide and quiet, like letters cut into a lintel. */
   .inscription {

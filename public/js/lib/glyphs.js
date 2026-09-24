@@ -133,3 +133,47 @@ export function isDisplaced(text) {
     return cp >= PUA_OFFSET + 97 && cp <= PUA_OFFSET + 122
   })
 }
+
+// The anatomy of every letter: which of the six strokes the nib lays down, how many, in the order written.
+// tools/build-font.mjs counts the strokes as it writes each glyph and refuses to build a font that
+// disagrees with this list, so the lore and the letters cannot drift apart.
+export const ANATOMY = Object.freeze({
+  a: { Ray: 2, Eye: 1 },
+  b: { Bar: 1, Stem: 1, Eye: 1 },
+  c: { Eye: 1, Stem: 1, Bar: 2 },
+  d: { Stem: 2, Bar: 3 },
+  e: { Stem: 1, Bowl: 1, Seed: 1 },
+  f: { Bowl: 2, Stem: 1 },
+  g: { Eye: 1, Seed: 1, Stem: 1 },
+  h: { Stem: 2, Eye: 1, Bar: 2 },
+  i: { Ray: 1, Seed: 1 },
+  j: { Stem: 1, Bar: 1, Bowl: 1, Seed: 1 },
+  k: { Bar: 1, Stem: 3 },
+  l: { Bowl: 1, Ray: 2, Seed: 1 },
+  m: { Eye: 2, Bar: 1 },
+  n: { Stem: 2, Bowl: 1, Seed: 1 },
+  o: { Bowl: 2 },
+  p: { Stem: 1, Bowl: 2 },
+  q: { Ray: 4, Stem: 1, Bar: 1 },
+  r: { Bowl: 3, Stem: 1 },
+  s: { Ray: 3, Seed: 1 },
+  t: { Eye: 1, Stem: 1, Ray: 2 },
+  u: { Seed: 1, Bowl: 1, Bar: 1 },
+  v: { Bar: 2, Ray: 2 },
+  w: { Ray: 2, Stem: 1, Bar: 1 },
+  x: { Eye: 1, Ray: 1, Seed: 1 },
+  y: { Bowl: 3, Seed: 1 },
+  z: { Stem: 1, Ray: 4 },
+})
+
+const COUNTED = ['no', 'one', 'two', 'three', 'four', 'five', 'six']
+
+// How a letter is written, in words: anatomy('a') -> { strokes: 3, text: 'two Rays and an Eye' }.
+// Null for anything that is not a letter.
+export function anatomy(letter) {
+  const parts = ANATOMY[String(letter).toLowerCase()]
+  if (!parts) return null
+  const words = Object.entries(parts).map(([stroke, n]) => (n === 1 ? `${stroke === 'Eye' ? 'an' : 'a'} ${stroke}` : `${COUNTED[n]} ${stroke}s`))
+  const text = words.length > 1 ? `${words.slice(0, -1).join(', ')} and ${words[words.length - 1]}` : words[0]
+  return { strokes: Object.values(parts).reduce((sum, n) => sum + n, 0), text }
+}
