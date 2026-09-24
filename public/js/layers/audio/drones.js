@@ -2,6 +2,7 @@
 //   { out, label, tick(now, until), react(event, data), stop(when) }
 // `out` is a GainNode at 0; the engine fades it in and out (crossfades on schisms).
 // `tick` is called every 100 ms with a 400 ms horizon and schedules whatever falls inside it.
+// `note(text)` (from the layer) names an event for the Third Eye, if it happens to be open.
 import { bell, whisper, thump, swoop, reversedWhispers } from './voices.js'
 import { createEngine } from './engine.js'
 import { makeRng } from '../../kernel/rng.js'
@@ -13,6 +14,8 @@ const midi = (m) => 440 * Math.pow(2, (m - 69) / 12)
 // ruler of the hour in which the visitor arrives.
 export const PLANET_TONE = { Sun: 126.22, Moon: 210.42, Mercury: 141.27, Venus: 221.23, Mars: 144.72, Jupiter: 183.58, Saturn: 147.85 }
 const fold = (f, lo) => { while (f >= lo * 2) f /= 2; while (f < lo) f *= 2; return f }
+// The luminaries take an article; the wanderers do not.
+const ruler = (planet) => (/^(Sun|Moon)$/.test(planet) ? `the ${planet}` : planet)
 
 // Advance an event clock past `now` if the context was frozen (hushed, hidden) for a while.
 const catchUp = (t, now, pad = 0.05) => (t < now ? now + pad : t)
@@ -20,7 +23,7 @@ const catchUp = (t, now, pad = 0.05) => (t < now ? now + pad : t)
 // ───────────────────────── sanctum: the organ and the tubular bells ─────────────────────────
 // Just intonation on D. At 33 seconds of stillness the tierce is drawn (the page illuminates);
 // at 108 the mixture (the full plenum). Any movement puts the stops back in.
-function sanctum(E, { rng, planet }) {
+function sanctum(E, { rng, planet, note }) {
   const { ac } = E
   const out = E.gain(0)
   const warm = E.filter('lowpass', 2300, 0.3, E.gain(0.16, out))
@@ -51,7 +54,7 @@ function sanctum(E, { rng, planet }) {
   return {
     out,
     tonic: D * 2,
-    label: `the organ of the sanctum, in just intonation on ${tone ? `the tone of ${planet}, ruler of this hour (${D.toFixed(2)} Hz)` : 'D'}, and the tubular bells`,
+    label: `the organ of the sanctum, in just intonation on ${tone ? `the tone of ${ruler(planet)}, ruler of this hour (${D.toFixed(2)} Hz)` : 'D'}, and the tubular bells`,
     tick(now, until) {
       nextBell = catchUp(nextBell, now)
       while (nextBell < until) {
@@ -60,12 +63,21 @@ function sanctum(E, { rng, planet }) {
           const f = D * 8 * rng.pick(pent) * (rng.chance(0.3) ? 0.5 : 1)
           bell(E, { kind: 'tubular', freq: f, gain: 0.085, when: nextBell + i * 1.1, pan: rng.float(-0.45, 0.45), dest: out, hall: 0.55 })
         }
+        note?.(peal > 1
+          ? 'three tubular bells from the tower: three ladders of light, each missing the rung you hear'
+          : 'a tubular bell from the tower: its rungs are the modes of a free bar, and the note you hear is one the tube does not contain')
         nextBell += rng.float(16, 34)
       }
     },
     react(evt, data) {
-      if (evt === 'still' && data?.seconds >= 33) draw('tierce', true, 9)
-      if (evt === 'still' && data?.seconds >= 108) draw('mixture', true, 14)
+      if (evt === 'still' && data?.seconds === 33) {
+        draw('tierce', true, 9)
+        note?.('the organist draws the tierce: a new rung of light fades in above the others, and the page begins to illuminate')
+      }
+      if (evt === 'still' && data?.seconds >= 108) {
+        draw('mixture', true, 14)
+        note?.('the mixture is drawn, the full plenum: high rungs above high rungs, and every one of them in tune')
+      }
       if (evt === 'stir') { draw('tierce', false, 4); draw('mixture', false, 3) }
     },
     stop: (t) => bag.stop(t),
@@ -75,7 +87,7 @@ function sanctum(E, { rng, planet }) {
 // ───────────────────────── possession: the stylesheet that breathes against you ─────────────────────────
 // Detuned beating saws, a rumble under the floor, whispers that run backwards, and a heart whose
 // rate is the visitor's own restlessness.
-function possession(E, { rng, sense }) {
+function possession(E, { rng, sense, note }) {
   const { ac } = E
   const out = E.gain(0)
   E.toHall(out, 0.35)
@@ -124,6 +136,11 @@ function possession(E, { rng, sense }) {
           } else {
             whisper(E, { reverse: rng.chance(0.5), when: nextWhisper, gain: 0.16, pan, dest: out, rand: rng })
           }
+          note?.(rng.pick([
+            'a whisper, played backwards: its echo arrives before it does, a smear of light that ends in a cut',
+            'something whispering on the other side of the stylesheet: breath with a mouth, and no voice under it',
+            'a whisper from inside the demon\u2019s console, too quiet to read, bright only where the teeth would be',
+          ]))
         }
         nextWhisper += rng.float(8, 19)
       }
@@ -142,6 +159,7 @@ function possession(E, { rng, sense }) {
           o.start(nextMoan)
           o.stop(nextMoan + 7)
         }
+        note?.('two voices a semitone apart, sinking a fourth together: two lines falling side by side, never quite one')
         nextMoan += rng.float(26, 44)
       }
     },
@@ -200,7 +218,7 @@ function hymnScore() {
   return { notes, chords, beats: beat }
 }
 
-function recruitment(E, { rng }) {
+function recruitment(E, { rng, note: seen }) {
   const { ac } = E
   const out = E.gain(0)
   const soft = E.filter('lowpass', 3800, 0.4, out)
@@ -255,6 +273,12 @@ function recruitment(E, { rng }) {
       const late = rng.chance(0.12) ? beat / 4 : 0
       events.push({ t: loopStart + c.beat * beat + late, fn: (t) => note('triangle', midi(41) * Math.pow(2, (c.tones[0] % 12 + key) / 12), t, beat * 1.6, 0.085, { detune: drift }) })
     })
+    const verse = loop + 1
+    const newKey = loop >= 2 && loop <= 6 && loop % 2 === 0
+    events.push({
+      t: loopStart,
+      fn: () => seen?.(`the Hymn of the Cascade, verse ${verse}: a square lead, a triangle choir, ${drift ? `the tape ${-drift} cents flat` : 'the tape still true'}${newKey ? ', and the key change nobody asked for' : ''}. One note in it is wrong on purpose`),
+    })
     events.sort((a, b) => a.t - b.t)
     queue = events
     const length = score.beats * beat
@@ -305,7 +329,7 @@ function findYantraPhase() {
   return null
 }
 
-function ashram(E, { rng, sense, bus }) {
+function ashram(E, { rng, sense, bus, note }) {
   const { ac } = E
   const out = E.gain(0)
   E.toHall(out, 0.5)
@@ -324,8 +348,37 @@ function ashram(E, { rng, sense, bus }) {
   let cycle = ac.currentTime + 0.4
   let nextBreath = null
   let nextBowl = ac.currentTime + rng.float(40, 60)
-  let externalBreath = null
-  const offBreath = bus?.on?.('ashram:breath', (d) => { externalBreath = { phase: d?.phase, at: ac.currentTime } })
+  // The face counts the breath itself (it stumbles when you are restless, and stops while you hold).
+  // When it announces a phase, the breath follows that exact phase; without it, keep our own count.
+  let led = -Infinity
+  const follow = (phase, seconds) => {
+    const t = ac.currentTime
+    const g = breathAmp.gain
+    const f = breathBand.frequency
+    g.cancelScheduledValues(t)
+    f.cancelScheduledValues(t)
+    g.setValueAtTime(g.value, t)
+    f.setValueAtTime(f.value, t)
+    const s = Math.max(1, Math.min(12, Number(seconds) || (phase === 'out' ? 6 : 4)))
+    if (phase === 'in') {
+      const r = Math.min(1, (sense.restlessness() || 0) / 0.4)
+      g.linearRampToValueAtTime(0.05 * (1 - r * 0.35), t + s * 0.95)
+      f.linearRampToValueAtTime(1500, t + s)
+    } else if (phase === 'out') {
+      g.linearRampToValueAtTime(0.045, t + Math.min(0.5, s / 4))
+      g.linearRampToValueAtTime(0, t + s)
+      f.setValueAtTime(1300, t)
+      f.linearRampToValueAtTime(600, t + s)
+    } else {
+      g.setTargetAtTime(0, t, 0.06)
+      f.setTargetAtTime(700, t + 0.3, 0.5)
+    }
+  }
+  const offBreath = bus?.on?.('ashram:breath', (d) => {
+    led = ac.currentTime
+    nextBreath = null
+    if (ac.state === 'running') follow(d?.phase, d?.seconds)
+  })
 
   const pluck = (f, t, level) => {
     const o = E.osc('jawari', f)
@@ -377,20 +430,22 @@ function ashram(E, { rng, sense, bus }) {
         }
         cycle += 6.3
       }
-      if (nextBreath === null || nextBreath < now) {
-        // Align to the face's yantra if it breathes on a 14 s cycle; otherwise keep our own count.
-        const phase = externalBreath && now - externalBreath.at < 20
-          ? { in: 0, hold: 4 / 14, out: 8 / 14 }[externalBreath.phase] ?? findYantraPhase()
-          : findYantraPhase()
-        nextBreath = phase === null || phase === undefined ? now + 0.2 : now + (1 - phase) * 14
-      }
-      while (nextBreath < until) {
-        breathe(nextBreath)
-        nextBreath += 14
+      // The face leads while it speaks. (Its longest phase is six seconds; a held breath may last longer.)
+      if (now - led > 24) {
+        if (nextBreath === null || nextBreath < now) {
+          // No word from the face: align to a 14 s CSS breath if one is running, else keep our own count.
+          const phase = findYantraPhase()
+          nextBreath = phase === null ? now + 0.2 : now + (1 - phase) * 14
+        }
+        while (nextBreath < until) {
+          breathe(nextBreath)
+          nextBreath += 14
+        }
       }
       nextBowl = catchUp(nextBowl, now)
       while (nextBowl < until) {
         bell(E, { kind: 'bowl', freq: SA * 2, gain: 0.1, when: nextBowl, pan: rng.float(-0.3, 0.3), dest: out, hall: 0.5 })
+        note?.('the singing bowl, unasked: every rung trembles, because it beats against its twin a hair away')
         nextBowl += rng.float(55, 85)
       }
     },
@@ -399,6 +454,7 @@ function ashram(E, { rng, sense, bus }) {
         // Something opens: the bowl, twice, a fifth apart.
         bell(E, { kind: 'bowl', freq: SA * 2, gain: 0.12, when: ac.currentTime + 0.1, dest: out })
         bell(E, { kind: 'bowl', freq: SA * 3, gain: 0.08, when: ac.currentTime + 2.6, dest: out })
+        note?.('the bowl, twice, a fifth apart: one hundred and eight seconds of stillness, and something opens')
       }
     },
     stop(t) { bag.stop(t); offBreath?.() },
@@ -408,7 +464,7 @@ function ashram(E, { rng, sense, bus }) {
 // ───────────────────────── departure: the Mothership ─────────────────────────
 // A theremin that searches, a pad in whole tones, radio static kept below the picture, and every
 // sixty-six seconds, the Transmission.
-function departure(E, { rng, sense, transmit, planet }) {
+function departure(E, { rng, sense, transmit, planet, note }) {
   const { ac } = E
   const out = E.gain(0)
   E.toHall(out, 0.55)
@@ -454,7 +510,7 @@ function departure(E, { rng, sense, transmit, planet }) {
   return {
     out,
     tonic: root,
-    label: `the Mothership: a theremin, a pad in whole tones on the tone of ${PLANET_TONE[planet] ? planet : 'the Root'}, radio static, and the Transmission every sixty-six seconds`,
+    label: `the Mothership: a theremin, a pad in whole tones ${PLANET_TONE[planet] ? `on the tone of ${ruler(planet)}, ruler of this hour` : 'on C'}, radio static, and the Transmission every sixty-six seconds`,
     tick(now, until) {
       nextPhrase = catchUp(nextPhrase, now)
       while (nextPhrase < until) {
@@ -468,6 +524,11 @@ function departure(E, { rng, sense, transmit, planet }) {
           t += rng.float(0.9, 2.4)
         }
         thAmp.gain.setTargetAtTime(0, t, 0.6)
+        note?.(rng.pick([
+          'the theremin searching: one thin line of light that never quite lands, trembling as a hand trembles',
+          'the theremin: a single sine, played by a hand that never touches anything',
+          'the theremin, gliding between whole tones: watch the line bend rather than step',
+        ]))
         nextPhrase = t + rng.float(4, 11)
       }
       nextCrackle = catchUp(nextCrackle, now)
@@ -492,9 +553,11 @@ function departure(E, { rng, sense, transmit, planet }) {
           const f = chordA[i] * (shifted ? 9 / 8 : 1)
           for (const o of oscs) o.frequency.setTargetAtTime(f, nextShift, 1.4)
         })
+        note?.(shifted ? 'the pad lifts by a whole tone: five rungs rising together, and nothing else in the sky moves' : 'the pad settles back by a whole tone, as if nothing had happened')
         nextShift += rng.float(30, 50)
       }
-      nextTx = catchUp(nextTx, now)
+      // Back from a silence (hushed, hidden): let the temple settle before the Mothership speaks again.
+      if (nextTx < now) nextTx = now + 12
       while (nextTx < until) {
         transmit?.(nextTx)
         nextTx += 66
@@ -505,6 +568,7 @@ function departure(E, { rng, sense, transmit, planet }) {
         // The signal strengthens when you are still.
         staticAmp.gain.setTargetAtTime(0.005, ac.currentTime, 3)
         swoop(E, { from: 330, to: 990, seconds: 3, gain: 0.04, dest: out })
+        note?.('the static thins and the theremin climbs: the signal strengthens when you are still')
       }
       if (evt === 'stir') staticAmp.gain.setTargetAtTime(0.012, ac.currentTime, 1)
       if (evt === 'return') {
@@ -518,6 +582,7 @@ function departure(E, { rng, sense, transmit, planet }) {
 
 // ───────────────────────── babel: the choir of the infinite scripture ─────────────────────────
 // Every chapter has its own chord, drawn from its path, so the same verse always sounds the same.
+const ROMAN_UP = ['I', 'II', 'III', 'IV', 'V', 'VI']
 const MODES = {
   aeolian: [0, 2, 3, 5, 7, 8, 10],
   dorian: [0, 2, 3, 5, 7, 9, 10],
@@ -525,7 +590,7 @@ const MODES = {
   phrygian: [0, 1, 3, 5, 7, 8, 10],
 }
 
-function babel(E, { rng, path }) {
+function babel(E, { rng, path, note }) {
   const { ac } = E
   const prng = makeRng(`babel-choir:${path || '/'}`)
   const out = E.gain(0)
@@ -575,6 +640,7 @@ function babel(E, { rng, path }) {
         step = (step + 1) % progression.length
         const chord = chordAt(progression[step])
         voices.forEach((v, i) => { for (const o of v.oscs) o.frequency.setTargetAtTime(chord[i], nextChord, 0.9) })
+        note?.(`the choir moves to chord ${ROMAN_UP[step]} of ${ROMAN_UP[progression.length - 1]}: five voices, fifteen bright roads, and this chapter has always sung these same ${['', '', 'two', 'three', 'four'][progression.length]}`)
         nextChord += 14
       }
       nextVowel = catchUp(nextVowel, now)

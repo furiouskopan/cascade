@@ -20,20 +20,32 @@ function lcg(seed = 1996) {
 }
 
 // A generated hall: stereo noise, bright at first and darker as it dies, with a short silence before it.
+// The curve is drawn over the full `seconds`, but the impulse ends where it has fallen 42 dB (about
+// seven tenths of the way): below that nothing can be heard under the drones, and every sample of
+// impulse is paid for on every sample of sound.
+const ENVELOPE_FLOOR = Math.pow(10, -42 / 20)
 function hallImpulse(ac, seconds, { predelay = 0.022, curve = 2.4 } = {}) {
   const rate = ac.sampleRate
-  const len = Math.max(1, Math.floor(rate * seconds))
+  const full = Math.max(1, Math.floor(rate * seconds))
   const pre = Math.floor(rate * predelay)
+  const env = (t) => Math.pow(1 - t, curve) * Math.exp(-2.2 * t)
+  let end = full
+  for (let i = pre; i < full; i += 64) {
+    if (env((i - pre) / (full - pre)) < ENVELOPE_FLOOR) { end = i; break }
+  }
+  const len = Math.max(pre + 1, end)
+  const fade = Math.min(Math.floor(rate * 0.08), len - pre)
   const buf = ac.createBuffer(2, len, rate)
   const rand = lcg(2147483647)
   for (let ch = 0; ch < 2; ch++) {
     const d = buf.getChannelData(ch)
     let lp = 0
     for (let i = pre; i < len; i++) {
-      const t = (i - pre) / (len - pre)
+      const t = (i - pre) / (full - pre)
       const white = rand() * 2 - 1
       lp += (white - lp) * (0.92 - 0.8 * t)
-      d[i] = lp * Math.pow(1 - t, curve) * Math.exp(-2.2 * t)
+      const tail = i >= len - fade ? (len - i) / fade : 1
+      d[i] = lp * env(t) * tail
     }
   }
   return buf

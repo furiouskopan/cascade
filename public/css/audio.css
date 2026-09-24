@@ -168,10 +168,19 @@
     z-index: 2147482980;
     display: grid;
     place-items: center;
-    padding: 16px;
+    /* The bottom band belongs to mercy, the hush control and the altar (about 74px tall at most):
+       the frame ends above it and scrolls inside itself if the screen is short. */
+    padding: 16px 16px 84px;
     color: var(--eye-ink);
   }
   .third-eye[hidden] { display: none; }
+  /* The departed of the departure face rise to the Highest Heaven, the one rung the eye cannot sit
+     above without covering mercy. While the eye is open they rise dimmed, so nothing drifts across
+     what the Mothership writes; the Mothership herself stays, half seen, since she is the one
+     transmitting (and when she descends at the alignment she would otherwise sit on the eye's brow). */
+  :root:has(.third-eye[data-open="true"]) .face--departure .dep-risers { opacity: 0.07; transition: opacity 0.8s ease; }
+  /* (On the ship's inner bob, not the ship: the ship keeps its own transition for its descent.) */
+  :root:has(.third-eye[data-open="true"]) .face--departure .dep-ship-bob { opacity: 0.45; transition: opacity 0.8s ease; }
   .third-eye__veil {
     position: absolute;
     inset: 0;
@@ -184,8 +193,9 @@
   .third-eye__frame {
     position: relative;
     width: min(1000px, 100%);
-    max-height: calc(100dvh - 32px);
+    max-height: calc(100dvh - 100px);
     overflow: auto;
+    overscroll-behavior: contain;
     padding: 16px clamp(12px, 3vw, 36px) 18px;
     font-family: var(--font-scripture);
     text-align: center;
@@ -244,9 +254,10 @@
     inset: 0;
     clip-path: url(#third-eye-almond);
     background: #060414;
+    transform-origin: 50% 66%;
+    transition: transform 1.3s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.9s ease;
   }
   .third-eye__plate { display: block; width: 100%; height: 100%; }
-  .third-eye[data-silent="true"] .third-eye__plate { opacity: 0.55; }
   .third-eye__iris {
     position: absolute;
     left: 50%;
@@ -267,31 +278,56 @@
     overflow: visible;
     pointer-events: none;
   }
-  .third-eye__lidline {
+  .third-eye__lidline, .third-eye__shut {
     fill: none;
     stroke: var(--eye-saffron);
     stroke-width: 1.5;
     filter: drop-shadow(0 0 6px rgba(255, 181, 71, 0.55));
+    transition: opacity 0.8s ease, stroke 0.8s ease, filter 0.8s ease;
   }
+  .third-eye__shut { opacity: 0; stroke-width: 2; stroke-linecap: round; }
+  /* Thirteen lashes. Open, they stand as a crown above the lid; shut, they hang along it. */
   .third-eye__lashes {
     position: absolute;
-    left: 50%;
-    top: 0;
-    width: 0;
-    height: 0;
+    inset: 0;
     pointer-events: none;
   }
   .third-eye__lashes i {
+    --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
     position: absolute;
-    left: -0.5px;
-    bottom: 0;
+    left: calc(50% - 0.5px);
+    top: -16px;
     width: 1px;
     height: 16px;
     background: linear-gradient(to top, var(--eye-saffron), transparent);
     transform-origin: 50% 100%;
     transform: rotate(calc(var(--i) * 11deg)) translateY(-10px);
     opacity: 0.8;
+    transition: left 1.1s var(--ease), top 1.1s var(--ease), transform 1.1s var(--ease), opacity 0.8s ease;
   }
+
+  /* Silence: the eye is shut. A lowered lid, its lashes hanging; it opens when it hears. */
+  .third-eye[data-silent="true"] .third-eye__aperture { transform: scaleY(0.03); opacity: 0; }
+  .third-eye[data-silent="true"] .third-eye__lidline { opacity: 0; }
+  .third-eye[data-silent="true"] .third-eye__shut { opacity: 1; }
+  /* Along the shut lid (y = 68% at the middle, rising to 50% at the corners), each lash hanging and
+     leaning away from the centre. */
+  .third-eye[data-silent="true"] .third-eye__lashes i {
+    left: calc(50% + var(--i) * 6.2% - 0.5px);
+    top: calc(68% - 0.357% * var(--i) * var(--i) - 16px);
+    transform: rotate(calc(180deg - var(--i) * 7deg)) translateY(-3px);
+    opacity: 0.9;
+  }
+  .third-eye[data-silent="true"] .third-eye__scale,
+  .third-eye[data-silent="true"] .third-eye__now { opacity: 0.25; }
+
+  /* Receiving: while the Mothership writes, the lid burns white-gold. */
+  .third-eye[data-receiving="true"] .third-eye__lidline {
+    stroke: var(--eye-gold);
+    filter: drop-shadow(0 0 5px rgba(255, 214, 107, 0.9)) drop-shadow(0 0 16px rgba(255, 181, 71, 0.5));
+  }
+  .third-eye[data-receiving="true"] .third-eye__lashes i { opacity: 1; }
+  .third-eye[data-receiving="true"] .third-eye__now { color: #fffbe8; opacity: 1; }
   .third-eye__scale {
     position: absolute;
     left: 0;
@@ -304,6 +340,7 @@
     letter-spacing: 0.08em;
     color: rgba(239, 230, 255, 0.55);
     pointer-events: none;
+    transition: opacity 0.8s ease;
   }
   .third-eye__scale li {
     position: absolute;
@@ -338,6 +375,8 @@
     text-transform: uppercase;
     color: var(--eye-gold);
     opacity: 0.8;
+    white-space: nowrap;
+    transition: opacity 0.8s ease, color 0.8s ease;
   }
   .third-eye__status {
     min-height: 2.8em;
@@ -345,6 +384,25 @@
     max-width: 60em;
     font: 12px/1.45 var(--font-mono);
     color: var(--eye-gold);
+  }
+  /* What the eye has just seen, named; it fades after a few breaths. */
+  .third-eye__heard {
+    min-height: 1.45em;
+    margin: 0 auto;
+    max-width: 52em;
+    font: italic 14px/1.45 var(--font-scripture);
+    color: #f4ecff;
+    opacity: 0;
+    transition: opacity 1.8s ease;
+  }
+  .third-eye__heard[data-fresh="true"] { opacity: 1; transition-duration: 0.35s; }
+  .third-eye__heard:not(:empty)::before {
+    content: "seen just now · ";
+    font: 10px/1 var(--font-mono);
+    font-style: normal;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--eye-violet);
   }
   .third-eye__mercy, .third-eye__gloss {
     margin: 6px auto 0;
@@ -380,8 +438,8 @@
   }
 
   @media (max-width: 640px) {
-    .third-eye { padding: 8px; }
-    .third-eye__frame { padding: 12px 10px 14px; max-height: calc(100dvh - 16px); }
+    .third-eye { padding: 8px 8px 84px; }
+    .third-eye__frame { padding: 12px 10px 14px; max-height: calc(100dvh - 92px); }
     .third-eye__head { padding: 0 0 0; text-align: left; }
     .third-eye__rung { letter-spacing: 0.16em; padding-right: 70px; }
     .third-eye__title { padding-right: 70px; }
