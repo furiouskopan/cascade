@@ -4,7 +4,7 @@
 // id, the Pride of Ids) and the element's colour and bearing trade sides, never faster than one change
 // every 1.6 s. At the end somebody speaks the Inversion, or both are cleared, and the element returns.
 import { h } from '../../lib/dom.js'
-import { bodies, KINDS, aboveStart, inkRect, seen } from './core.js'
+import { bodies, KINDS, aboveStart, inkRect, seen, faceWords } from './core.js'
 
 const ROMAN = ['i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii', 'viii', 'ix', 'x', 'xi', 'xii', 'xiii', 'xiv', 'xv', 'xvi']
 const NOT_IDS = ['#void', '#the-lost', '#nobody', '#the-old-law', '#mothership', '#the-last-selector']
@@ -141,7 +141,7 @@ export function createWars(env) {
       h('span', { class: 'hell-war__score' }, fmt(spec(w[key]))),
     )
     w.tag.replaceChildren(
-      h('div', { class: 'hell-war__head' }, h('b', {}, HEAD[ctx.face] ?? 'Grace'), h('span', {}, `war ${w.id} · round ${w.round}`)),
+      h('div', { class: 'hell-war__head' }, h('b', {}, faceWords(ctx.face, 'war') ?? HEAD[ctx.face] ?? 'Grace'), h('span', {}, `war ${w.id} · round ${w.round}`)),
       row(w.order[0]), row(w.order[1]),
       h('div', { class: 'hell-war__status' }, tie && !status.includes('tie') ? `${status} · tie, the later is heard` : status),
     )

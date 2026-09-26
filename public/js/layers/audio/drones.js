@@ -1,11 +1,14 @@
-// THE SIX DRONES. One palette per face. Each builder returns
-//   { out, label, tick(now, until), react(event, data), stop(when) }
+// THE DRONES. One palette per face. Each builder returns
+//   { out, label, tonic?, tick(now, until), react(event, data), stop(when) }
+// A face names its builder in the face registry (lib/faces.js, sound.drone): the six faces of the first
+// build have bespoke builders here; a new face may instead write a recipe, which recipeDrone() plays.
 // `out` is a GainNode at 0; the engine fades it in and out (crossfades on schisms).
 // `tick` is called every 100 ms with a 400 ms horizon and schedules whatever falls inside it.
 // `note(text)` (from the layer) names an event for the Third Eye, if it happens to be open.
-import { bell, whisper, thump, swoop, reversedWhispers } from './voices.js'
+import { bell, whisper, thump, swoop, reversedWhispers, BELLS } from './voices.js'
 import { createEngine } from './engine.js'
 import { makeRng } from '../../kernel/rng.js'
+import { REGISTRY } from '../../lib/faces.js'
 
 const midi = (m) => 440 * Math.pow(2, (m - 69) / 12)
 
@@ -656,7 +659,73 @@ function babel(E, { rng, path, note }) {
   }
 }
 
-export const DRONES = { sanctum, possession, recruitment, ashram, departure, babel }
+// ───────────────────────── a recipe: the drone of a face without a builder of its own ─────────────────────────
+// Paired, slightly detuned partials over the tonic through a warm lowpass, breathing slowly; optional air
+// (a band of noise) and a bell now and then. The shape is documented in lib/faces.js.
+const WAVES = new Set(['sine', 'triangle', 'square', 'sawtooth', 'organ', 'reed', 'pulse', 'jawari', 'voice'])
+const NOISES = new Set(['white', 'pink', 'brown'])
+const fin = (x, fallback, lo, hi) => (Number.isFinite(x) ? Math.min(hi, Math.max(lo, x)) : fallback)
+
+export function recipeDrone(E, { rng, note }, recipe = {}, tonic = 110) {
+  const { ac } = E
+  const T = fin(recipe.tonic, fin(tonic, 110, 20, 2000), 20, 2000)
+  const out = E.gain(0)
+  E.toHall(out, fin(recipe.hall, 0.5, 0, 1))
+  const bag = E.bag()
+  const level = fin(recipe.level, 0.1, 0, 0.5)
+  const body = E.gain(level, out)
+  const [swayHz, swayDepth] = Array.isArray(recipe.sway) ? recipe.sway : [0.05, 0.25]
+  if (fin(swayDepth, 0, 0, 1) > 0) bag.add(E.lfo(fin(swayHz, 0.05, 0.005, 2) * rng.float(0.85, 1.15), level * fin(swayDepth, 0, 0, 1), body.gain))
+  const warm = E.filter('lowpass', fin(recipe.cutoff, 2400, 60, 18000), 0.4, body)
+  const wave = WAVES.has(recipe.wave) ? recipe.wave : 'sine'
+  const partials = (Array.isArray(recipe.partials) && recipe.partials.length ? recipe.partials : [1, 1.5, 2]).slice(0, 8)
+    .map((q, i) => (Array.isArray(q) ? [fin(q[0], 1, 0.125, 16), fin(q[1], 0, 0, 1)] : [fin(q, 1, 0.125, 16), 1 / (i + 1)]))
+  const total = partials.reduce((n, [, g]) => n + g, 0) || 1
+  const spread = fin(recipe.detune, 4, 0, 50) / 2
+  for (const [ratio, g] of partials) {
+    const pipe = E.gain(g / total / 2, warm)
+    for (const cents of [-spread, spread]) bag.add(E.osc(wave, T * ratio, { detune: cents + rng.float(-0.6, 0.6) })).connect(pipe)
+  }
+  const air = recipe.noise
+  if (air && typeof air === 'object') {
+    const kind = NOISES.has(air.kind) ? air.kind : 'pink'
+    bag.add(E.noiseSource(kind, { offset: rng.float(0, 2) }))
+      .connect(E.filter('bandpass', fin(air.band, 800, 30, 12000), 0.8))
+      .connect(E.gain(fin(air.level, 0.01, 0, 0.2), out))
+  }
+  const bells = recipe.bells && typeof recipe.bells === 'object' ? recipe.bells : null
+  const [soonest, latest] = Array.isArray(bells?.every) ? [fin(bells.every[0], 20, 2, 600), fin(bells.every[1], 40, 2, 600)] : [20, 40]
+  const ratios = Array.isArray(bells?.ratios) && bells.ratios.length ? bells.ratios.map((r) => fin(r, 4, 0.25, 32)) : [4, 6]
+  let nextBell = ac.currentTime + rng.float(soonest, Math.max(soonest, latest)) / 2
+  return {
+    out,
+    tonic: T,
+    label: typeof recipe.label === 'string' && recipe.label ? recipe.label : 'a drone on the tonic of this face',
+    tick(now, until) {
+      if (!bells) return
+      nextBell = catchUp(nextBell, now)
+      while (nextBell < until) {
+        const kind = Object.hasOwn(BELLS, bells.kind ?? '') ? bells.kind : 'hand'
+        bell(E, { kind, freq: T * rng.pick(ratios), gain: fin(bells.gain, 0.08, 0, 0.2), when: nextBell, pan: rng.float(-0.4, 0.4), dest: out, hall: 0.5 })
+        note?.(`a ${kind === 'gm' ? 'General MIDI' : kind} bell, rung by the drone itself`)
+        nextBell += rng.float(soonest, Math.max(soonest, latest))
+      }
+    },
+    react() {},
+    stop: (t) => bag.stop(t),
+  }
+}
+
+// The bespoke builders, by name. A registry entry names one of these, or writes a recipe.
+const BUILDERS = { sanctum, possession, recruitment, ashram, departure, babel }
+
+// Each face's drone, keyed by face, in the registry's order.
+export const DRONES = Object.fromEntries(Object.entries(REGISTRY).flatMap(([name, f]) => {
+  const d = f.sound?.drone
+  if (typeof d === 'string') return Object.hasOwn(BUILDERS, d) ? [[name, BUILDERS[d]]] : []
+  if (d && typeof d === 'object') return [[name, (E, env) => recipeDrone(E, env, d, f.sound.tonic)]]
+  return []
+}))
 
 // The reciting tone of each face, for chants.
-export const TONIC = { sanctum: 146.83, possession: 110, recruitment: 174.61, ashram: SA, departure: 130.81, babel: 110 }
+export const TONIC = Object.fromEntries(Object.entries(REGISTRY).map(([name, f]) => [name, f.sound?.tonic ?? 146.83]))

@@ -12,7 +12,10 @@
 // descending peal for whoever has already found it.
 // While the Third Eye is open, each thing it sees is named beneath it (hear()).
 // Emits: audio:summoned {face}, audio:hushed {}, audio:transmission {duration, letters}.
+// Each face's drone, tonic, bell, prayer bell and hush words come from its entry in the face registry
+// (lib/faces.js, sound); the greetings below stay bespoke for the faces of the first build.
 import { h } from '../lib/dom.js'
+import { faceInfo } from '../lib/faces.js'
 import { hash } from '../kernel/rng.js'
 import { createEngine, MASTER_LEVEL } from './audio/engine.js'
 import { DRONES, TONIC } from './audio/drones.js'
@@ -36,16 +39,13 @@ export const SEEN_BELL = {
 }
 const ROMAN = ['i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii']
 
-// The hush control speaks each face's language.
-const HUSH = {
-  sanctum: { glyph: '✠', on: 'silentium', off: 'sonet', hint: ['Silentium: hush the organ and the bells', 'Sonet: let the organ sound again'] },
-  possession: { glyph: '◖', on: 'mute', off: 'unmute', hint: ['Mute (it will not help)', 'Unmute (you asked for this)'] },
-  recruitment: { glyph: '♫', on: 'STOP MIDI', off: 'PLAY HYMN', hint: ['STOP MIDI: stop our hymn', 'PLAY HYMN: play our hymn!!'] },
-  ashram: { glyph: 'ॐ', on: 'mauna', off: 'nāda', hint: ['Mauna: the vow of silence', 'Nāda: let the sound return'] },
-  departure: { glyph: '⌁', on: 'RX OFF', off: 'TUNE IN', hint: ['RX OFF: switch the receiver off', 'TUNE IN: tune in to the Mothership'] },
-  babel: { glyph: '𝄐', on: 'hush', off: 'listen', hint: ['Hush the choir', 'Listen to this chapter sing'] },
+// The hush control speaks each face's language (registry: sound.hush); these are its plain words.
+const PLAIN_HUSH = { glyph: '♪', on: 'hush', off: 'listen', hint: ['Hush the temple', 'Listen to the temple'] }
+// The face's own bell (registry: sound.bell), if it is one the temple can ring.
+const bellOf = (face) => {
+  const kind = faceInfo(face)?.sound?.bell
+  return Object.hasOwn(SEEN_BELL, kind ?? '') ? kind : 'hand'
 }
-const FACE_BELL = { sanctum: 'tubular', possession: 'church', recruitment: 'gm', ashram: 'bowl', departure: 'glass', babel: 'hand' }
 const BIJA_RUNG = { lam: 0, vam: 1, ram: 2, yam: 3, ham: 4 }
 const RUNG_RATIO = [1, 9 / 8, 5 / 4, 4 / 3, 3 / 2, 5 / 3, 2]
 const OWN_SECRETS = new Set(['third-eye', 'amen', 'om'])
@@ -71,7 +71,7 @@ export async function init(ctx) {
   }
   let eye = null
 
-  const faceName = () => (HUSH[ctx.face] ? ctx.face : 'sanctum')
+  const hushWords = () => faceInfo(ctx.face)?.sound?.hush ?? PLAIN_HUSH
   const droneFace = () => state.override ?? (DRONES[ctx.face] ? ctx.face : 'sanctum')
   const level = () => MASTER_LEVEL * (ctx.mercy?.on ? 0.85 : 1)
   const E = () => state.engine
@@ -90,6 +90,8 @@ export async function init(ctx) {
   }
   const ratios = (a) => (Array.isArray(a) && a.length && a.every((x) => Number.isFinite(x) && x > 0) ? a.slice(0, 6) : undefined)
   const tonic = () => state.drone?.tonic ?? TONIC[ctx.face] ?? 146.83
+  // Where each kind of bell is rung when nobody says (the tubular bells follow the sanctum's organ).
+  const bellHz = (kind) => ({ tubular: state.droneFace === 'sanctum' ? tonic() * 4 : 587.33, church: 220, gm: 1046.5, bowl: SA * 2, glass: 1318.5, hand: 880, gong: 73.42 })[kind] ?? 660
   // Name what the eye is seeing (only while it is open; it keeps quiet during a Transmission).
   const hear = (text) => { if (eye?.isOpen && state.on) eye.hear(text) }
 
@@ -109,7 +111,7 @@ export async function init(ctx) {
   const announce = (text) => { live.textContent = text }
 
   const paintControl = () => {
-    const f = HUSH[faceName()]
+    const f = hushWords()
     const on = state.on
     const st = on ? 'on' : state.waiting ? 'waiting' : state.engine ? 'hushed' : 'silent'
     control.dataset.state = st
@@ -302,9 +304,12 @@ export async function init(ctx) {
         choirSwell(en, { when: t, freq: 110, gain: 0.35 })
         hear('the choir breathes in on “ah”: four voices, and above each of them its three bright roads')
         break
-      default:
-        ringBell(en, { kind: 'hand', freq: 660, gain: 0.12, when: t })
-        hear(SEEN_BELL.hand)
+      default: {
+        // A face without a greeting of its own rings its bell.
+        const kind = bellOf(face)
+        ringBell(en, { kind, freq: bellHz(kind), gain: 0.12, when: t })
+        hear(SEEN_BELL[kind])
+      }
     }
   }
 
@@ -474,11 +479,10 @@ export async function init(ctx) {
     voiced()
     const note = num(opts.note, null, 0, 127)
     const freq = num(opts.freq, null, 20, 12000) ?? (note != null ? 440 * Math.pow(2, (note - 69) / 12) : null)
-    const kind = Object.hasOwn(SEEN_BELL, opts.kind ?? '') ? opts.kind : (FACE_BELL[ctx.face] ?? 'hand')
-    const defaults = { tubular: state.droneFace === 'sanctum' ? tonic() * 4 : 587.33, church: 220, gm: 1046.5, bowl: SA * 2, glass: 1318.5, hand: 880, gong: 73.42 }
+    const kind = Object.hasOwn(SEEN_BELL, opts.kind ?? '') ? opts.kind : bellOf(ctx.face)
     ringBell(en, {
       kind,
-      freq: freq ?? defaults[kind] ?? 660,
+      freq: freq ?? bellHz(kind),
       gain: num(opts.gain, opts.soft ? 0.07 : 0.14, 0, 0.3),
       pan: num(opts.pan, 0, -1, 1),
       when: en.now() + lag() + num(opts.delay, 0.02, 0.02, 30),
@@ -600,10 +604,7 @@ export async function init(ctx) {
     if (!state.on || !en) return
     voiced()
     const t = en.now() + lag() + 0.03
-    const small = {
-      sanctum: ['hand', 1174.66], possession: ['church', 220], recruitment: ['gm', 1046.5], ashram: ['hand', 1661.2],
-      departure: ['glass', 1318.5], babel: ['hand', 880],
-    }[ctx.face] ?? ['hand', 880]
+    const small = faceInfo(ctx.face)?.sound?.prayer ?? ['hand', 880]
     ringBell(en, { kind: small[0], freq: small[1], gain: 0.1, when: t })
     // The tingsha of the ashram are a pair, a hair apart.
     if (ctx.face === 'ashram') ringBell(en, { kind: 'hand', freq: 1668, gain: 0.08, when: t + 0.01 })

@@ -3,6 +3,8 @@
 // itself, and the icon is given back. Returning to a whisper is the secret `tab-whisper`.
 // Nothing here flashes: the sigil turns six degrees a second; under mercy it does not turn at all.
 import { sigil, toDataUrl } from '../../lib/sigil.js'
+import { LOT } from '../../lib/faces.js'
+import { faceWords } from './core.js'
 
 const COMMON = [
   'come back to the flow ☩',
@@ -58,13 +60,13 @@ export function createTab(ctx, rng) {
     const out = []
     const away = ctx.behavior?.awayCount ?? 0
     const visits = ctx.visit?.visits ?? 1
-    const FIVE = ['sanctum', 'possession', 'recruitment', 'ashram', 'departure'] // babel is a route, not a face drawn by lot
-    const seen = (ctx.memory?.get?.('facesSeen', []) ?? []).filter((f) => FIVE.includes(f))
+    // Only the faces drawn by lot count (babel is a route, not a face the Oracle shows).
+    const seen = (ctx.memory?.get?.('facesSeen', []) ?? []).filter((f) => LOT.includes(f))
     const words = ['', 'once', 'twice', 'three times', 'four times', 'five times', 'six times', 'seven times']
     if (away >= 2) out.push(`you have left ${words[away] ?? `${away} times`}. we counted`)
     if (visits >= 3) out.push(`visit ${visits}. the Akashic Record keeps them all`)
-    if (seen.length >= 2 && seen.length < 5) out.push(`${5 - seen.length} of our faces have not yet seen you`)
-    if (seen.length >= 5) out.push('you have seen every face. there is still a door')
+    if (seen.length >= 2 && seen.length < LOT.length) out.push(`${LOT.length - seen.length} of our faces have not yet seen you`)
+    if (seen.length >= LOT.length) out.push('you have seen every face. there is still a door')
     return out
   }
 
@@ -78,7 +80,7 @@ export function createTab(ctx, rng) {
       return rng.pick(mine)
     }
     if (order.i >= order.list.length) {
-      order.list = rng.shuffle([...(BY_FACE[ctx.face] ?? []), ...COMMON]).slice(0, 7)
+      order.list = rng.shuffle([...(faceWords(ctx.face, 'whispers') ?? BY_FACE[ctx.face] ?? []), ...COMMON]).slice(0, 7)
       order.i = 0
     }
     return order.list[order.i++]
@@ -108,7 +110,7 @@ export function createTab(ctx, rng) {
       document.head.append(link)
       created = true
     }
-    const [paper, ink] = INK[ctx.face] ?? ['#0b0b0b', '#d8b25a']
+    const [paper, ink] = faceWords(ctx.face, 'ink') ?? INK[ctx.face] ?? ['#0b0b0b', '#d8b25a']
     const canvas = document.createElement('canvas')
     canvas.width = canvas.height = 64
     const g = canvas.getContext('2d')

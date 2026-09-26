@@ -3,9 +3,10 @@
 //   ctx.hell = { intensity, possess(el, {ms}), melt(el, {ms, strength}), whisper(text), invert(ms),
 //                effects (names drawn by lot for this face), face }
 //
-// Each face is cursed differently. Intensity comes from the face (sanctum 0.3, possession 1.0,
-// recruitment 0.4, ashram 0.15, departure 0.5, babel 0.2) and the omens (witching or midnight ×1.5,
-// capped at 1), and the curses are drawn by lot from ctx.rng.fork('hell'):
+// Each face is cursed differently. Intensity comes from the face's entry in the face registry
+// (lib/faces.js: sanctum 0.3, possession 1.0, recruitment 0.4, ashram 0.15, departure 0.5, babel 0.2) and
+// the omens (witching or midnight ×1.5, capped at 1), and the curses are drawn by lot from
+// ctx.rng.fork('hell'), leaning as the face's entry says (hell.lean):
 //   phantom  a second cursor that follows yours late, or as your mirror, and wanders when you are still
 //   war      the War of Grace: two real CSS rules fight over an element, scores shown, (0,1,1) vs (1,1,0)
 //   melt     text and figures you rest on run like wax (feTurbulence + feDisplacementMap)
@@ -22,6 +23,7 @@
 // Debug: ?debug=hell shows the lot and buttons to summon each curse (and exposes window.cascadeHell).
 //        ?hell=all | none | fast | 0.8 | war,rot  (comma-separated: force curses, intensity, or haste)
 import { h } from '../lib/dom.js'
+import { REGISTRY, faceInfo } from '../lib/faces.js'
 import { clamp, createClock, createMotions, createVeils, bodies, KINDS } from './hell/core.js'
 import { createTab } from './hell/tab.js'
 import { createInversion } from './hell/inversion.js'
@@ -34,7 +36,8 @@ import { createUnion } from './hell/union.js'
 import { createZwar } from './hell/zwar.js'
 import { createPossession } from './hell/possess.js'
 
-export const INTENSITY = { sanctum: 0.3, possession: 1, recruitment: 0.4, ashram: 0.15, departure: 0.5, babel: 0.2 }
+// Each face's intensity, from the registry.
+export const INTENSITY = Object.fromEntries(Object.entries(REGISTRY).map(([name, f]) => [name, f.hell?.intensity ?? 0.3]))
 
 // The catalogue: the chance of each curse being drawn at intensity I, before the face's own leanings.
 const CATALOGUE = {
@@ -47,13 +50,8 @@ const CATALOGUE = {
   zwar: (I) => (I >= 0.5 ? 0.35 + 1.3 * (I - 0.5) : 0),
   possess: (I) => 0.3 + 0.6 * I,
 }
-const LEANINGS = {
-  sanctum: { rot: 1.3, melt: 1.2, drift: 0.8 },
-  recruitment: { war: 1.3, phantom: 1.5, union: 1.2 },
-  ashram: { union: 1.6, drift: 0.6, war: 0.6, phantom: 0.7 },
-  departure: { drift: 1.7, zwar: 1.3, phantom: 1.1 },
-  babel: { rot: 1.6, possess: 1.5, drift: 0.8 },
-}
+// The face's own leanings on those odds (registry: hell.lean).
+const leaningsOf = (face) => faceInfo(face)?.hell?.lean ?? {}
 
 export async function init(ctx) {
   const params = ctx.params ?? new URLSearchParams(location.search)
@@ -83,7 +81,7 @@ export async function init(ctx) {
   }
 
   function drawLot(face, I, rng) {
-    const lean = LEANINGS[face] ?? {}
+    const lean = leaningsOf(face)
     const drawn = {}
     const odds = {}
     for (const [name, p] of Object.entries(CATALOGUE)) {

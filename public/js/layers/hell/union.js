@@ -3,7 +3,7 @@
 // They hold, and part. A small gloss at the seam does the arithmetic of the Union (the larger margin
 // survives; the smaller is absorbed), which is how margin collapse really works.
 import { h } from '../../lib/dom.js'
-import { bodies, KINDS, quiet, clamp, seen } from './core.js'
+import { bodies, KINDS, quiet, clamp, seen, faceWords } from './core.js'
 
 const px = (n) => `${Math.round(n * 10) / 10}px`.replace('.0px', 'px')
 const GLOSS = {
@@ -50,7 +50,7 @@ export function createUnion(env) {
     const one = mA >= 0 && mB >= 0 ? Math.max(mA, mB) : mA < 0 && mB < 0 ? Math.min(mA, mB) : mA + mB
     const overlap = clamp(Math.min(ra.height, rb.height) * 0.42, 8, 14 + 26 * I)
     const each = (gap + overlap) / 2
-    const [kicker, touch, oneSpace, part] = GLOSS[ctx.face] ?? DEFAULT
+    const [kicker, touch, oneSpace, part] = faceWords(ctx.face, 'union') ?? GLOSS[ctx.face] ?? DEFAULT
 
     const u = { a, b }
     current = u

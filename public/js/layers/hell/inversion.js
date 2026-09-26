@@ -3,6 +3,7 @@
 // over for seven breaths, about the middle of what you are looking at. Secret `inversion`; emits
 // `hell:inversion` {on}. Under mercy the words are spoken but the temple is held upright.
 import { h } from '../../lib/dom.js'
+import { faceWords } from './core.js'
 
 const KONAMI = 'arrowup arrowup arrowdown arrowdown arrowleft arrowright arrowleft arrowright b a'
 
@@ -29,7 +30,7 @@ export function createInversion(ctx, veils) {
 
   function showBanner(ms) {
     banner?.remove()
-    const [kicker, title, gloss] = WORDS[ctx.face] ?? DEFAULT
+    const [kicker, title, gloss] = faceWords(ctx.face, 'inversion') ?? WORDS[ctx.face] ?? DEFAULT
     const breaths = Math.max(1, Math.round(ms / 1000))
     banner = h('div', { class: 'hell-inversion' },
       h('p', { class: 'hell-inversion__kicker' }, kicker),

@@ -4,7 +4,7 @@
 // as the minutes you have spent here allow; and more of them join as the minutes pass. Scroll or click and
 // you clear them (Absolution, in the old word for `clear`): everything glides back into the flow, and the
 // creeping begins again from nothing. Compositor-only motion (translate/rotate), paused with the tab.
-import { bodies, KINDS, quiet, currentTranslate, currentRotate, clamp } from './core.js'
+import { bodies, KINDS, quiet, currentTranslate, currentRotate, clamp, faceLift } from './core.js'
 
 export function createDrift(env) {
   const { ctx, rng, clock, motions, I } = env
@@ -53,7 +53,7 @@ export function createDrift(env) {
     const R = reach()
     m.heading += rng.float(-0.55, 0.55)
     const step = R * rng.float(0.22, 0.5)
-    const lift = ctx.face === 'departure' ? step * 0.45 : 0
+    const lift = step * faceLift(ctx.face) // the Departed rise (registry: hell.lift)
     let tx = m.x + Math.cos(m.heading) * step
     let ty = m.y + Math.sin(m.heading) * step * 0.7 - lift
     const far = Math.hypot(tx, ty)

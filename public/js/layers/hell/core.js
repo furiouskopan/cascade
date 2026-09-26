@@ -5,10 +5,17 @@
 //   the page, for the little tags that show scores and rungs,
 // - a register of motions (Web Animations), so they can all be paused, resumed or undone at once.
 import { h } from '../../lib/dom.js'
+import { faceInfo } from '../../lib/faces.js'
 
 export const clamp = (v, a, b) => Math.max(a, Math.min(b, v))
 export const lerp = (a, b, t) => a + (b - a) * t
 export const ease = (t) => (t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2)
+
+// A face's own words for a curse, when its registry entry declares them (lib/faces.js, hell.words):
+// whispers, ink, inversion, union, war, zwar. The faces of the first build keep theirs beside each curse.
+export const faceWords = (face, key) => faceInfo(face)?.hell?.words?.[key]
+// How far a face's drift also rises, as a share of each step (registry: hell.lift).
+export const faceLift = (face) => Number(faceInfo(face)?.hell?.lift) || 0
 
 // Never touched by any curse: the puzzle and its relics, forms, anything live, anything a face spared.
 // Faces may spare an element (and everything inside it) with data-hell="spare".

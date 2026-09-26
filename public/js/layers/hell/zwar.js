@@ -4,7 +4,7 @@
 // reaches for 2147483647 and is refused: the Highest Heaven is not for page elements, and the war ends.
 // (Real rungs stay below 1000, under the temple's own layers, so no war ever covers the mercy button.)
 import { h } from '../../lib/dom.js'
-import { bodies, KINDS, quiet, clamp, seen, paperOf, aboveStart } from './core.js'
+import { bodies, KINDS, quiet, clamp, seen, paperOf, aboveStart, faceWords } from './core.js'
 
 const RUNGS = [1, 2, 3, 5, 7, 12, 33, 108, 404, 999]
 const NAMES = { 1: 'Muladhara', 2: 'Svadhisthana', 3: 'Manipura', 5: 'Vishuddha', 7: 'the Seventh', 12: 'the Twelve', 33: 'the Age of Ascent', 108: 'the Mala', 404: 'the Lost', 999: 'the Last Rung' }
@@ -113,7 +113,7 @@ export function createZwar(env) {
         if (!alive()) return end(w)
         const t = under === a ? ta : tb
         t.classList.add('is-refused')
-        t.children[2].textContent = ` · ${REFUSAL[ctx.face] ?? 'the Highest Heaven is not for page elements'}`
+        t.children[2].textContent = ` · ${faceWords(ctx.face, 'zwar') ?? REFUSAL[ctx.face] ?? 'the Highest Heaven is not for page elements'}`
         veils.refresh()
         await clock.wait(3200)
         return end(w)
