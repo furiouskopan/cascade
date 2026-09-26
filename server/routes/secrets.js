@@ -7,6 +7,7 @@
 import { Router } from 'express'
 import { createHash } from 'node:crypto'
 import { db } from '../db.js'
+import { refused } from '../refuse.js'
 import { broadcast } from '../sse.js'
 import { limiter } from '../limit.js'
 import { planetaryHour, PLANET_GLYPH } from '../../public/js/kernel/sky.js'
@@ -18,10 +19,17 @@ import { verse } from '../../public/js/lib/scripture.js'
 const router = Router()
 
 // The Book of the Ascended. The schema is agreed with the ritual route (Canon §7).
-db.exec('CREATE TABLE IF NOT EXISTS ascended (id INTEGER PRIMARY KEY, name TEXT NOT NULL, at INTEGER NOT NULL)')
+// The door is always open; names written at the thirty-third minute are gilded (ids kept in ascended_gilded,
+// which the ritual route also creates and reads).
+db.exec(`
+  CREATE TABLE IF NOT EXISTS ascended (id INTEGER PRIMARY KEY, name TEXT NOT NULL, at INTEGER NOT NULL);
+  CREATE TABLE IF NOT EXISTS ascended_gilded (id INTEGER PRIMARY KEY);
+`)
 const insertAscended = db.prepare('INSERT INTO ascended (name, at) VALUES (?, ?)')
+const insertGilded = db.prepare('INSERT OR IGNORE INTO ascended_gilded (id) VALUES (?)')
 const countAscended = db.prepare('SELECT COUNT(*) AS n FROM ascended')
-const recentAscended = db.prepare('SELECT name, at FROM ascended ORDER BY at DESC, id DESC LIMIT ?')
+const recentAscended = db.prepare(`SELECT a.name, a.at, g.id IS NOT NULL AS gilded
+  FROM ascended a LEFT JOIN ascended_gilded g ON g.id = a.id ORDER BY a.at DESC, a.id DESC LIMIT ?`)
 const sameNameSince = db.prepare('SELECT COUNT(*) AS n FROM ascended WHERE lower(name) = lower(?) AND at > ?')
 
 const HEAVEN = 2147483647
@@ -33,7 +41,7 @@ router.use((req, res, next) => {
   res.set('X-Oracle', 'dwells in the console')
   res.set('X-Rubric', 'select what you cannot see')
   res.set('X-Highest-Heaven', String(HEAVEN))
-  res.set('X-Door', 'opens at the thirty-third minute')
+  res.set('X-Door', 'always open; lit in gold at the thirty-third minute')
   next()
 })
 
@@ -224,11 +232,13 @@ const DOOR_CSS = `
   }
   @media (min-width: 860px) { .heaven { grid-template-columns: minmax(250px, 0.9fr) minmax(320px, 1.1fr); } }
   .door-col { display: flex; justify-content: center; }
+  /* The tablet is always shown now, so the door keeps to the top of its column and stays in view beside it. */
+  @media (min-width: 860px) { .door-col { align-self: start; position: sticky; top: 24px; } }
   .door { height: min(60vh, 540px); width: auto; max-width: 86vw; overflow: visible; }
   @media (max-width: 859px) { .door { height: min(46vh, 420px); } }
-  body[data-state="open"] .door, body[data-state="closing"] .door, body[data-state="written"] .door { height: min(56vh, 520px); }
+  body[data-state="open"] .door, body[data-state="written"] .door { height: min(56vh, 520px); }
   @media (max-width: 859px) {
-    body[data-state="open"] .door, body[data-state="closing"] .door, body[data-state="written"] .door { height: min(34vh, 300px); }
+    body[data-state="open"] .door, body[data-state="written"] .door { height: min(34vh, 300px); }
   }
 
   /* The door itself. The leaves open by foreshortening, the only way an SVG door can swing. */
@@ -246,18 +256,19 @@ const DOOR_CSS = `
   }
   .door .threshold { opacity: calc(0.06 + var(--near) * 0.94); }
   .door .spill { opacity: calc(var(--near) * 0.85); }
-  body[data-state="open"] .door .leaf-l, body[data-state="closing"] .door .leaf-l,
-  body[data-state="written"] .door .leaf-l { transform: scaleX(0.07); }
-  body[data-state="open"] .door .leaf-r, body[data-state="closing"] .door .leaf-r,
-  body[data-state="written"] .door .leaf-r { transform: scaleX(0.07); }
-  body:is([data-state="open"], [data-state="closing"], [data-state="written"]) .door .light { opacity: 1; animation: light-breath 7s ease-in-out 3s infinite; }
-  body:is([data-state="open"], [data-state="closing"], [data-state="written"]) .door .rays { opacity: 0.22; }
-  body:is([data-state="open"], [data-state="closing"], [data-state="written"]) .door .seal-wrap { opacity: 0; transform: scale(1.3) rotate(-9deg); animation: none; }
-  body:is([data-state="open"], [data-state="closing"], [data-state="written"]) .door .threshold,
-  body:is([data-state="open"], [data-state="closing"], [data-state="written"]) .door .spill { opacity: 1; }
-  body[data-state="closing"] .door .leaf-l, body[data-state="closing"] .door .leaf-r { transform: scaleX(0.4); }
+  body:is([data-state="open"], [data-state="written"]) .door .leaf-l,
+  body:is([data-state="open"], [data-state="written"]) .door .leaf-r { transform: scaleX(0.07); }
+  body:is([data-state="open"], [data-state="written"]) .door .light { opacity: 1; animation: light-breath 7s ease-in-out 3s infinite; }
+  body:is([data-state="open"], [data-state="written"]) .door .rays { opacity: 0.22; }
+  body:is([data-state="open"], [data-state="written"]) .door .seal-wrap { opacity: 0; transform: scale(1.3) rotate(-9deg); animation: none; }
+  body:is([data-state="open"], [data-state="written"]) .door .threshold,
+  body:is([data-state="open"], [data-state="written"]) .door .spill { opacity: 1; }
   .door .seam { transition: opacity 1.2s ease; }
   body:is([data-state="open"], [data-state="written"]) .door .seam { opacity: 0; }
+  /* The minute of gold: the thirty-third of every hour, for three minutes. */
+  .door .light { transition: opacity 2.4s ease 0.4s, filter 2.4s ease; }
+  body[data-gilded="true"] .door .light { filter: saturate(1.4) brightness(1.15); }
+  body[data-gilded="true"] .door .rays { opacity: 0.42; }
   @keyframes seal-breath { 50% { filter: drop-shadow(0 0 calc(5px + var(--near) * 10px) rgba(216, 178, 90, 0.75)); } }
   @keyframes light-breath { 50% { opacity: 0.84; } }
   /* A body that asks for less motion is obeyed even before the script has read its mercy. */
@@ -271,13 +282,12 @@ const DOOR_CSS = `
   .state-label {
     margin: 0 0 6px; font: 600 12px/1.2 var(--font-mono); letter-spacing: 0.34em; text-transform: uppercase; color: var(--vermilion);
   }
-  .countdown {
-    margin: 0; font: 300 clamp(64px, 12vw, 120px)/0.95 var(--font-mono); letter-spacing: -0.02em; color: var(--pale);
-    font-variant-numeric: tabular-nums;
-    text-shadow: 0 0 calc(var(--near) * 30px) rgba(247, 226, 164, calc(var(--near) * 0.7));
-  }
-  .until { margin: 4px 0 22px; font-style: italic; color: var(--ash); font-size: 18px; }
+  body[data-gilded="true"] .state-label { color: var(--gold); }
+  .status { margin-bottom: 22px; }
   .where { margin: 0 0 8px; color: var(--pale); max-width: 34em; }
+  .gold-note { margin: 0; color: var(--ash); max-width: 34em; font-size: 15px; }
+  .gold-note .cd { font-family: var(--font-mono); font-style: normal; color: var(--gold); font-variant-numeric: tabular-nums; }
+  body[data-gilded="true"] .gold-note { color: var(--pale); }
   .where time { font-family: var(--font-mono); font-size: 0.92em; color: var(--gold); }
   .ruler { font-size: 1.15em; color: var(--gold); }
   .lore { color: var(--ash); max-width: 34em; margin: 14px 0 0; font-size: 15px; }
@@ -323,7 +333,6 @@ const DOOR_CSS = `
   .knock:disabled { opacity: 0.5; cursor: progress; }
   .verdict { min-height: 1.5em; margin: 14px 0 0; color: var(--pale); font-style: italic; }
   .verdict[data-kind="refused"] { color: #f0a08e; }
-  .closing-note { margin: 0 0 12px; font: 12px/1.4 var(--font-mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--vermilion); }
 
   .written { text-align: left; }
   .written:focus { outline: none; }
@@ -341,6 +350,7 @@ const DOOR_CSS = `
   .book h2 { margin: 0 0 10px; font: 600 11px/1.2 var(--font-mono); letter-spacing: 0.34em; text-transform: uppercase; color: var(--gold-dim); }
   .book ol { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 22px; }
   .book li { font-family: var(--font-glyph); font-size: 20px; color: var(--pale); letter-spacing: 0.08em; }
+  .book li.gilded { color: var(--gold); text-shadow: 0 0 8px rgba(216, 178, 90, 0.45); }
   .book .empty { font-style: italic; color: var(--ash); }
   .coda { width: min(100%, 980px); margin: 22px 0 0; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px 24px; font-size: 14px; color: var(--ash); }
   .coda p { margin: 0; font-style: italic; max-width: 36em; }
@@ -379,7 +389,7 @@ function bookList(limit = 21) {
   let rows = []
   try { rows = recentAscended.all(limit) } catch {}
   if (!rows.length) return '<p class="empty">No name has been written yet. The first page of the Book is waiting.</p>'
-  return `<ol>${rows.map((r) => `<li title="${esc(new Date(r.at).toISOString().slice(0, 10))}">${esc(r.name)}</li>`).join('')}</ol>`
+  return `<ol>${rows.map((r) => `<li${r.gilded ? ' class="gilded"' : ''} title="${esc(new Date(r.at).toISOString().slice(0, 10))}${r.gilded ? ', in gold' : ''}">${esc(r.name)}</li>`).join('')}</ol>`
 }
 
 // The client half of the door. No template literals inside: this whole page is one.
@@ -431,15 +441,11 @@ reduce.addEventListener('change', (e) => { if (typeof recall().mercy !== 'boolea
 
 if (offset) $('forced').hidden = false
 
-function phaseOf(d) {
-  const m = d.getMinutes()
-  if (m >= 33 && m <= 35) return 'open'
-  // The door does not slam on a pilgrim who is still speaking: two minutes of grace.
-  if ((m === 36 || m === 37) && (state === 'open' || state === 'closing')) return 'closing'
-  return 'sealed'
-}
+// The door is always open. At the thirty-third minute of every hour it is lit in gold for three minutes,
+// and a name written then is gilded in the Book (the temple allows two more minutes for slow hands).
+const gildedAt = (d) => d.getMinutes() >= 33 && d.getMinutes() <= 35
 
-function nextOpening(d) {
+function nextGold(d) {
   const t = new Date(d)
   t.setSeconds(0, 0)
   if (d.getMinutes() >= 33) t.setHours(t.getHours() + 1)
@@ -449,26 +455,27 @@ function nextOpening(d) {
 
 function setState(next) {
   if (next === state) return
-  const prev = state
   state = next
   body.dataset.state = next
-  $('sealed').hidden = next !== 'sealed'
-  form.hidden = !(next === 'open' || next === 'closing')
+  $('status').hidden = next === 'written'
+  form.hidden = next !== 'open'
   $('written').hidden = next !== 'written'
-  $('closing-note').hidden = next !== 'closing'
-  $('door-title').textContent = next === 'sealed'
-    ? 'A pointed door at the top of the Ladder, sealed'
-    : 'The door at the top of the Ladder stands open, and light comes through it'
-  if (next === 'open' && prev !== 'closing') {
-    $('sr-status').textContent = 'The door is open. It stays open for three minutes.'
-    if (prev === 'sealed') setTimeout(() => form.elements.w1.focus({ preventScroll: true }), 1200)
-  }
-  if (next === 'sealed' && prev) $('sr-status').textContent = 'The door is sealed again.'
 }
 
+let gold = null
 function tick() {
   const now = clock()
-  if (state !== 'written') setState(phaseOf(now))
+  if (state !== 'written') setState('open')
+  const g = gildedAt(now)
+  if (g !== gold) {
+    const first = gold === null
+    gold = g
+    body.dataset.gilded = String(g)
+    $('state-label').textContent = g ? 'The door is lit in gold' : 'The door stands open'
+    $('gold-now').hidden = !g
+    $('gold-wait').hidden = g
+    if (!first) $('sr-status').textContent = g ? 'The door is lit in gold. A name written now is gilded in the Book.' : 'The gold has faded. The door still stands open.'
+  }
   const minuteKey = now.getHours() * 60 + now.getMinutes()
   if (minuteKey !== lastRulerMinute) {
     lastRulerMinute = minuteKey
@@ -481,19 +488,19 @@ function tick() {
   $('now').textContent = pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds())
   $('now').dateTime = now.toISOString()
   let near = 1
-  if (state === 'sealed') {
-    const left = Math.max(0, nextOpening(now) - now)
+  if (!gold) {
+    const left = Math.max(0, nextGold(now) - now)
     const s = Math.ceil(left / 1000)
     $('cd').textContent = pad(Math.floor(s / 60)) + ':' + pad(s % 60)
-    // Light gathers under the door as the minute approaches; almost all of it in the last five.
+    // Gold gathers in the title as the minute approaches; almost all of it in the last five.
     near = Math.pow(1 - Math.min(1, left / 3600000), 6)
-    // Told to screen readers once on arrival, then only at a few milestones, not every minute.
+    // Told to screen readers only at a few milestones, not every minute.
     const mins = Math.ceil(left / 60000)
     if (mins !== srMinute) {
       const first = srMinute === -1
       srMinute = mins
-      if (first || [30, 15, 10, 5, 3, 2, 1].includes(mins)) {
-        $('sr-status').textContent = 'The door opens in ' + mins + (mins === 1 ? ' minute.' : ' minutes.')
+      if (!first && [10, 5, 1].includes(mins)) {
+        $('sr-status').textContent = 'The door turns to gold in ' + mins + (mins === 1 ? ' minute.' : ' minutes.')
       }
     }
   }
@@ -582,8 +589,10 @@ async function knock(e) {
   const r = Number(data.rank) || 1
   const sfx = r % 100 >= 11 && r % 100 <= 13 ? 'th' : ({ 1: 'st', 2: 'nd', 3: 'rd' })[r % 10] || 'th'
   $('written-rank').textContent = r + sfx
+  $('written-kicker').textContent = data.gilded ? 'It is written in gold' : 'It is written'
   const li = document.createElement('li')
   li.textContent = data.name
+  if (data.gilded) li.className = 'gilded'
   const list = document.querySelector('.book ol')
   if (list) list.prepend(li)
   else {
@@ -639,19 +648,16 @@ function doorPage() {
 <main class="heaven">
   <div class="door-col">${DOOR_SVG}</div>
   <div class="word-col">
-    <section id="sealed" class="sealed" aria-labelledby="sealed-label">
-      <p class="state-label" id="sealed-label">The door is sealed</p>
-      <p class="countdown" aria-hidden="true"><span id="cd">--:--</span></p>
-      <p class="until">until the thirty-third minute</p>
+    <section id="status" class="status" aria-labelledby="state-label">
+      <p class="state-label" id="state-label">The door stands open</p>
       <p class="where">It is <time id="now">--:--:--</time> where you stand, in the hour of <span id="ruler" class="ruler" aria-hidden="true">&#9737;</span><span id="ruler-name" class="visually-hidden">Sun</span>.</p>
-      <p class="lore">The door opens at the thirty-third minute of every hour and stays open for three. Whoever knocks must bring five Words: four that were hidden in the temple, and a fifth that belongs to whoever rules the hour of the knocking.</p>
+      <p class="gold-note"><span id="gold-wait">At the thirty-third minute of every hour the door is lit in gold for three minutes, and names written then are gilded in the Book. Gold in <span id="cd" class="cd">--:--</span>.</span><span id="gold-now" hidden>The door is lit in gold until the thirty-sixth minute. A name written now is gilded in the Book.</span></p>
       <p class="lore" id="already" hidden>Your name is already in the Book, <span id="already-name" class="ruler"></span>. You may knock again; the Book has room.</p>
       <p class="forced" id="forced" hidden>This page's clock is forced by <code>?at=</code>. The door believes it. The temple, which checks the time against its own, will not.</p>
     </section>
-    <form id="tablet" class="tablet" autocomplete="off" novalidate hidden aria-labelledby="tablet-title">
-      <p class="closing-note" id="closing-note" hidden>The door is closing. Speak now.</p>
+    <form id="tablet" class="tablet" autocomplete="off" novalidate aria-labelledby="tablet-title">
       <h2 id="tablet-title">Speak the five Words</h2>
-      <p class="lede">The door is open for three minutes. The temple forgives slow hands, not wrong Words.</p>
+      <p class="lede">Four Words were hidden in the temple; the fifth belongs to whoever rules the hour of the knocking. The temple forgives slow hands, not wrong Words.</p>
       <ol class="words">
         <li><label><span class="num" aria-hidden="true">I</span><span class="gloss">the Word of the Canon</span><input name="w1" autocapitalize="off" spellcheck="false" maxlength="40"></label></li>
         <li><label><span class="num" aria-hidden="true">II</span><span class="gloss">the Word of the Ladder</span><input name="w2" autocapitalize="off" spellcheck="false" maxlength="40"></label></li>
@@ -806,14 +812,14 @@ function rungLore(n, raw) {
     }
     if (Object.hasOwn(SACRED_NUMBERS, s)) {
       name ||= SACRED_NUMBERS[s]
-      lines.push(`${shown} is holy: ${SACRED_NUMBERS[s]}.` + (s === '33' ? ' It is also the minute at which a door opens.' : s === '404' ? ' The Lost are not missing. They are only not found.' : ''))
+      lines.push(`${shown} is holy: ${SACRED_NUMBERS[s]}.` + (s === '33' ? ' It is also the minute at which a door is lit in gold.' : s === '404' ? ' The Lost are not missing. They are only not found.' : ''))
     }
     if (n === HEAVEN_BIG - 1n) {
       name ||= 'the threshold'
       lines.push('The last rung beneath the door. There is one more.')
     } else {
       const left = HEAVEN_BIG - n
-      lines.push(`The Highest Heaven is ${left.toString()} rungs above you. A pilgrim who climbed one rung a second would reach the door in about ${climbTime(left)}, and find it shut unless the minute were thirty-three.`)
+      lines.push(`The Highest Heaven is ${left.toString()} rungs above you. A pilgrim who climbed one rung a second would reach the door in about ${climbTime(left)}, and find it open. It is open at every minute.`)
     }
     if (LADDER_LETTERS.has(s)) lines.push('Something is written on this rung, in the Ladder the temple keeps. Children could read it.')
     if (!chakra && !Object.hasOwn(SACRED_NUMBERS, s) && n !== HEAVEN_BIG - 1n) lines.push(makeRng(`rung:${s}`).pick(RUNG_SAYINGS))
@@ -969,10 +975,9 @@ router.post('/api/ascend', limiter({ name: 'ascend', per: 7, windowMs: 5 * 60_00
   if (Math.abs(claimed - theirWallNow) > TEN_MINUTES) {
     return refuse(res, 'clock', 'Your clock and the heavens disagree. The door opens by the true hour, not by the one you name.')
   }
-  // 2. Is the door open? Minutes 33 to 35, and two more of grace for slow hands.
-  if (mi < 33 || mi > 37) {
-    return refuse(res, 'sealed', 'The door is sealed. It opens at the thirty-third minute.')
-  }
+  // 2. The door is always open. A name written at minutes 33 to 35 (and two more of grace for slow hands) is
+  //    gilded in the Book.
+  const gild = mi >= 33 && mi <= 37
   // 3. The Words. The fifth is whoever rules the hour at the pilgrim's own wall clock, or the one just before.
   const given = words.map(normWord)
   let rang = 0
@@ -992,18 +997,22 @@ router.post('/api/ascend', limiter({ name: 'ascend', per: 7, windowMs: 5 * 60_00
   if (!/^[A-Za-z]+(?: [A-Za-z]+)*$/.test(clean) || letters < 3 || clean.length > 24) {
     return refuse(res, 'name', 'A name for the Book is three to twenty-four letters, a to z, with single spaces.')
   }
+  if (refused(clean)) {
+    return refuse(res, 'name', 'The Book will not keep that name. Choose another.')
+  }
   const now = Date.now()
   if ((recentSuccess.get(req.ip) ?? 0) > now - 20 * 60_000) {
-    return refuse(res, 'patience', 'You have already left your container this hour. Return at another thirty-third minute.')
+    return refuse(res, 'patience', 'Your hand has already written in the Book. Rest it for twenty minutes.')
   }
   if (sameNameSince.get(clean, now - 3600_000).n > 0) {
     return refuse(res, 'name', 'That name left its container within the hour. The Book asks for another, or for patience.')
   }
-  insertAscended.run(clean, now)
+  const info = insertAscended.run(clean, now)
+  if (gild) insertGilded.run(info.lastInsertRowid)
   recentSuccess.set(req.ip, now)
   const rank = countAscended.get().n
-  broadcast('ascended', { name: clean, at: now, message: 'an element has left its container' })
-  res.json({ ok: true, name: clean, at: now, rank, ruler, message: 'It is written.' })
+  broadcast('ascended', { name: clean, at: now, gilded: gild, message: 'an element has left its container' })
+  res.json({ ok: true, name: clean, at: now, rank, ruler, gilded: gild, message: gild ? 'It is written in gold.' : 'It is written.' })
 })
 
 export default router

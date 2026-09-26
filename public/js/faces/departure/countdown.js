@@ -1,5 +1,5 @@
 // THE ALIGNMENT CHRONOMETER. Nixie tubes count down to the next thirty-third minute, when for three
-// minutes the Ladder reaches the Highest Heaven (Canon §6). A clock that ticks is information, not
+// minutes the Highest Heaven is lit in gold (Canon §6; its door is always open). A clock that ticks is information, not
 // motion, so it keeps counting under mercy; only its glow stops breathing (CSS).
 import { h } from '../../lib/dom.js'
 import { pad } from './util.js'
@@ -30,7 +30,7 @@ export function alignment(ctx, life, { onOpen, onClose } = {}) {
     ),
     state,
     h('p', { class: 'dep-align-note' },
-      'For three minutes in every hour the Ladder is long enough to reach the Highest Heaven. ',
+      'For three minutes in every hour the Highest Heaven is lit in gold, and names written in its Book are gilded. ',
       'The pole of the star chart gives its bearing. ', target),
   )
 
@@ -53,8 +53,8 @@ export function alignment(ctx, life, { onOpen, onClose } = {}) {
     if (isOpen !== open) {
       el.classList.toggle('is-open', isOpen)
       state.textContent = isOpen
-        ? 'ALIGNED · the Highest Heaven is within reach · closes when the tubes read 00:00'
-        : 'NOT ALIGNED · the Ladder falls short · counting down'
+        ? 'ALIGNED · the Highest Heaven is lit in gold · fades when the tubes read 00:00'
+        : 'NOT ALIGNED · the door stands open, unlit · counting down'
       if (open !== null) (isOpen ? onOpen : onClose)?.()
       else if (isOpen) onOpen?.(true)
       open = isOpen

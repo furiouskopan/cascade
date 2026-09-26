@@ -276,6 +276,14 @@
     opacity: 0.85;
   }
   #altar .altar-sky:empty { display: none; }
+  /* The Oracle's two kindnesses: a hint, and another face. */
+  #altar .altar-oracle { margin-top: 14px; padding-top: 4px; border-top: 1px dashed var(--al-field-rule); }
+  #altar .altar-oracle .altar-actions { margin: 10px 0 4px; }
+  #altar .altar-oracle-note { margin: 6px auto 0; max-width: 32em; font-size: 12.5px; line-height: 1.55; color: var(--al-ink); overflow-wrap: anywhere; }
+  #altar .altar-oracle-note:empty { display: none; }
+  #altar .altar-oracle-note strong { font-weight: 700; }
+  #altar .altar-oracle-more { color: var(--al-dim); font-style: italic; }
+  #altar .altar-book-gilded .altar-book-name { color: #c9a13b; text-shadow: 0 0 6px rgba(216, 178, 90, 0.35); }
   @keyframes bead-new { from { r: 6; } to { r: 2.75; } }
 
   /* Rites and small controls */

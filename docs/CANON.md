@@ -69,6 +69,12 @@ then calls `render(ctx)`. `render` builds the face inside `ctx.root` (`#temple`)
 it made (faces can be swapped mid-visit). Wrap ALL face CSS in `@layer face { ... }` and scope selectors
 under `.face--<name>` or `[data-face="<name>"]`, because a later schism loads a different face's CSS.
 
+Each face also has **one entry in the face registry**, `public/js/lib/faces.js`: how it is reached (the lot, a
+`route` such as babel's `/verse`, or `route: '*'` for unknown addresses), the Oracle's leanings, its hell
+intensity and leanings, and its sound (tonic, bells, hush words, and a drone builder or a declarative drone
+recipe). The oracle, the hell layer and the audio layer read it, so a new face touches only its own files and
+its entry. The file's header documents every field.
+
 Each face MUST include:
 1. Its own complete art direction (typography, palette, layout, texture, motion), distinct from the others.
    No two faces should look like they come from the same site, except for the shared glyph script and sigils.
@@ -169,12 +175,13 @@ deterministic). Hell intensity: 0.2.
 | `ctx.bus` | `on(evt, fn)` returns an unsubscribe function, `once`, `emit`. |
 | `ctx.api` | `get(path)`, `post(path, body)` → `{ok, ...data}` (never throws); `online` |
 | `ctx.mercy` | `{on, set(bool), toggle()}` |
-| `ctx.face` | current face name; `ctx.switchFace(name, reason)` |
+| `ctx.face` | current face name; `ctx.switchFace(name, reason)`; `ctx.askFace()` is a schism the visitor asked for (reason `asked`): at most once a minute, never away from a face with a registry `route` (babel), unseen faces ×4; returns `{ok, face}` or `{ok: false, reason: 'route'\|'wait'\|'none', wait?}`. Route faces never schism. |
 | `ctx.root` | `#temple` element. Faces own its contents. |
 | `ctx.audio` / `ctx.hell` / `ctx.ritual` / `ctx.glyphs` / `ctx.secrets` | set by each layer's `init`. May be undefined early. |
 
 Memory keys in use: `visits`, `firstVisit`, `lastVisit`, `lastFace`, `facesSeen[]`, `secrets{}`,
-`restlessness`, `mercy`. Layers prefix their own keys (`audio.muted`, `ritual.lastOffer`, `secrets.words`...).
+`restlessness`, `mercy`. Layers prefix their own keys (`audio.muted`, `ritual.lastOffer`, `secrets.words`,
+`secrets.hints` (how strong the next hint of each step is)...).
 
 Bus events:
 
@@ -213,7 +220,7 @@ request in your final report.
 
 | owner | files |
 |---|---|
-| kernel (orchestrator) | `server/index.js db.js sse.js limit.js`, `public/index.html` (except CANON regions), `public/css/base.css`, `public/js/main.js`, `public/js/kernel/*`, `public/js/lib/{dom,lexicon,scripture,sigil}.js`, `tools/shoot.mjs`, `docs/CANON.md` |
+| kernel (orchestrator) | `server/index.js db.js sse.js limit.js`, `public/index.html` (except CANON regions), `public/css/base.css`, `public/js/main.js`, `public/js/kernel/*`, `public/js/lib/{dom,lexicon,scripture,sigil,faces,hints}.js`, `tools/shoot.mjs`, `tools/build-hints.mjs`, `tools/moderate.mjs`, `server/refuse.js`, `docs/CANON.md` |
 | face builders | `public/js/faces/<face>.js`, `public/css/faces/<face>.css`, optionally `public/js/faces/<face>/*` and `public/media/<face>/*` |
 | glyphs | `tools/build-font.mjs`, `public/fonts/*`, `public/css/glyphs.css`, `public/js/layers/glyphs.js`, `public/js/lib/glyphs.js` (**keep its exported API and the INSCRIPTION/ROSETTA data exactly**; you may add exports) |
 | hell | `public/js/layers/hell.js`, `public/css/hell.css`, optionally `public/js/layers/hell/*` |
@@ -228,7 +235,9 @@ local.
 ## §6 The rabbit hole (hidden encoded messages)
 
 The chain yields five words. Words 1–4 are fixed; word 5 depends on the hour. The final door is
-`/z/2147483647` (the Highest Heaven), which opens only at minutes 33–35 of any hour (local time).
+`/z/2147483647` (the Highest Heaven). It is always open; at minutes 33–35 of every hour (local time) it is lit
+in gold, and names written then are gilded in the Book. Every step has three public hints (`lib/hints.js`,
+`docs/HINTS.md`), and a newcomer should finish the chain in one sitting (docs/ROADMAP.md §2).
 
 | # | where | how it is hidden | word |
 |---|---|---|---|
@@ -237,15 +246,21 @@ The chain yields five words. Words 1–4 are fixed; word 5 depends on the hour. 
 | 2 | **console** | The secrets layer prints a styled greeting (an ASCII eye) and exposes `window.cascade`. `cascade.speak('descend')` answers: the second word is written on the Ladder, `#ladder`; count the rungs as children count letters. `#ladder` is an `<ol>` of 5 rungs, visually hidden but inspectable, whose z-index values (set in `canon.css`) are **13 5 18 3 25** → A1Z26 → **MERCY**. | `mercy` |
 | 3 | **glyph cipher** | `cascade.speak('mercy')`: "read what is inscribed; the glyphs are only letters displaced into a private place". Every face shows the Inscription in PUA glyphs; decode it with the Rosetta fragments spread across faces (so it takes several visits or schisms), or by noticing each code point is `0xE000 + ASCII`. It reads: *"the third word is the sheath that takes no space"* → **OUTLINE** (the Five Sheaths are taught on the ashram face and in scripture). | `outline` |
 | 4 | **sound** | `cascade.speak('outline')`: "summon sound; the Mothership transmits; look at what you hear; the Third Eye sees". The audio layer's **Transmission** is additive synthesis whose spectrogram spells **ROOT** in block letters (roughly 2–9 kHz). It plays every ~66 s on the departure face once sound is summoned, and on demand via `cascade.listen()`. Typing `ajna` anywhere opens the **Third Eye**: an in-page scrolling spectrogram (AnalyserNode) so anyone can see it. Don't store the word as a plain string in the audio source; store it as a bitmap. | `root` |
-| 5 | **time & sky** | `cascade.speak('root')`: "Four words. The fifth is whoever rules the hour in which you knock. Knock at the Highest Heaven when the minute is thirty-three." The fifth word is the **planet of the current planetary hour** (`ctx.readSky().planetaryHour.planet`, e.g. `saturn`) at the moment of knocking. `/robots.txt` also lists `Disallow: /z/2147483647`. | planet |
+| 5 | **time & sky** | `cascade.speak('root')`: "Four words. The fifth is whoever rules the hour in which you knock. Knock at the Highest Heaven when the minute is thirty-three." (Its sealed text predates the always-open door; the Oracle adds a plain line saying the door stands open and turns to gold at :33.) The fifth word is the **planet of the current planetary hour** (`ctx.readSky().planetaryHour.planet`, e.g. `saturn`) at the moment of knocking; the door's keystone shows its glyph. `/robots.txt` also lists `Disallow: /z/2147483647`. | planet |
+
+The glyph key of word 3 is also printed whole at `/verse/of/the/alphabet` (a babel chapter), so the cipher no
+longer needs several visits.
 
 **The door** (`/z/2147483647`): served by the secrets route as its own page (it may reuse `/css/base.css` and
-the glyph font but not the face system). Outside minutes 33–35 it shows a sealed door and a countdown. Inside
-the window it shows five inputs and a name field (the name is written in the glyph script, 3–24 letters).
+the glyph font but not the face system). It is always open: five inputs and a name field (the name is written in
+the glyph script, 3–24 letters), the time and the ruling planet, and a countdown to the minute of gold. At
+minutes 33–35 the page is lit in gold (`body[data-gilded="true"]`).
 `POST /api/ascend {words: [5], name, tzOffset, localTime}` is verified **on the server** (the answers exist
 only server-side, as hashes: never ship them to the client). The server accepts the planet of the current
 or previous planetary hour for the client's local time (grace for slow typists), and checks that the
-client's claimed local time is within 10 minutes of server time after applying `tzOffset`. On success: the
+client's claimed local time is within 10 minutes of server time after applying `tzOffset`. A name written at
+local minutes 33–37 (three of gold, two of grace) is **gilded**: its id goes into `ascended_gilded`, and the
+response, the SSE event and the state carry `gilded: true`. On success: the
 name enters the **Book of the Ascended** (a shared table, which the ritual state exposes), an SSE `ascended`
 event is broadcast ("a soul has left its container", in element language), and the client stores
 `secrets.ascended` in memory. Every face then shows a small mark for the ascended (e.g. a halo on the
@@ -256,10 +271,11 @@ cursor, or a gold mercy button; the secrets layer adds `data-ascended` on `<html
 `secrets.js` doesn't reveal the next step without the word. The words themselves are checked by hash, never
 stored in plain text on the client.
 
-`cascade` console API (secrets layer): `cascade.help()`, `cascade.speak(word)`, `cascade.pray()` (calls the
-ritual), `cascade.confess(text)` (a cryptic, scripture-flavoured absolution), `cascade.listen()` (asks the
-audio layer to play the Transmission), `cascade.sky()` (prints the omens), `cascade.inspect()` (lists which
-chain words this visitor has spoken). Everything styled with `%c`.
+`cascade` console API (secrets layer): `cascade.help()`, `cascade.speak(word)`, `cascade.hint()` (the next,
+stronger hint for the step this visitor is on), `cascade.another()` (asks for another face, see `ctx.askFace`),
+`cascade.pray()` (calls the ritual), `cascade.confess(text)` (a cryptic, scripture-flavoured absolution),
+`cascade.listen()` (asks the audio layer to play the Transmission), `cascade.sky()` (prints the omens),
+`cascade.inspect()` (lists which chain words this visitor has spoken). Everything styled with `%c`.
 
 **Surface easter eggs (layer 0).** Each calls `ctx.memory.markSecret(id)`:
 - `tab-whisper` (hell): the tab title whispers when you leave ("come back to the flow ☩"), and the favicon
@@ -304,7 +320,12 @@ Server routes in `server/routes/ritual.js` (mounted at `/api`), using `db`, `kvG
   glyphs but copies as English). Broadcast `wall`. Render with `textContent` only.
 - The Book of the Ascended table is written by the secrets route; ritual's `/state` reads it (the table
   schema is agreed here: `ascended(id INTEGER PRIMARY KEY, name TEXT NOT NULL, at INTEGER NOT NULL)`, created
-  with `CREATE TABLE IF NOT EXISTS` by **both** route modules).
+  with `CREATE TABLE IF NOT EXISTS` by **both** route modules). Gilded names (§6) are listed in
+  `ascended_gilded(id INTEGER PRIMARY KEY)`, also created by both; `/state` marks them `gilded: true`.
+- **Refused words**: `server/refuse.js` refuses Wall messages and Book names containing a word (or phrase)
+  listed in `refused-words.txt` beside the database (or `CASCADE_REFUSED`), whole words only, re-read when the
+  file changes. No list ships with the repo.
+- **Moderation**: `node tools/moderate.mjs list|delete wall|book|canon <id>` works on the live database.
 
 Client (`public/js/layers/ritual.js`) sets `ctx.ritual = {state, pray(), offer(selector, property, value),
 inscribe(text), refresh()}` and renders:
@@ -321,7 +342,7 @@ inscribe(text), refresh()}` and renders:
 ## §8 CSS hell (the hell layer)
 
 `ctx.hell = {intensity, possess(el), melt(el), whisper(text), invert(ms)}`. The intensity per face is taken
-from this table and scaled by the omens (witching/midnight ×1.5, capped at 1): sanctum 0.3, possession 1.0,
+from the face registry (`hell.intensity`, with the face's leanings in `hell.lean`) and scaled by the omens (witching/midnight ×1.5, capped at 1): sanctum 0.3, possession 1.0,
 recruitment 0.4, ashram 0.15, departure 0.5, babel 0.2. Effects are drawn by lot from the visit's
 rng (`ctx.rng.fork('hell')`), so each visit is cursed differently. The catalogue (implement most of it):
 
@@ -437,4 +458,24 @@ Contracts that the builders introduced, recorded here so later work can rely on 
 - **Server**: errors answer as JSON without stack traces (a malformed body is a 400).
 - **§9 in generated text**: scripture groups and fates speak only of elements. Nothing generated tells a
   person to leave, depart or ascend; `MOTHERSHIP.container` speaks of an element's container.
+
+Added in Phase 0 of the simplified roadmap (docs/ROADMAP.md §3):
+
+- **The face registry**, `public/js/lib/faces.js` (§3): exports `REGISTRY`, `FACE_NAMES`, `LOT`, `HIDDEN`,
+  `isFace`, `faceInfo`, `routeFace(pathname)`. `oracle.js` derives `FACES`, `HIDDEN_FACES` and `faceWeights`
+  from it; `hell.js` derives `INTENSITY`; `drones.js` derives `DRONES` and `TONIC` and plays declarative recipes
+  (`recipeDrone`). The six existing faces behave exactly as before (checked case by case).
+- **Hints**: `public/js/lib/hints.js` holds three public hints per step (a nudge, a clue, a near-answer), never
+  a Word. `ctx.secrets.hint()` returns the next one for this visitor's step (`{chain, step, title, tier, of,
+  text}`) and makes the following one stronger; `cascade.hint()` and the altar's *ask for a hint* use it.
+  `docs/HINTS.md` is generated from it (`node tools/build-hints.mjs`, `--check` to verify).
+- **Asking for another face**: `ctx.askFace()` (§4), used by the altar's *ask for another face* and
+  `cascade.another()`.
+- **The whole key**: babel's `/verse/of/the/alphabet` is the Abecedarium, all 26 glyphs with their names and
+  glosses (`faces/babel/abecedary.js`), anchored at `#bb-abecedary` and `#bb-abc-<letter>`; every flyleaf's
+  Rosetta line links to it. Opening it marks the secret `babel-abecedary`.
+- **The door is always open**; the minute of gold replaces the minute of opening everywhere the temple speaks
+  of it (§6). `ctx.secrets.gilded()` and `ctx.secrets.nextGold()` replace `doorOpen()` and `nextDoor()`.
+- **Server**: `TRUST_PROXY` (a hop count or a proxy address; default loopback, right for a tunnel on this
+  machine) decides whose `X-Forwarded-For` is believed, because rate limits are per address.
 

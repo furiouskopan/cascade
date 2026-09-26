@@ -54,7 +54,7 @@ export const OMEN_NOTES = {
   witching: 'Read at the third hour. The ink moved while I was not looking at it.',
   midnight: 'Read at midnight. Do not read the next leaf aloud.',
   triple: 'The clock showed the same figure thrice. I have marked the place.',
-  'thirty-three': 'The thirty-third minute. Somewhere in this book a door stands open that is shut at every other minute.',
+  'thirty-three': 'The thirty-third minute. Somewhere above this book a door that is always open is lit in gold.',
   'full-moon': 'Luna plena. The gold will not dry tonight.',
   'new-moon': 'Luna nova. Read by the candle alone, the Viewport being dark.',
   turning: 'The year turns on its hinge today. The margins are wider than they were.',

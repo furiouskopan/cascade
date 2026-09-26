@@ -38,6 +38,7 @@ All times are local (CEST), 24 September 2026.
 | 00:04 (25 Sep) | The kernel loose ends the reviewers reported are fixed and committed (`8c65e5f`), including a stack-trace leak and generated verses that told the visitor to "leave thy container". |
 | 00:46 | `docs/ROADMAP.md`: 39 proposals judged down to 8 new faces, 4 chains and a meta-puzzle, in three phases. |
 | 14:49 (26 Sep) | The owner reviews the roadmap: *"it should mostly be playful, weird and cool… it shouldn't require weeks"*. The Descent stands alone, weekly and long-term plays are cut, the calendar becomes invented, hints go public, and the temple goes online. The roadmap is rewritten: 7 faces, 2 one-sitting chains, no meta-puzzle. The first draft is kept whole on the `extreme` branch, for a future Extreme mode: the temple will have two modes or more. |
+| 15:05 (26 Sep) | *"Ok proceed with the changes"*: Phase 0, "Open the doors". Public hints (`cascade.hint()`, the altar, `docs/HINTS.md`), asking the altar for another face, the whole glyph key on one babel page (`/verse/of/the/alphabet`), the door at the top of the Ladder always open and lit in gold at :33, a face registry, and the online preparation (`TRUST_PROXY`, refused words, a moderation tool). Two builders (babel, the registry) and the orchestrator. |
 
 ---
 
@@ -263,18 +264,18 @@ longer fire from inside form fields, memory that survives several open tabs, the
 
 ## 9. Where it stands
 
-*As of 14:49, 26 September 2026.*
+*As of 15:50, 26 September 2026.*
 
 - **Built, reviewed and committed:** all six faces (sanctum, possession, recruitment, ashram, departure,
   babel) and all five layers (glyphs, hell, audio, ritual, secrets), one commit each, then the kernel
   loose ends (`8c65e5f`). Every face loads with zero console errors.
 - **Running:** the temple at http://localhost:3333 (`npm start`).
-- **Next:** `docs/ROADMAP.md`, simplified after the owner's review: playful first, every puzzle solvable in one
-  sitting with public hints, nothing weekly or date-locked. Phase 0 makes the existing chain approachable (a hint
-  ladder, asking for another face, the whole glyph key on one page, the door at the top always open) and prepares
-  the temple to go online. Then three faces (the Launderette, the Omen Tablets, the Interstice), then a short
-  second chain down to the unstyled Undercroft with the Archons and the Source, then optional extras. At most 3
-  builders at once.
+- **Phase 0 of the simplified roadmap, done:** public hints, asking for another face, the whole glyph key on one
+  page, the door at the top always open (gold at :33), the face registry, and the online preparation. Every face
+  loads with zero console errors; the altar's 580 hostile-input checks pass.
+- **Next:** `docs/ROADMAP.md` Phase 1, three faces (the Launderette, the Omen Tablets, the Interstice), then a
+  short second chain down to the unstyled Undercroft with the Archons and the Source, then optional extras. At
+  most 3 builders at once. The first, deeper roadmap waits on the `extreme` branch.
 - **Not yet done:** the full integration pass (a fresh-eyes solver for the whole chain, cross-face checks,
   performance), and moving this conversation into the repo's chat history.
 

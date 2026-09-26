@@ -7,7 +7,9 @@ import { fileURLToPath } from 'node:url'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const file = process.env.CASCADE_DB || resolve(root, 'data', 'cascade.db')
-mkdirSync(dirname(file), { recursive: true })
+// The folder that holds the database also holds the temple's other private files (refused-words.txt).
+export const dataDir = dirname(file)
+mkdirSync(dataDir, { recursive: true })
 
 export const db = new DatabaseSync(file)
 db.exec('PRAGMA journal_mode = WAL; PRAGMA busy_timeout = 3000;')

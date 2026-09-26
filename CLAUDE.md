@@ -15,7 +15,13 @@ npm start                     # http://localhost:3333 (PORT to override; CASCADE
 node tools/build-font.mjs     # regenerate public/fonts/cascade-glyphs.otf
 node tools/build-media.mjs    # regenerate the favicon (it hides an LSB message) and relics
 node tools/test-ritual.mjs    # hostile-input tests for /api/offer and /api/wall
+node tools/build-hints.mjs    # regenerate docs/HINTS.md from public/js/lib/hints.js (--check to verify)
+node tools/moderate.mjs list  # the Wall, the Book and the Canon; `delete wall|book|canon <id>` removes one
 ```
+
+Online: `ngrok http 3333` next to `npm start` works as is. Behind a host's proxy set `TRUST_PROXY` (e.g. `1`), or
+every visitor shares one set of rate limits. Words listed in `data/refused-words.txt` are refused on the Wall and
+in the Book.
 
 No build step and no framework: vanilla ES modules served as-is. That's deliberate, because view-source is part
 of the puzzle. Don't add a bundler or minifier.
@@ -57,5 +63,7 @@ Without `MSYS_NO_PATHCONV=1`, Git Bash rewrites `/verse/...` into a Windows path
   (`ctx.rng.fork('name')`). Use `ctx.clock()`, not `new Date()`, so `?at=` works.
 - Visitor text (wall, names, offerings) goes into the DOM with `textContent` only; offerings become CSS only
   from validated triples, never raw strings.
-- Hints in `layers/secrets.js` are encrypted with their unlocking word, and the answers exist only as server-side
-  hashes. Don't write chain answers in plain text anywhere under `public/`.
+- The Oracle's answers in `layers/secrets.js` are encrypted with their unlocking word, and the answers exist only
+  as server-side hashes. Don't write chain answers in plain text anywhere under `public/`. The public step hints
+  live in `lib/hints.js` (plain text by design) and must never contain a Word; regenerate `docs/HINTS.md` after
+  editing them.

@@ -21,7 +21,7 @@ demonstration as well as a mood. The lesson is the toy, never homework.
 **Modes.** The temple will have two modes, perhaps more. This roadmap is the default mode: playful, one sitting, public
 hints. The first draft's full-depth design (four chains and the Seam, the liturgical year, the Hermitage, THE STACK,
 the Record and the side relics) is kept whole on the `extreme` branch as the plan for an **Extreme mode**, to be built
-later on top of this one rather than instead of it. How a visitor enters it is open question 4.
+later on top of this one rather than instead of it. How a visitor enters it is open question 3.
 
 ## 2. Rules for everything new
 
@@ -61,7 +61,6 @@ Before any new face, one small round so that a newcomer can enjoy and solve what
   - *The door* at `/z/2147483647` opens only at minutes 33 to 35, so a solver can wait almost an hour. Proposed: the door
     is always open, and the fifth Word stays the planet of the hour (the door's keystone already shows its glyph).
     Minute 33 still matters: the door is lit in gold then, and names written in that window are gilded in the Book.
-    (Open question 1.)
 - **A face registry**, `public/js/lib/faces.js`: one entry per face (lot or route, hell intensity, drone recipe, hush
   label, the Oracle's weights), read by the oracle, hell and audio, so a new face touches only its own files.
 - **Ready to go online** (§7).
@@ -301,7 +300,7 @@ restarts (the SQLite file) and https. Serverless hosts such as Vercel or Netlify
 
 | phase | what | who |
 |---|---|---|
-| 0. **Open the doors** | the hint ladder and `docs/HINTS.md`, asking for another face, the softened Ascent, the face registry, the online preparation of §7; then go online | the orchestrator and the secrets owner |
+| 0. **Open the doors** (done, 26 September) | the hint ladder and `docs/HINTS.md`, asking for another face, the softened Ascent, the face registry, the online preparation of §7; then go online | the orchestrator and the secrets owner |
 | 1. **Three strange rooms** | the Launderette, the Omens and the Interstice, with the kernel's new route rule (unknown addresses go to the Interstice, served as a real 404) | 3 face builders |
 | 2. **The way down** | the Descent (`css/canon.css`, the secrets layer, a new `server/routes/undercroft.js`), the Archons and the Source | 3 builders |
 | 3. **Extras, pick what's fun** | any of the teletext, the tarot, the Portents, the invented calendar, the Inspector's trail and the Lint | at most 3 at a time |
@@ -341,12 +340,13 @@ cuts stay cut.
 
 ## 10. Open questions for the owner
 
-1. **The door at the top of the Ladder.** Always open, with a gold bonus at minute 33 (proposed), or keep the :33 window
-   and widen it, say to eleven minutes?
-2. **Which extras in Phase 3?** Any, all or none of §6 and the two optional faces.
-3. **How strict should moderation be?** Delete by hand only, or also refuse a short list of words automatically?
-4. **How does a visitor enter Extreme mode?** A switch at the altar, a console command, or earned by finishing both
+1. **Which extras in Phase 3?** Any, all or none of §6 and the two optional faces.
+2. **Which words should be refused?** Deleting by hand is built (`tools/moderate.mjs`), and a refused-words list is
+   supported but ships empty (`data/refused-words.txt`, kept out of the repo).
+3. **How does a visitor enter Extreme mode?** A switch at the altar, a console command, or earned by finishing both
    chains of the default mode?
+
+Decided: the door at the top of the Ladder is always open, with the gold at minute 33 (Phase 0).
 
 ## 11. The answers (spoilers)
 

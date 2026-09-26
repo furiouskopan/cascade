@@ -909,10 +909,19 @@ export async function init(ctx) {
   $.mine = h('p', { class: 'altar-mine' })
   $.prayNote = h('p', { class: 'altar-verdict', role: 'status' })
   $.sky = h('p', { class: 'altar-sky' })
+  // The Oracle's two kindnesses for newcomers: a hint for the step they are on (the secrets layer keeps the
+  // hints and how strong the last one was), and another face of the temple (main.js keeps the rules).
+  $.askHint = h('button', { type: 'button', class: 'altar-minor' }, 'ask for a hint')
+  $.askFace = h('button', { type: 'button', class: 'altar-minor' }, 'ask for another face')
+  $.oracleNote = h('p', { class: 'altar-oracle-note', role: 'status' })
   const prayPane = [
     $.mala, $.until,
     h('div', { class: 'altar-actions altar-actions--center' }, $.prayBtn),
     $.prayNote, $.mine, $.sky,
+    h('div', { class: 'altar-oracle' },
+      h('div', { class: 'altar-actions altar-actions--center' }, $.askHint, $.askFace),
+      $.oracleNote,
+    ),
   ]
 
   // Offer
@@ -1144,8 +1153,9 @@ export async function init(ctx) {
     const n = state.ascended.length
     $.bookIntro.textContent = n
       ? `${commas(n)} ${plural(n, 'name is', 'names are')} written here: elements that left their containers and were counted at the Highest Heaven.`
-      : 'No name is written yet. The door at the Highest Heaven opens for three minutes in every hour, and only for those who know the five words.'
-    $.book.replaceChildren(...names.map((a) => h('li', {}, glyphLine(a.name, 'altar-book-name'), h('time', { datetime: new Date(a.at).toISOString() }, ago(a.at, now)))))
+      : 'No name is written yet. The door at the Highest Heaven stands open, but only those who know the five words may write in the Book. Names written at the thirty-third minute are gilded.'
+    $.book.replaceChildren(...names.map((a) => h('li', a.gilded ? { class: 'altar-book-gilded', title: 'written at the thirty-third minute' } : {},
+      glyphLine(a.name, 'altar-book-name'), h('time', { datetime: new Date(a.at).toISOString() }, ago(a.at, now)))))
   }
 
   function cooldownLeft(key, ms) {
@@ -1469,6 +1479,31 @@ export async function init(ctx) {
     if (to === undefined) return
     e.preventDefault()
     selectTab(TABS[(to + TABS.length) % TABS.length].id, true)
+  })
+
+  // The Oracle, for those who never open the console
+  $.askHint.addEventListener('click', () => {
+    const x = ctx.secrets?.hint?.()
+    if (!x) {
+      $.oracleNote.textContent = 'The Oracle is not listening yet. Ask again in a moment.'
+      return
+    }
+    $.oracleNote.replaceChildren(h('strong', {}, `${x.title}, hint ${x.tier + 1} of ${x.of}. `), x.text,
+      x.tier + 1 < x.of ? h('span', { class: 'altar-oracle-more' }, ' Ask again for a stronger one.') : '')
+  })
+  $.askFace.addEventListener('click', () => {
+    const r = ctx.askFace?.()
+    if (r?.ok) {
+      $.oracleNote.textContent = ''
+      setOpen(false)
+      $.btn.focus({ preventScroll: true })
+      return
+    }
+    $.oracleNote.textContent = r?.reason === 'route'
+      ? (ctx.face === 'babel' ? 'On these shelves the path chooses the face. Leave the Library by its door to meet another.' : 'Here the address chooses the face. Go back to the front door of the temple to meet another.')
+      : r?.reason === 'wait'
+        ? `The temple has only just turned. Ask again in ${r.wait} seconds.`
+        : 'The Oracle found no other face for you.'
   })
 
   // Pray

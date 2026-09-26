@@ -6,9 +6,10 @@ import { readSky } from './kernel/sky.js'
 import { memory, recordVisit } from './kernel/memory.js'
 import { bus } from './kernel/bus.js'
 import { startBehavior } from './kernel/behavior.js'
-import { chooseFace, schismCandidate } from './kernel/oracle.js'
+import { chooseFace, schismCandidate, faceWeights } from './kernel/oracle.js'
 import { initMercy } from './kernel/mercy.js'
 import { api } from './kernel/api.js'
+import { faceInfo } from './lib/faces.js'
 
 const params = new URLSearchParams(location.search)
 if (params.has('reset')) memory.forget()
@@ -79,7 +80,8 @@ ctx.switchFace = switchFace
 
 // Schisms: rare mid-visit changes of face, driven by the visitor's own behavior.
 function trySchism(reason) {
-  if (ctx.face === 'babel' || ctx.schisms >= 2 || current?.keeps.has(reason)) return
+  // Faces that own an address (babel's /verse/) keep it: the path chose them, not fate.
+  if (faceInfo(ctx.face)?.route || ctx.schisms >= 2 || current?.keeps.has(reason)) return
   if (performance.now() - ctx.startedAt < 45000 && reason !== 'eclipse') return
   const next = schismCandidate(ctx, reason)
   if (next) switchFace(next, reason)
@@ -89,6 +91,25 @@ bus.on('behavior:still', ({ seconds }) => seconds >= 108 && trySchism('still'))
 bus.on('behavior:return', ({ awayMs }) => awayMs > 60000 && trySchism('return'))
 // Let the face show its own eclipse first; the schism, if fate wills one, comes after.
 bus.on('server:eclipse', () => setTimeout(() => trySchism('eclipse'), 15000))
+
+// An asked schism: the visitor asks for another face (the altar, or cascade.another()), so one sitting can
+// show every face. At most once a minute, never away from a face that owns its address (babel's shelves choose
+// the face), and faces this visitor has not seen are favoured. Returns {ok, face} or {ok: false, reason, wait?}.
+let lastAsked = -Infinity
+ctx.askFace = () => {
+  if (faceInfo(ctx.face)?.route) return { ok: false, reason: 'route' }
+  const wait = lastAsked + 60000 - performance.now()
+  if (wait > 0) return { ok: false, reason: 'wait', wait: Math.ceil(wait / 1000) }
+  const w = faceWeights(ctx)
+  const seen = memory.get('facesSeen', [])
+  for (const f of Object.keys(w)) if (!seen.includes(f)) w[f] *= 4
+  w[ctx.face] = 0
+  const next = ctx.rng.fork(`asked/${ctx.schisms}`).weighted(w)
+  if (!next) return { ok: false, reason: 'none' }
+  lastAsked = performance.now()
+  switchFace(next, 'asked')
+  return { ok: true, face: next }
+}
 
 addEventListener('pagehide', () => memory.set('restlessness', ctx.behavior.restlessness))
 

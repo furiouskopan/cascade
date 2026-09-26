@@ -13,11 +13,14 @@ import { Router } from 'express'
 import { db, kvGet, kvSet } from '../db.js'
 import { broadcast, online } from '../sse.js'
 import { limiter } from '../limit.js'
+import { refused } from '../refuse.js'
 import { LIMITS, validateOffering, sanitizeWall, sanitizeName } from '../../public/js/layers/ritual.js'
 
-// The Book of the Ascended is shared with the secrets route (schema agreed in CANON §7).
+// The Book of the Ascended is shared with the secrets route (schema agreed in CANON §7). Names written at the
+// thirty-third minute are gilded: their ids are kept in ascended_gilded, also created by both route modules.
 db.exec(`
   CREATE TABLE IF NOT EXISTS ascended (id INTEGER PRIMARY KEY, name TEXT NOT NULL, at INTEGER NOT NULL);
+  CREATE TABLE IF NOT EXISTS ascended_gilded (id INTEGER PRIMARY KEY);
   CREATE TABLE IF NOT EXISTS ritual_offerings (
     id INTEGER PRIMARY KEY, selector TEXT NOT NULL, property TEXT NOT NULL, value TEXT NOT NULL, at INTEGER NOT NULL
   );
@@ -31,7 +34,8 @@ const sql = {
   wall: db.prepare('SELECT id, text, at FROM ritual_wall ORDER BY id DESC LIMIT ?'),
   addWall: db.prepare('INSERT INTO ritual_wall (text, at) VALUES (?, ?)'),
   pruneWall: db.prepare('DELETE FROM ritual_wall WHERE id <= (SELECT id FROM ritual_wall ORDER BY id DESC LIMIT 1 OFFSET ?)'),
-  ascended: db.prepare('SELECT id, name, at FROM ascended ORDER BY id DESC LIMIT ?'),
+  ascended: db.prepare(`SELECT a.id, a.name, a.at, g.id IS NOT NULL AS gilded
+    FROM ascended a LEFT JOIN ascended_gilded g ON g.id = a.id ORDER BY a.id DESC LIMIT ?`),
 }
 
 const K_PRAYERS = 'ritual.prayers'
@@ -64,7 +68,7 @@ function readAscended() {
   const out = []
   for (const row of sql.ascended.all(108)) {
     const name = sanitizeName(row.name)
-    if (name) out.push({ id: Number(row.id), name, at: Number(row.at) })
+    if (name) out.push({ id: Number(row.id), name, at: Number(row.at), ...(row.gilded ? { gilded: true } : {}) })
   }
   return out.reverse()
 }
@@ -133,6 +137,7 @@ router.post('/wall', fresh, wallTries, (req, res) => {
   const body = plainObject(req.body)
   const s = sanitizeWall(body.text)
   if (!s.ok) return res.status(400).json({ error: s.error })
+  if (refused(s.text)) return res.status(400).json({ error: 'The Wall will not keep those words.' })
   wallOnce(req, res, () => {
     const at = Date.now()
     const info = sql.addWall.run(s.text, at)

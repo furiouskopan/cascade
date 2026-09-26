@@ -13,7 +13,13 @@ const pub = resolve(root, 'public')
 const PORT = Number(process.env.PORT) || 3333
 
 const app = express()
-app.set('trust proxy', 'loopback')
+// Whose word to take for a visitor's address (rate limits are per address). A tunnel on this machine (ngrok,
+// cloudflared) connects from loopback, the default. Behind a host's proxy set TRUST_PROXY (a hop count such as
+// 1, or the proxy's address), or every visitor looks like the proxy and all share one set of limits.
+const TRUST_PROXY = process.env.TRUST_PROXY?.trim()
+app.set('trust proxy', !TRUST_PROXY ? 'loopback'
+  : /^\d+$/.test(TRUST_PROXY) ? Number(TRUST_PROXY)
+  : TRUST_PROXY === 'true' ? true : TRUST_PROXY === 'false' ? false : TRUST_PROXY)
 app.disable('x-powered-by')
 app.use((req, res, next) => {
   // Headers are scripture too. Some of them are placeholders the Secrets layer may rewrite.

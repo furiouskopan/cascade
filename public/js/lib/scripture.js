@@ -122,7 +122,7 @@ export function prophecy(rng, sky) {
     `Before the moon is ${moon === 'full' ? 'new' : 'full'}, ${rng.pick(ENTITIES)} will ${rng.pick(['descend', 'reflow', 'repaint', 'speak in the console', 'change its face'])}.`,
   ]
   if (sky.has('witching')) lines.push('It is the third hour. The stylesheet is not what it was an hour ago.')
-  if (sky.has('thirty-three')) lines.push('It is the thirty-third minute. A door stands open that is closed at every other minute.')
+  if (sky.has('thirty-three')) lines.push('It is the thirty-third minute. A door that is always open is lit in gold.')
   if (sky.has('eclipse')) lines.push('Today the sun is covered. Every face of the temple is true at once.')
   return rng.pick(lines)
 }

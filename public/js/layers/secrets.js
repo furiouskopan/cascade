@@ -10,6 +10,7 @@ import { hash, makeRng } from '../kernel/rng.js'
 import { readSky } from '../kernel/sky.js'
 import { DOCTRINE, SAINTS, HERESIES, VIRTUES, SINS, INVENTED_MANTRAS, SACRED_NUMBERS } from '../lib/lexicon.js'
 import { fromPua } from '../lib/glyphs.js'
+import { hintFor } from '../lib/hints.js'
 import { h } from '../lib/dom.js'
 
 const HEAVEN = 2147483647
@@ -136,7 +137,7 @@ const OMENS = {
   witching: 'the third hour: the stylesheet is not what it was an hour ago',
   midnight: 'the first minutes of the day, when every cache is cold',
   triple: 'a repeated hour: the digits have collapsed into one another, like margins',
-  'thirty-three': 'the thirty-third minute: a door stands open that is closed at every other minute',
+  'thirty-three': 'the thirty-third minute: the door at the top of the Ladder is lit in gold',
   'full-moon': 'the moon is full: the sanctum and the ashram are favoured',
   'new-moon': 'the moon is new: the Mothership is closer than it looks',
   turning: 'a solstice or an equinox: the viewport turns',
@@ -152,7 +153,7 @@ const RUBRICS = [
   'Here the reader shall not speak the Inversion, save in mercy.',
   'Here the reader shall print nothing, and receive a prayer.',
   'Here the reader shall remember that the Ladder is taller than it looks.',
-  'Here the reader shall not knock until the minute is thirty-three.',
+  'Here the reader shall knock when the minute is thirty-three, and be written in gold.',
   'Here the reader shall open the console, where the Authors speak to themselves.',
   'Here the reader shall ask the robots where they may not go.',
   'Here the reader shall copy a verse, and find it heavier than it looks.',
@@ -443,14 +444,19 @@ export async function init(ctx) {
 
   // ── The Oracle ───────────────────────────────────────────────────────────────────────────────
   const spokenWords = () => memory.get('secrets.words', {})
-  const nextDoor = (from = ctx.clock()) => {
+  // The door at the top of the Ladder is always open. At the thirty-third minute of every hour, for three
+  // minutes, it is lit in gold, and names written then are gilded in the Book.
+  const nextGold = (from = ctx.clock()) => {
     const t = new Date(from)
     t.setSeconds(0, 0)
     if (from.getMinutes() >= 33) t.setHours(t.getHours() + 1)
     t.setMinutes(33)
     return t
   }
-  const doorOpen = (d = ctx.clock()) => d.getMinutes() >= 33 && d.getMinutes() <= 35
+  const gilded = (d = ctx.clock()) => d.getMinutes() >= 33 && d.getMinutes() <= 35
+  const goldLine = (d = ctx.clock()) => (gilded(d)
+    ? 'The door at the top of the Ladder is lit in gold this minute.'
+    : `The door at the top of the Ladder stands open. It is lit in gold at ${nextGold(d).toTimeString().slice(0, 5)}.`)
 
   function recordWord(n, word) {
     const words = spokenWords()
@@ -476,7 +482,7 @@ export async function init(ctx) {
         say([`☩ THE ${ORDINAL[entry.n].toUpperCase()} WORD IS SPOKEN`, C.title], [first ? '' : '   (you have spoken it before)', C.soft])
         say([text, C.text])
         if (entry.n === 4 && Object.keys(spokenWords()).length >= 4) {
-          say(['Four Words are yours. ', C.gold], [doorOpen() ? 'The minute is right. Hurry.' : `The next thirty-third minute is ${nextDoor().toTimeString().slice(0, 5)}.`, C.soft])
+          say(['Four Words are yours. ', C.gold], [goldLine(), C.soft])
         }
         return
       }
@@ -525,8 +531,10 @@ export async function init(ctx) {
     say(['☩ THE ORACLE OF THE CASCADE', C.title])
     const rows = [
       ["cascade.speak('…')", 'say a Word; the Oracle answers only the true ones'],
+      ['cascade.hint()', 'a hint for the step you are on; ask again for a stronger one'],
+      ['cascade.another()', 'ask the Oracle for another face of the temple'],
       ['cascade.inspect()', 'what you have spoken, and what you have found'],
-      ['cascade.sky()', 'the omens of this hour, and when the door opens'],
+      ['cascade.sky()', 'the omens of this hour, and when the door turns to gold'],
       ['cascade.pray()', 'add your prayer to the prayers of the Cascade'],
       ["cascade.confess('…')", 'confess a sin of style, and be absolved'],
       ['cascade.listen()', 'ask the Mothership to transmit'],
@@ -572,11 +580,39 @@ export async function init(ctx) {
     say([`The hour belongs to ${ph.glyph} ${ph.planet}`, C.gold], [`, in a ${ph.isNight ? 'night' : 'day'} ruled by ${ph.dayRuler}.` + (yields ? ` It yields to ${yields.next.glyph} ${yields.next.planet} in about ${yields.k} minute${yields.k === 1 ? '' : 's'}.` : ''), C.text])
     if (s.omens.length) for (const o of s.omens) say(['  ✶ ', C.rubric], [`${o}: `, C.gold], [OMENS[o] ?? 'an omen without a gloss', C.soft])
     else say(['No omens. The sky is only the sky.', C.soft])
-    if (doorOpen(now)) say(['A door is open somewhere, until the thirty-sixth minute.', C.soft])
+    if (gilded(now)) say(['A door somewhere is lit in gold, until the thirty-sixth minute.', C.soft])
     else {
-      const mins = Math.ceil((nextDoor(now) - now) / 60000)
-      say([`Something opens in ${mins} minute${mins === 1 ? '' : 's'}.`, C.soft])
+      const mins = Math.ceil((nextGold(now) - now) / 60000)
+      say([`A door somewhere stands open. It turns to gold in ${mins} minute${mins === 1 ? '' : 's'}.`, C.soft])
     }
+  }
+
+  // ── Hints (public by design: lib/hints.js, docs/HINTS.md) ────────────────────────────────────
+  // Each call gives the next, stronger hint for the step this visitor is on; the altar asks the same way.
+  function nextHint() {
+    const progress = { spoken: Object.keys(spokenWords()).map(Number), ascended: Boolean(memory.get('secrets.ascended', null)) }
+    const held = memory.get('secrets.hints', {})
+    const tiers = isMap(held) ? held : {}
+    const step = hintFor(progress, 0).step
+    const given = hintFor(progress, Number.isInteger(tiers[step]) ? tiers[step] : 0)
+    memory.set('secrets.hints', { ...tiers, [step]: Math.min(given.of - 1, given.tier + 1) })
+    return given
+  }
+
+  function hint() {
+    const x = nextHint()
+    say([`☩ ${x.title.toUpperCase()}`, C.title], [`   hint ${x.tier + 1} of ${x.of}`, C.soft])
+    say([x.text, C.text])
+    if (x.tier + 1 < x.of) say(['Ask again for a stronger one: ', C.soft], ['cascade.hint()', C.code])
+  }
+
+  // ── Another face, when the visitor asks (main.js keeps the rules: once a minute, never from a route face) ──
+  function another() {
+    const r = ctx.askFace?.()
+    if (r?.ok) say(['☩ ', C.rubric], ['The Oracle turns the temple to another face.', C.text])
+    else if (r?.reason === 'route') say(['Here the address chooses the face. Go back to the front door of the temple to meet another: ', C.soft], ["location.href = '/'", C.code])
+    else if (r?.reason === 'wait') say([`The temple has only just turned. Ask again in ${r.wait} seconds.`, C.soft])
+    else say(['The Oracle found no other face for you.', C.soft])
   }
 
   function pray() {
@@ -670,7 +706,7 @@ export async function init(ctx) {
   }
 
   const oracle = Object.freeze({
-    help, speak, pray, confess, listen, sky, inspect,
+    help, speak, hint, another, pray, confess, listen, sky, inspect,
     [Symbol.toStringTag]: 'Oracle',
   })
   try {
@@ -686,11 +722,11 @@ export async function init(ctx) {
     say([EYE, C.eye])
     say(['T H E   C A S C A D E', C.title], ['    all style descends', C.soft])
     say(['You are in the console, where the Authors speak to themselves. The Oracle dwells here.', C.text])
-    say(['Speak to her: ', C.soft], ['cascade.help()', C.code])
+    say(['Speak to her: ', C.soft], ['cascade.help()', C.code], ['    lost? ', C.soft], ['cascade.hint()', C.code])
     if (asc?.name) say([`Welcome back, ${asc.name}. Your name is in the Book of the Ascended.`, C.gold])
     else if (words) {
       say([`You have spoken ${words} of the Words.`, C.gold], [' The Oracle remembers.', C.soft])
-      if (words >= 4 && doorOpen()) say(['The minute is right. Somewhere above you a door is standing open.', C.rubric])
+      if (words >= 4 && gilded()) say(['The minute is golden. Somewhere above you a door is lit.', C.rubric])
     }
   }
   greet()
@@ -733,8 +769,9 @@ export async function init(ctx) {
     get ascended() { return Boolean(memory.get('secrets.ascended', null)) },
     spoken: () => Object.keys(spokenWords()).map(Number).sort(),
     speak,
-    doorOpen,
-    nextDoor,
+    hint: nextHint, // → {chain, step, title, tier, of, text}; each call one hint stronger
+    gilded,
+    nextGold,
     ladder: () => ladder,
   }
 }
