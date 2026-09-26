@@ -4,6 +4,10 @@ A website that is also a religion whose theology is CSS. **`docs/CANON.md` is th
 bus events, the rabbit-hole puzzle chain, the ritual API, and the safety rules (§9). Read it before changing
 behaviour, and keep it in sync when you change something it describes.
 
+**`docs/ROADMAP.md` is the plan** for the default mode: playful first, every puzzle solvable in one sitting with
+public hints, nothing weekly or date-locked. The `extreme` branch keeps the first roadmap's full-depth design (four
+chains, the meta-puzzle, the liturgical year) for a future Extreme mode. Don't delete or rebase it.
+
 ## Run
 
 ```

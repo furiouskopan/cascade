@@ -37,6 +37,7 @@ All times are local (CEST), 24 September 2026.
 | 23:55 | *"Commit if done, and let's outline next steps… more pages like the 5, deeper holes"*: a design panel starts (6 designers, 2 judges, 1 synthesizer). |
 | 00:04 (25 Sep) | The kernel loose ends the reviewers reported are fixed and committed (`8c65e5f`), including a stack-trace leak and generated verses that told the visitor to "leave thy container". |
 | 00:46 | `docs/ROADMAP.md`: 39 proposals judged down to 8 new faces, 4 chains and a meta-puzzle, in three phases. |
+| 14:49 (26 Sep) | The owner reviews the roadmap: *"it should mostly be playful, weird and cool… it shouldn't require weeks"*. The Descent stands alone, weekly and long-term plays are cut, the calendar becomes invented, hints go public, and the temple goes online. The roadmap is rewritten: 7 faces, 2 one-sitting chains, no meta-puzzle. The first draft is kept whole on the `extreme` branch, for a future Extreme mode: the temple will have two modes or more. |
 
 ---
 
@@ -262,16 +263,18 @@ longer fire from inside form fields, memory that survives several open tabs, the
 
 ## 9. Where it stands
 
-*As of 00:46, 25 September 2026.*
+*As of 14:49, 26 September 2026.*
 
 - **Built, reviewed and committed:** all six faces (sanctum, possession, recruitment, ashram, departure,
   babel) and all five layers (glyphs, hell, audio, ritual, secrets), one commit each, then the kernel
   loose ends (`8c65e5f`). Every face loads with zero console errors.
 - **Running:** the temple at http://localhost:3333 (`npm start`).
-- **Next:** `docs/ROADMAP.md`. Phase 1, "Beneath the Highest Heaven", adds three faces (the Archons of the
-  Spheres, the All-Night Launderette, the Omen Tablets) and a second chain, the Descent, down to an Undercroft at
-  `/z/-2147483648` styled only by the browser's defaults. Phases 2 and 3 add the Pilgrim's path, a liturgical
-  year, the secret seventh face (the Source), teletext and a meta-puzzle. At most 3 builders at once from now on.
+- **Next:** `docs/ROADMAP.md`, simplified after the owner's review: playful first, every puzzle solvable in one
+  sitting with public hints, nothing weekly or date-locked. Phase 0 makes the existing chain approachable (a hint
+  ladder, asking for another face, the whole glyph key on one page, the door at the top always open) and prepares
+  the temple to go online. Then three faces (the Launderette, the Omen Tablets, the Interstice), then a short
+  second chain down to the unstyled Undercroft with the Archons and the Source, then optional extras. At most 3
+  builders at once.
 - **Not yet done:** the full integration pass (a fresh-eyes solver for the whole chain, cross-face checks,
   performance), and moving this conversation into the repo's chat history.
 
