@@ -21,6 +21,7 @@ import * as L from './babel/library.js'
 import { hexagonPlan, moonGlyph } from './babel/plan.js'
 import { pencilNotes, lacunae, vindication, stillNote, shelfNotes, planetName, COLOPHON } from './babel/marginalia.js'
 import { noiseBelow, noiseVolume } from './babel/noise.js'
+import { abecedary } from './babel/abecedary.js'
 
 const READ_KEY = 'babel.read'
 const MAX_LEAVES = 333 // the stair is endless; a tab is not
@@ -240,7 +241,11 @@ export function render(ctx) {
         h('p', { class: 'bb-small' }, 'Stamped on the spine of every volume in this hexagon, and of every volume in every other:'),
         inscription({ className: 'bb-inscription' })),
       h('section', { class: 'bb-flyleaf', 'aria-label': 'Pencilled on the flyleaf' },
-        h('p', { class: 'bb-pencil-inline' }, 'two letters of the key. the rest are elsewhere in the temple —'),
+        // The rest of the key is shelved: one reader copied all of it onto a leaf of the primer. The
+        // pencil says so only as far as a pencil would.
+        h('p', { class: 'bb-pencil-inline' }, ch.kinds.alphabet
+          ? ['two letters of the key, as on every leaf; ', h('a', { class: 'bb-keylink', href: '#bb-abecedary' }, 'all twenty-six'), ' are copied out above —']
+          : ['two letters of the key. ', h('a', { class: 'bb-keylink', href: L.ALPHABET_PATH + QS, title: 'someone copied out the whole of it' }, 'the rest'), ' are elsewhere in the temple —']),
         key),
       h('section', { class: 'bb-skynote', 'aria-label': 'The sky of this reading' },
         h('p', { class: 'bb-pencil-inline' }, skyNote),
@@ -261,6 +266,9 @@ export function render(ctx) {
     const extra = []
     if (ch.kinds.catalogue) extra.push(bookShelf())
     if (ch.kinds.catalogues) extra.push(catalogueOfCatalogues())
+    // /verse/of/the/alphabet: the primer. The key is the chapter, so it stands before the plan.
+    const primer = ch.kinds.alphabet ? abecedary(ch) : null
+    if (primer) ctx.memory.markSecret?.('babel-abecedary', { face: 'babel' })
 
     const leaf = h('section', { class: 'bb-leaf bb-front', 'aria-labelledby': 'bb-incipit' },
       h('p', { class: 'bb-kicker' },
@@ -272,6 +280,7 @@ export function render(ctx) {
         ', as it has always stood on this shelf'),
       displacedPath(ch),
       frontSlot,
+      primer,
       h('div', { class: 'bb-front-grid' }, plan, notes),
       ...extra,
       find,
@@ -332,10 +341,11 @@ export function render(ctx) {
       out)
     // Letters displaced into the Private Use Area (copied from the Inscription) cannot be shelved. The
     // Library says so, and does not read them for you: that is the puzzle's work (Canon §6).
-    const DISPLACED = 'These letters have been displaced into a private place, and the Library shelves nothing that is written there. Bring them back into the open first. The key is scattered through the temple, two letters to a page.'
+    const DISPLACED = 'These letters have been displaced into a private place, and the Library shelves nothing that is written there. Bring them back into the open first. The key is scattered through the temple, two letters to a page, and one reader copied the whole of it onto '
+    const keyHref = first.kinds.alphabet ? '#bb-abecedary' : L.ALPHABET_PATH + QS
     const update = () => {
       if (displaced(input.value)) {
-        out.textContent = DISPLACED
+        out.replaceChildren(DISPLACED, h('a', { href: keyHref }, 'a single leaf'), '.')
         ctx.memory.markSecret?.('babel-displaced', { face: 'babel' })
         return
       }
@@ -714,11 +724,15 @@ export function render(ctx) {
     deepLi = document.getElementById(`v-${deepBelow[1]}-${deepBelow[2]}`)
   }
   if (deepLi) markVerse(deepLi)
+  // A link into the primer (#bb-abecedary, or one letter of it, #bb-abc-q) names an element the face builds
+  // after the browser has looked for it, so the face goes there itself.
+  const primerAt = /^#bb-(?:abecedary|abc-[a-z])$/.test(initialHash) ? document.getElementById(initialHash.slice(1)) : null
 
   setCurrent(S.leaves[0])
   if (io) io.observe(sentinel)
   else for (let i = 0; i < 6; i++) appendLeaf()
   if (deepLi) later(() => deepLi.scrollIntoView({ block: 'start' }), 60)
+  else if (primerAt) later(() => primerAt.scrollIntoView({ block: 'start' }), 60)
   else restorePlace()
 
   function setCurrent(entry) {

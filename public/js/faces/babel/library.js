@@ -65,6 +65,9 @@ export const slug = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/
 const BOOK_BY_SLUG = new Map(BOOKS.map((b) => [slug(b), b]))
 export const bookPath = (book, n = 1) => versePath([slug(book), String(n)])
 
+// The one chapter that prints the whole key (see specials().alphabet).
+export const ALPHABET_PATH = versePath(['of', 'the', 'alphabet'])
+
 // Borges' coordinates for a path. The hexagon's full name is 3,200 characters; we print its first sixteen.
 export function address(path) {
   const r = makeRng(`hexagon:${shelfKey(path)}`)
@@ -100,6 +103,7 @@ export function specials(words) {
     heaven: lower.includes('2147483647'),
     catalogue: lower.length === 0,
     catalogues: lower.join(' ') === 'the catalogue of catalogues',
+    alphabet: lower.join(' ') === 'of the alphabet', // the primer: the whole key on one leaf
     numbers,
   }
 }
