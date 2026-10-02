@@ -1,0 +1,1543 @@
+/* ŠUMMA, THE OMEN TABLETS. The Book of the great tablet.
+
+   A scholar's table of unbaked clay under a hard raking light from the upper left: every tablet throws its
+   shadow to the lower right, every wedge is a hollow lit on its far wall. Buff clay, terracotta where the
+   fire has been, bitumen, lapis and a little gold. Everything lives in @layer face, under .face--omens.
+
+   THE OMENS AND THEIR CONSEQUENCES. Each omen of the great tablet that is written under a condition is
+   fired here, inside the very block that also carries its consequence:
+
+       @media (orientation: portrait) {
+         .om-omen[data-omen="portrait"] { --om-fire: 1; }      the omen is fired red and raised
+         .om-table { grid-template-columns: minmax(0, 1fr); }  and the columns fall into one
+       }
+
+   so the tablet and the page can never disagree. Read the series from line 1, below THE SERIES. */
+@layer face {
+
+  /* ══════════════════════════════════════════════════════════════════════════════ the room ═══ */
+  html[data-face="omens"] {
+    background: #1e130a;
+    /* Glyph apparitions are pressed in bitumen with a lit lip (CANON §12). */
+    --glyph-ink: #2b1a0c;
+    --glyph-halo: rgb(240 222 186 / 0.92);
+    --glyph-glow: rgb(214 120 60 / 0.4);
+    --glyph-whisper-ink: #2d1f12;
+    --glyph-whisper-bg: rgb(222 204 168 / 0.96);
+    --glyph-whisper-rule: rgb(122 49 21 / 0.6);
+    --glyph-aura: rgb(222 204 168 / 0.88);
+    --glyph-aura-edge: rgb(185 90 48 / 0.25);
+    --glyph-voice-family: 'Cambria', 'Hoefler Text', Georgia, serif;
+    --glyph-voice-style: italic;
+  }
+
+  .face--omens {
+    /* clay, unbaked and fired */
+    --om-clay: #ccb793;
+    --om-clay-hi: #e3d3b1;
+    --om-clay-lo: #a68e69;
+    --om-clay-deep: #7a6346;
+    --om-imp: #5a4630;
+    --om-grey: #6b6152;
+    --om-terra: #b95b30;
+    --om-terra-hi: #dd7d4b;
+    --om-terra-lo: #7c3215;
+    --om-terra-ink: #3a1305;
+    --om-brick: #b9884f;
+    --om-gold: #c9a23a;
+    --om-gold-hi: #f4d98c;
+    --om-lapis: #27428e;
+    --om-bitumen: #1b120b;
+    --om-mat: #3b2716;
+    --om-card: #f2ebdf;
+    --om-card-ink: #2a2119;
+    --om-on-mat: #efe2c9;
+    --om-shadow-len: 1;
+    --om-light: 1;
+    /* type: an edition of the tablets, a museum's labels, the scribe's logograms */
+    --om-serif: 'Cambria', 'Hoefler Text', 'Baskerville', 'Libre Baskerville', Georgia, serif;
+    --om-display: 'Copperplate Gothic Light', 'Copperplate', 'Perpetua Titling MT', 'Felix Titling', 'Cambria', Georgia, serif;
+    --om-label: 'Corbel', 'Gill Sans', 'Gill Sans MT', 'Seravek', 'Trebuchet MS', sans-serif;
+    --om-mono: 'Consolas', 'Menlo', 'Cascadia Mono', monospace;
+    --om-glyph: var(--font-glyph, serif);
+    /* the liver: its outline in the flesh, and the shape every zone takes in the Book */
+    --om-liver-shape: polygon(10% 27.2%, 11% 25.6%, 12.1% 23.8%, 13.4% 22.1%, 14.8% 20.4%, 16.4% 18.9%, 18% 17.6%, 19.8% 16.6%, 21.8% 15.7%, 23.9% 15%, 26% 14.4%, 28.1% 14%, 30% 13.8%, 31.9% 13.7%, 33.7% 14%, 35.5% 14.4%, 37.2% 14.9%, 38.7% 15.2%, 40% 15.4%, 41% 15.3%, 41.8% 15.2%, 42.5% 15%, 43% 14.7%, 43.5% 14.3%, 44% 13.8%, 44.5% 13.1%, 44.9% 12.2%, 45.2% 11.3%, 45.5% 10.3%, 45.9% 9.4%, 46.2% 8.6%, 46.5% 8%, 46.9% 7.5%, 47.2% 7%, 47.6% 6.6%, 47.9% 6.3%, 48.2% 6.1%, 48.5% 6%, 48.8% 6.1%, 49.2% 6.2%, 49.5% 6.5%, 49.7% 6.8%, 50% 7.4%, 50.2% 8.1%, 50.2% 9.1%, 50.3% 10.2%, 50.4% 11.3%, 50.6% 12.3%, 51% 13.1%, 51.5% 13.8%, 52.2% 14.4%, 52.9% 14.9%, 53.8% 15.3%, 54.8% 15.5%, 56% 15.7%, 57.4% 15.6%, 59% 15.3%, 60.8% 14.8%, 62.6% 14.4%, 64.3% 14%, 66% 13.8%, 67.6% 13.8%, 69.2% 14%, 70.7% 14.3%, 72.2% 14.6%, 73.6% 14.8%, 74.8% 14.7%, 75.9% 14.4%, 76.8% 13.8%, 77.7% 13.1%, 78.4% 12.4%, 79.2% 11.7%, 80% 11.2%, 80.8% 10.7%, 81.5% 10.3%, 82.3% 9.8%, 83% 9.5%, 83.8% 9.3%, 84.6% 9.3%, 85.5% 9.4%, 86.4% 9.6%, 87.3% 10%, 88.3% 10.5%, 89.2% 11.2%, 90% 12.2%, 90.8% 13.4%, 91.5% 14.8%, 92.3% 16.4%, 92.9% 18.2%, 93.5% 20.2%, 94% 22.4%, 94.4% 24.9%, 94.7% 27.8%, 94.9% 30.8%, 95% 34%, 95.1% 37.1%, 95% 40%, 94.8% 42.8%, 94.5% 45.7%, 94.1% 48.4%, 93.6% 51.2%, 93% 53.8%, 92.4% 56.3%, 91.8% 58.7%, 91% 61.1%, 90.3% 63.3%, 89.4% 65.4%, 88.6% 67.5%, 87.6% 69.4%, 86.6% 71.3%, 85.5% 73.1%, 84.3% 74.7%, 83.1% 76.3%, 81.9% 77.7%, 80.6% 79%, 79.3% 80.2%, 78% 81.3%, 76.6% 82.3%, 75.2% 83.1%, 73.9% 83.7%, 72.6% 84.2%, 71.3% 84.4%, 70.1% 84.5%, 68.9% 84.3%, 67.7% 84.1%, 66.6% 83.7%, 65.6% 83.2%, 64.7% 82.6%, 63.9% 81.8%, 63.1% 80.8%, 62.5% 79.8%, 61.8% 78.8%, 61.2% 77.8%, 60.6% 76.6%, 60.1% 75.2%, 59.7% 73.8%, 59.2% 72.6%, 58.8% 71.7%, 58.4% 71.4%, 58% 71.7%, 57.7% 72.5%, 57.4% 73.7%, 57% 75%, 56.6% 76.5%, 56.2% 77.8%, 55.7% 79%, 55.3% 80.4%, 54.8% 81.7%, 54.2% 83.1%, 53.5% 84.5%, 52.6% 85.8%, 51.5% 87%, 50.2% 88.3%, 48.8% 89.5%, 47.3% 90.6%, 45.7% 91.7%, 44% 92.5%, 42.2% 93.2%, 40.3% 93.7%, 38.4% 94.1%, 36.3% 94.4%, 34.3% 94.5%, 32.4% 94.4%, 30.5% 94.1%, 28.5% 93.6%, 26.6% 92.9%, 24.7% 92.1%, 22.9% 91.1%, 21.2% 89.9%, 19.6% 88.6%, 18.2% 87.2%, 16.8% 85.6%, 15.5% 83.8%, 14.3% 82%, 13.2% 80%, 12.2% 77.9%, 11.2% 75.7%, 10.3% 73.4%, 9.5% 71%, 8.8% 68.5%, 8.2% 65.9%, 7.7% 63.2%, 7.3% 60.2%, 6.9% 57.2%, 6.7% 54.2%, 6.5% 51.3%, 6.4% 48.6%, 6.4% 46.2%, 6.5% 44%, 6.6% 41.9%, 6.8% 39.9%, 7.1% 38%, 7.4% 36.2%, 7.7% 34.5%, 7.9% 32.9%, 8.3% 31.5%, 8.7% 30.1%, 9.2% 28.7%);
+    --om-book: polygon(0% 0%, 20% 0%, 40% 0%, 60% 0%, 80% 0%, 100% 0%, 100% 20%, 100% 40%, 100% 60%, 100% 80%, 100% 100%, 80% 100%, 60% 100%, 40% 100%, 20% 100%, 0% 100%, 0% 80%, 0% 60%, 0% 40%, 0% 20%);
+    color: var(--om-on-mat);
+    font-family: var(--om-serif);
+  }
+
+  /* The table: a reed mat in a basket weave, raked by light through a window at the upper left. */
+  .face--omens .om {
+    position: relative;
+    isolation: isolate;
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding: clamp(14px, 3vw, 40px) clamp(14px, 3.4vw, 48px) 120px;
+    overflow-x: clip;
+    background-color: var(--om-mat);
+    background-image:
+      radial-gradient(130% 80% at 8% -6%, rgb(255 226 168 / 0.3), rgb(255 214 150 / 0.08) 45%, transparent 70%),
+      linear-gradient(158deg, transparent 42%, rgb(10 5 2 / 0.5) 100%),
+      var(--om-mat-tex, linear-gradient(transparent, transparent));
+    background-size: auto, auto, 112px 112px;
+  }
+  .face--omens .om[data-light="morning"] { --om-on-mat: #f3e6cd; }
+  .face--omens .om[data-light="evening"] {
+    background-image:
+      radial-gradient(130% 80% at 8% -6%, rgb(255 180 110 / 0.32), rgb(255 150 80 / 0.08) 45%, transparent 70%),
+      linear-gradient(158deg, transparent 38%, rgb(12 4 2 / 0.58) 100%),
+      var(--om-mat-tex, linear-gradient(transparent, transparent));
+  }
+  /* On the evening of the first crescent the table turns lunar. */
+  .face--omens .om[data-crescent] {
+    background-image:
+      radial-gradient(130% 80% at 8% -6%, rgb(206 222 255 / 0.24), rgb(180 200 240 / 0.06) 45%, transparent 70%),
+      linear-gradient(158deg, transparent 38%, rgb(4 6 14 / 0.6) 100%),
+      var(--om-mat-tex, linear-gradient(transparent, transparent));
+  }
+
+  /* What is hidden stays hidden, whatever display its class gives it. */
+  .face--omens [hidden][hidden] { display: none; }
+  .face--omens :focus-visible { outline: 2px solid var(--om-gold-hi); outline-offset: 3px; }
+  .face--omens ::selection { background: rgb(185 91 48 / 0.85); color: #fff6ea; }
+  .face--omens h1, .face--omens h2, .face--omens h3, .face--omens p, .face--omens figure, .face--omens blockquote { margin: 0; }
+  .face--omens code { font-family: var(--om-mono); font-size: 0.86em; }
+  .face--omens a { color: inherit; text-decoration-thickness: 1px; text-underline-offset: 2px; }
+  .face--omens [lang="akk"] { font-style: italic; }
+  .face--omens [lang="sa"] { font-family: var(--font-sacred, serif); }
+  .face--omens [lang="cu"] { font-family: 'Segoe UI Historic', var(--om-serif); }
+
+  /* The light comes in through a window on the left and rakes across the table as you read
+     (only where the tablet knows the timeline of the scroll: see omen IV.19). */
+  .face--omens .om-sheen { display: none; }
+
+  /* ══════════════════════════════════════════════════════════════════ the clay, and the wedge ═══ */
+  /* A tablet: pillow-shaped, lit on its upper left, its shadow thrown long to the lower right. */
+  .face--omens .om-tablet,
+  .face--omens .om-clay {
+    position: relative;
+    background-color: var(--om-clay);
+    background-image:
+      var(--om-clay-tex, linear-gradient(transparent, transparent)),
+      radial-gradient(130% 90% at 14% 6%, rgb(255 248 228 / 0.42), transparent 58%),
+      radial-gradient(100% 90% at 92% 104%, rgb(84 56 30 / 0.34), transparent 62%);
+    background-size: 256px 256px, auto, auto;
+    color: var(--om-imp);
+    box-shadow:
+      inset 9px 11px 16px -7px rgb(255 249 233 / 0.62),
+      inset -13px -17px 24px -9px rgb(66 42 20 / 0.5),
+      0 0 0 1px rgb(78 54 30 / 0.45),
+      calc(var(--om-shadow-len) * 14px) calc(var(--om-shadow-len) * 20px) calc(18px + var(--om-shadow-len) * 8px) -4px rgb(12 6 2 / 0.62);
+  }
+
+  /* Text pressed into clay: the far wall of every stroke catches the light. */
+  .face--omens .om-pressed,
+  .face--omens .om-tablet :is(.om-text, .om-great-glyph, .om-colophon-glyph, .om-typed-glyph) {
+    text-shadow: 0.5px 0.7px 0 rgb(255 247 228 / 0.42);
+  }
+
+  /* The DIŠ, the single upright wedge that begins every omen: it is how a scribe writes "if". */
+  .face--omens .om-dis {
+    grid-area: dis;
+    align-self: start;
+    width: 0.62em;
+    height: 1.28em;
+    margin-top: 0.12em;
+    background: linear-gradient(90deg, rgb(56 36 18 / 0.8) 0 52%, rgb(255 243 220 / 0.55) 52%);
+    clip-path: polygon(0 0, 100% 0, 63% 32%, 54% 100%, 46% 100%, 37% 32%);
+    filter: drop-shadow(0.6px 0.8px 0 rgb(255 246 226 / 0.55));
+    transition: rotate 0.6s ease, translate 0.6s ease;
+  }
+
+  /* ════════════════════════════════════════════════════════════════════════════ the header ═══ */
+  .face--omens .om-head {
+    display: grid;
+    grid-template-columns: minmax(0, auto) minmax(0, 1fr);
+    align-items: center;
+    gap: clamp(18px, 3vw, 44px);
+    max-width: 1320px;
+    margin: 0 auto clamp(22px, 3.4vw, 42px);
+  }
+  /* A brick stamped with the name of the room. */
+  .face--omens .om-brick {
+    position: relative;
+    padding: 20px 30px 18px;
+    border-radius: 5px 7px 6px 8px;
+    background-color: var(--om-brick);
+    background-image:
+      var(--om-clay-tex, linear-gradient(transparent, transparent)),
+      radial-gradient(120% 120% at 12% 0%, rgb(255 236 196 / 0.4), transparent 55%),
+      linear-gradient(170deg, transparent 50%, rgb(70 36 12 / 0.4));
+    background-size: 256px 256px, auto, auto;
+    color: #4c2c12;
+    box-shadow:
+      inset 4px 5px 7px -3px rgb(255 238 204 / 0.7),
+      inset -6px -8px 12px -5px rgb(70 34 10 / 0.6),
+      calc(var(--om-shadow-len) * 10px) calc(var(--om-shadow-len) * 15px) calc(14px + var(--om-shadow-len) * 6px) -3px rgb(8 4 1 / 0.65);
+  }
+  .face--omens .om-brick::before {
+    content: '';
+    position: absolute;
+    inset: 9px;
+    border-radius: 3px;
+    border: 1px solid rgb(70 38 14 / 0.42);
+    box-shadow: 1px 1px 0 rgb(255 232 196 / 0.45), inset 1px 1px 0 rgb(255 232 196 / 0.3);
+    pointer-events: none;
+  }
+  .face--omens .om-kicker {
+    font: 600 0.68rem/1.3 var(--om-label);
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: #f0cf9a;
+    text-shadow: 0 1px 2px rgb(0 0 0 / 0.5);
+  }
+  .face--omens .om-title { display: grid; gap: 2px; }
+  .face--omens .om-title-akk {
+    font: 400 clamp(2.5rem, 5.6vw, 4.2rem)/0.95 var(--om-display);
+    font-style: normal;
+    letter-spacing: 0.06em;
+    color: #4a2a10;
+    text-shadow: 1px 1.4px 0 rgb(255 232 196 / 0.7), -0.8px -1px 0 rgb(40 18 4 / 0.45);
+  }
+  .face--omens .om-title-en {
+    font: italic 400 clamp(1.05rem, 1.8vw, 1.3rem)/1.2 var(--om-serif);
+    color: #5a3618;
+    text-shadow: 0.6px 0.8px 0 rgb(255 232 196 / 0.6);
+  }
+  .face--omens .om-brick-glyph {
+    display: block;
+    margin-top: 4px;
+    text-align: right;
+    font-size: 1.4rem;
+    line-height: 1;
+    color: rgb(74 42 16 / 0.6);
+    text-shadow: 0.6px 0.8px 0 rgb(255 232 196 / 0.6);
+  }
+  .face--omens .om-head-text { display: grid; gap: 12px; align-content: center; }
+  .face--omens .om-lede {
+    max-width: 44em;
+    font: 400 clamp(1rem, 1.25vw, 1.12rem)/1.55 var(--om-serif);
+    color: var(--om-on-mat);
+    text-shadow: 0 1px 2px rgb(0 0 0 / 0.45);
+  }
+  .face--omens .om-skyline {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 18px;
+    font: 600 0.7rem/1.4 var(--om-label);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgb(239 226 201 / 0.72);
+  }
+  /* In the watches of the night the stars come out over the table (omen V.22): the diviners kept their
+     watch on the roof. */
+  .face--omens .om[data-night]::after {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    height: 420px;
+    z-index: -1;
+    pointer-events: none;
+    background-image:
+      radial-gradient(2px 2px at 37px 41px, rgb(255 246 224), transparent 70%),
+      radial-gradient(1.5px 1.5px at 151px 23px, rgb(255 246 224 / 0.85), transparent 70%),
+      radial-gradient(2.4px 2.4px at 223px 109px, rgb(255 232 190), transparent 70%),
+      radial-gradient(1.5px 1.5px at 89px 137px, rgb(214 226 255 / 0.9), transparent 70%),
+      radial-gradient(1.8px 1.8px at 281px 71px, rgb(255 246 224 / 0.8), transparent 70%),
+      radial-gradient(1.2px 1.2px at 317px 151px, rgb(255 246 224 / 0.7), transparent 70%),
+      linear-gradient(180deg, rgb(6 9 26 / 0.86), rgb(10 12 30 / 0.6) 55%, transparent);
+    background-size: 331px 173px, 331px 173px, 331px 173px, 331px 173px, 331px 173px, 331px 173px, auto;
+    mask-image: linear-gradient(180deg, #000 45%, transparent);
+  }
+
+  /* ═════════════════════════════════════════════════════════════════════════════ the table ═══ */
+  .face--omens .om-table {
+    display: grid;
+    gap: clamp(22px, 2.8vw, 38px) clamp(18px, 2.6vw, 36px);
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "great" "liver" "zig" "env" "seal" "lyre" "school" "sky" "comm";
+    align-items: start;
+    max-width: 1320px;
+    margin: 0 auto;
+  }
+  @media (min-width: 760px) {
+    .face--omens .om-table {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-areas: "great great" "liver zig" "env sky" "seal seal" "lyre school" "comm comm";
+    }
+  }
+  @media (min-width: 1100px) {
+    .face--omens .om-table {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(300px, 0.84fr);
+      grid-template-areas: "great great liver" "great great zig" "great great sky" "seal seal env" "lyre school comm";
+    }
+  }
+  .face--omens .om-great { grid-area: great; }
+  .face--omens .om-liver { grid-area: liver; }
+  .face--omens .om-zig { grid-area: zig; }
+  .face--omens .om-env { grid-area: env; }
+  .face--omens .om-seal { grid-area: seal; }
+  .face--omens .om-lyre { grid-area: lyre; }
+  .face--omens .om-school { grid-area: school; }
+  .face--omens .om-sky { grid-area: sky; }
+  .face--omens .om-comm { grid-area: comm; }
+
+  /* An object on the table: its name on the mat, the object, and a museum label. */
+  .face--omens .om-obj { display: grid; gap: 12px; align-content: start; min-width: 0; }
+  .face--omens .om-obj-h {
+    font: 600 0.72rem/1.2 var(--om-label);
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: rgb(239 226 201 / 0.9);
+    text-shadow: 0 1px 2px rgb(0 0 0 / 0.6);
+  }
+  .face--omens .om-label {
+    max-width: 36em;
+    padding: 9px 12px 10px;
+    font: 400 0.86rem/1.5 var(--om-label);
+    color: var(--om-card-ink);
+    background: var(--om-card);
+    border-left: 3px solid var(--om-terra);
+    box-shadow: 2px 3px 0 rgb(0 0 0 / 0.28);
+  }
+  .face--omens .om-label code { color: #7c3215; }
+
+  /* Buttons are tablets of fired clay. */
+  .face--omens .om-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 38px;
+    padding: 0.45em 1em;
+    border: 0;
+    border-radius: 6px 8px 7px 9px;
+    font: 600 0.86rem/1.2 var(--om-label);
+    letter-spacing: 0.06em;
+    color: #fff1e2;
+    background: linear-gradient(170deg, var(--om-terra-hi), var(--om-terra) 55%, var(--om-terra-lo));
+    box-shadow: inset 1px 1px 0 rgb(255 214 180 / 0.55), inset -1px -2px 0 rgb(60 20 6 / 0.45), 3px 4px 0 rgb(30 12 4 / 0.55);
+    cursor: pointer;
+    text-shadow: 0 -1px 0 rgb(60 20 6 / 0.5);
+    transition: translate 0.15s ease, box-shadow 0.15s ease;
+  }
+  .face--omens .om-btn:hover { translate: 0 -1px; }
+  .face--omens .om-btn:active { translate: 2px 3px; box-shadow: inset 1px 1px 0 rgb(255 214 180 / 0.4), 1px 1px 0 rgb(30 12 4 / 0.55); }
+  .face--omens .om-btn:disabled { opacity: 0.55; cursor: default; translate: none; }
+  .face--omens .om-btn--quiet {
+    color: var(--om-imp);
+    background: rgb(255 248 230 / 0.35);
+    box-shadow: inset 0 0 0 1px rgb(90 70 48 / 0.35);
+    text-shadow: none;
+  }
+
+  /* ═════════════════════════════════════════════════════════════════════ the great tablet ═══ */
+  .face--omens .om-great {
+    border-radius: 26px 32px 28px 36px / 32px 26px 36px 30px;
+    --om-moonlight: 0;
+    --om-dry: 0;
+    transition: background-color 4s ease;
+  }
+  .face--omens .om-great-in {
+    container: om-tablet / inline-size;
+    position: relative;
+    padding: clamp(18px, 3vw, 40px) clamp(14px, 3.2vw, 46px) clamp(20px, 3vw, 38px);
+  }
+  .face--omens .om-great-head { display: grid; gap: 6px; padding-bottom: 14px; border-bottom: 3px double rgb(90 68 44 / 0.4); }
+  .face--omens .om-great-kicker {
+    font: 600 0.66rem/1.2 var(--om-label);
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--om-clay-deep);
+  }
+  .face--omens .om-great-title { display: grid; gap: 2px; }
+  .face--omens .om-great-akk {
+    font: italic 400 clamp(1.35rem, 2.6vw, 1.9rem)/1.15 var(--om-serif);
+    color: #4c3923;
+    text-shadow: 0.7px 0.9px 0 rgb(255 247 228 / 0.65), -0.4px -0.5px 0 rgb(40 24 10 / 0.3);
+  }
+  .face--omens .om-great-en { font: 400 1rem/1.3 var(--om-serif); color: var(--om-imp); }
+  .face--omens .om-great-glyph { font-size: 1.25rem; letter-spacing: 0.1em; color: rgb(72 52 32 / 0.62); }
+  .face--omens .om-tally { font: 400 0.9rem/1.3 var(--om-label); letter-spacing: 0.04em; color: var(--om-imp); }
+  .face--omens .om-tally-n {
+    font: 600 1.45rem/1 var(--om-serif);
+    color: var(--om-terra);
+    text-shadow: 0.6px 0.8px 0 rgb(255 247 228 / 0.6);
+  }
+
+  /* The clay dries paler when the Pilgrim is still (seven breaths), and dries at the corners each time
+     they turn away (omen VI.24). */
+  .face--omens .om-great::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: rgb(246 239 224 / 0.3);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 5s ease;
+    z-index: 3;
+  }
+  .face--omens .om-great.is-drying::after { opacity: 1; }
+  .face--omens .om-great::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    z-index: 2;
+    background:
+      radial-gradient(closest-side at 0% 0%, rgb(240 230 208 / 0.75), transparent),
+      radial-gradient(closest-side at 100% 0%, rgb(240 230 208 / 0.7), transparent),
+      radial-gradient(closest-side at 0% 100%, rgb(240 230 208 / 0.7), transparent),
+      radial-gradient(closest-side at 100% 100%, rgb(240 230 208 / 0.75), transparent);
+    background-size: 26% 26%;
+    background-repeat: no-repeat;
+    background-position: 0 0, 100% 0, 0 100%, 100% 100%;
+    opacity: var(--om-dry);
+    transition: opacity 3s ease;
+  }
+  /* A Pilgrim who comes back has worn one corner smooth (omen VI.25). */
+  .face--omens .om-great[data-worn] .om-great-in::before {
+    content: '';
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 120px;
+    height: 120px;
+    border-bottom-right-radius: 34px;
+    pointer-events: none;
+    background: radial-gradient(circle at 100% 100%, rgb(255 250 236 / 0.5), rgb(255 246 226 / 0.18) 38%, transparent 66%);
+  }
+
+  /* The cracks of drying clay; they creep a few pixels a minute. */
+  .face--omens .om-cracks { position: absolute; inset: 0; z-index: 4; pointer-events: none; border-radius: inherit; overflow: hidden; }
+  .face--omens .om-cracks-svg { display: block; width: 100%; height: 100%; }
+  .face--omens .om-crack-line,
+  .face--omens .om-crack-lip { fill: none; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 100px; stroke-dashoffset: 100px; }
+  .face--omens .om-crack-line { stroke: rgb(40 22 8 / 0.78); stroke-width: 1.7; }
+  .face--omens .om-crack-lip { stroke: rgb(255 246 226 / 0.32); stroke-width: 3.4; }
+
+  /* The oven: at one hundred and eight breaths the tablet is fired. */
+  .face--omens .om-oven {
+    position: absolute;
+    inset: -30px;
+    z-index: -1;
+    border-radius: 60px;
+    pointer-events: none;
+    background: radial-gradient(closest-side, rgb(255 150 60 / 0.55), rgb(255 110 40 / 0.2) 60%, transparent);
+    opacity: 0;
+  }
+  .face--omens .om-great.is-fired .om-oven { animation: om-oven 8s ease-out both; }
+  @keyframes om-oven { 0% { opacity: 0; } 30% { opacity: 1; } 100% { opacity: 0.22; } }
+  .face--omens .om-great.is-fired {
+    --om-clay: #c4774a;
+    --om-clay-hi: #e19a6a;
+    --om-clay-lo: #93502a;
+    --om-clay-deep: #6b3014;
+    --om-imp: #4a1d08;
+    --om-grey: #7e4a2c;
+    /* in the fire the raised omens were starved of air, and came out black, as reduced clay does */
+    --om-terra: #4c3326;
+    --om-terra-hi: #6e4c38;
+    --om-terra-lo: #2a1a12;
+    --om-terra-ink: #f6dfc4;
+  }
+  .face--omens .om-great.is-fired .om-omen::before { box-shadow: inset 1px 1px 0 rgb(255 220 190 / 0.3), 2px 3px 0 #22140c, 6px 9px 12px -2px rgb(36 14 4 / 0.5); }
+  .face--omens .om-great.is-fired .om-omen .om-cond { color: color-mix(in srgb, #f6dfc4 calc(var(--om-heat) * 100%), var(--om-clay-deep)); }
+
+  /* The stylus that reads the tablet for the first time. */
+  .face--omens .om-stylus {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 6;
+    width: 132px;
+    height: 12px;
+    border-radius: 2px 6px 6px 2px;
+    background:
+      repeating-linear-gradient(90deg, transparent 0 38px, rgb(70 46 14 / 0.55) 38px 40px),
+      linear-gradient(180deg, #f0d99e, #c09450 50%, #6c4a1c);
+    filter: drop-shadow(8px 12px 5px rgb(30 16 4 / 0.4));
+    rotate: -34deg;
+    transform-origin: 0 50%;
+    clip-path: polygon(0 50%, 10% 0, 100% 0, 100% 100%, 10% 100%);
+    opacity: 0;
+    pointer-events: none;
+    transition: translate 0.18s cubic-bezier(0.3, 0.6, 0.3, 1), opacity 0.5s ease;
+  }
+  .face--omens .om-stylus.is-moving { opacity: 1; }
+
+  /* ═════════════════════════════════════════════════════════════════════════ THE SERIES ═══ */
+  .face--omens .om-series { margin-top: 18px; }
+  .face--omens .om-group { margin: 0 0 20px; }
+  .face--omens .om-group-h {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0 0.5em;
+    padding: 0 0 6px;
+    margin: 0 0 8px;
+    border-bottom: 3px double rgb(90 68 44 / 0.42);
+    font: 600 0.72rem/1.3 var(--om-label);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--om-clay-deep);
+    break-after: avoid;
+  }
+  .face--omens .om-group-h [lang="akk"] { text-transform: none; letter-spacing: 0.04em; font: italic 400 0.95rem/1 var(--om-serif); color: var(--om-imp); }
+  .face--omens .om-group-num { font: 600 0.85rem/1 var(--om-serif); letter-spacing: 0.06em; color: var(--om-terra-lo); }
+  .face--omens .om-group-en { text-transform: none; letter-spacing: 0.03em; font: italic 400 0.86rem/1.2 var(--om-serif); color: var(--om-clay-deep); }
+  .face--omens .om-lines { list-style: none; margin: 0; padding: 0; }
+
+  .face--omens .om-omen {
+    --om-fire: 0;
+    --om-read: 0;
+    --om-heat: calc(var(--om-fire) * var(--om-read));
+    --om-grey-ink: color-mix(in srgb, #5d6878 calc(var(--om-moonlight) * 50%), var(--om-grey));
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    grid-template-columns: [num-start] 1.7em [num-end dis-start] 0.66em [dis-end text-start] minmax(0, 1fr) [text-end];
+    grid-template-areas: "num dis text" ". . cond";
+    column-gap: 0.55em;
+    row-gap: 0.18em;
+    align-items: baseline;
+    margin: 0 0 4px;
+    padding: 7px 10px 8px 4px;
+    border-bottom: 1px solid rgb(96 72 46 / 0.26);
+    box-shadow: 0 1px 0 rgb(255 248 230 / 0.4);
+    break-inside: avoid;
+    color: color-mix(in srgb, var(--om-terra-ink) calc(var(--om-heat) * 100%), var(--om-grey-ink));
+    transform: translate(calc(var(--om-heat) * -1.5px), calc(var(--om-heat) * -2.5px));
+    transition: transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1), color 0.9s ease;
+  }
+  .face--omens .om-omen.is-read { --om-read: 1; }
+  /* Until the stylus has passed, a line is only half pressed into the clay. */
+  .face--omens .om-omen > * { transition: opacity 0.6s ease; }
+  .face--omens .om-omen:not(.is-read) > * { opacity: 0.34; }
+  /* The omens of the sky and of the Pilgrim's conduct are judged by the face, which says so here. */
+  .face--omens .om-omen[data-holds="true"] { --om-fire: 1; }
+  /* Fired red and raised: a plaque of terracotta under the line, standing proud of the tablet. */
+  .face--omens .om-omen::before {
+    content: '';
+    position: absolute;
+    inset: 1px -4px 0;
+    z-index: -1;
+    border-radius: 6px 9px 7px 10px;
+    background-color: var(--om-terra);
+    background-image:
+      var(--om-clay-tex, linear-gradient(transparent, transparent)),
+      linear-gradient(165deg, rgb(255 190 140 / 0.45), transparent 45%, rgb(70 20 4 / 0.32));
+    background-size: 256px 256px, auto;
+    box-shadow:
+      inset 1px 1px 0 rgb(255 214 176 / 0.65),
+      inset -1px -1px 0 rgb(70 22 6 / 0.45),
+      2px 3px 0 #6e2a10,
+      calc(var(--om-shadow-len) * 6px) calc(var(--om-shadow-len) * 9px) calc(8px + var(--om-shadow-len) * 4px) -2px rgb(36 14 4 / 0.5);
+    opacity: var(--om-heat);
+    transition: opacity 0.9s ease;
+  }
+  /* The ember: the moment of firing. */
+  .face--omens .om-omen::after {
+    content: '';
+    position: absolute;
+    inset: -14px -18px;
+    z-index: -2;
+    border-radius: 40px;
+    pointer-events: none;
+    background: radial-gradient(closest-side, rgb(255 168 70 / 0.75), rgb(255 98 30 / 0.28) 62%, transparent);
+    opacity: 0;
+  }
+  .face--omens .om-omen.is-kindled::after { animation: om-ember 1.6s ease-out both; }
+  @keyframes om-ember { 0% { opacity: 0; transform: scale(0.9); } 22% { opacity: 1; } 100% { opacity: 0; transform: scale(1.06); } }
+  .face--omens .om-omen.is-rewriting .om-text { animation: om-rewrite 1.3s ease both; }
+  @keyframes om-rewrite { 0% { opacity: 1; } 28% { opacity: 0.08; transform: translateX(-3px); } 62% { opacity: 0.6; } 100% { opacity: 1; transform: none; } }
+
+  .face--omens .om-num {
+    grid-area: num;
+    justify-self: end;
+    font: italic 400 0.8rem/1 var(--om-serif);
+    color: color-mix(in srgb, var(--om-terra-ink) calc(var(--om-heat) * 100%), var(--om-clay-deep));
+  }
+  .face--omens .om-omen .om-dis { background: linear-gradient(90deg, color-mix(in srgb, #3a1305 calc(var(--om-heat) * 100%), rgb(56 36 18 / 0.8)) 0 52%, rgb(255 236 210 / 0.55) 52%); }
+  .face--omens .om-text {
+    grid-area: text;
+    position: relative;
+    font: 400 1.02rem/1.42 var(--om-serif);
+    text-wrap: pretty;
+  }
+  .face--omens .om-if { font-weight: 600; }
+  .face--omens .om-cond {
+    grid-area: cond;
+    justify-self: start;
+    max-width: 100%;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font: 400 0.72rem/1.4 var(--om-mono);
+    overflow-wrap: anywhere;
+    color: color-mix(in srgb, #5a1c06 calc(var(--om-heat) * 100%), var(--om-clay-deep));
+    background: rgb(70 44 20 / 0.08);
+    box-shadow: inset 0.6px 0.8px 0 rgb(40 24 10 / 0.18), inset -0.6px -0.8px 0 rgb(255 248 230 / 0.4);
+  }
+  .face--omens .om-omen.is-lit .om-cond { background: rgb(60 16 2 / 0.12); }
+
+  /* The lines the tablet gains in a sitting are fired gold. */
+  .face--omens .om-omen--added { --om-fire: 1; --om-read: 1; }
+  .face--omens .om-omen--added::before {
+    background-color: #c79a3a;
+    background-image:
+      var(--om-clay-tex, linear-gradient(transparent, transparent)),
+      linear-gradient(165deg, rgb(255 240 190 / 0.6), transparent 45%, rgb(90 56 6 / 0.35));
+    box-shadow: inset 1px 1px 0 rgb(255 240 200 / 0.8), 2px 3px 0 #7a5410, calc(var(--om-shadow-len) * 6px) calc(var(--om-shadow-len) * 9px) 12px -2px rgb(36 20 4 / 0.5);
+  }
+  .face--omens .om-omen--added { color: #3a2604; }
+  .face--omens .om-group--added .om-group-h { color: #7a5410; }
+
+  /* The omen of the hour, some visits, is pressed into the wrong column: it starts in the margin, and its
+     number and wedge are pushed beneath it. A click moves it back, as a scribe corrects a slip. */
+  .face--omens .om-omen.is-misplaced .om-text { grid-column: num-start / text-end; grid-row: 1; rotate: -1.2deg; translate: -0.5em 0; cursor: pointer; }
+  .face--omens .om-omen.is-misplaced .om-num { grid-row: 2; grid-column: text-start / text-end; justify-self: start; }
+  .face--omens .om-omen.is-misplaced .om-dis { grid-row: 2; grid-column: text-start / text-end; justify-self: start; margin-left: 2.2em; rotate: 8deg; }
+  .face--omens .om-omen.is-misplaced .om-cond { grid-row: 3; }
+  .face--omens .om-sic {
+    grid-row: 2;
+    grid-column: text-start / text-end;
+    justify-self: end;
+    padding: 0 6px;
+    border: 1px dashed rgb(124 50 21 / 0.6);
+    border-radius: 3px;
+    font: italic 400 0.78rem/1.5 var(--om-serif);
+    color: #7c3215;
+    background: rgb(255 246 230 / 0.4);
+    cursor: pointer;
+  }
+  .face--omens .om-corrected {
+    grid-column: text-start / text-end;
+    justify-self: end;
+    font: italic 400 0.72rem/1.2 var(--om-serif);
+    color: var(--om-clay-deep);
+  }
+
+  /* The restless hand slips: one wedge is pressed crooked (omen II.10). */
+  .face--omens .om-great[data-restless] .om-omen[data-slip] .om-dis { rotate: 17deg; translate: 2px 1px; }
+
+  /* The reed omen is broken off after "re…" until the Pilgrim stands like a reed (see omen I.6). */
+  .face--omens .om-omen--reed .om-reed-whole,
+  .face--omens .om-omen--reed .om-cond { display: none; }
+  .face--omens .om-reed-broken { grid-area: text; font: 400 1.02rem/1.42 var(--om-serif); }
+  .face--omens .om-break {
+    margin-left: 1px;
+    font-style: italic;
+    letter-spacing: 0.04em;
+    color: rgb(90 70 48 / 0.7);
+  }
+  .face--omens .om-gloss--always {
+    display: block;
+    margin-top: 3px;
+    font: italic 400 0.8rem/1.35 var(--om-serif);
+    color: var(--om-clay-deep);
+  }
+  .face--omens .om-forced { display: none; }
+
+  /* Thumbprints: the clay keeps one for every press, after the third (omen II.11). */
+  .face--omens .om-thumbs { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+  .face--omens .om-thumb {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    width: 24px;
+    height: 32px;
+    translate: -50% -50%;
+    rotate: var(--r);
+    scale: var(--s);
+    border-radius: 50%;
+    background: repeating-radial-gradient(ellipse 60% 70% at 50% 62%, rgb(70 46 22 / 0.26) 0 1px, transparent 1px 3px);
+    box-shadow: inset 2px 3px 4px rgb(70 46 22 / 0.32), inset -2px -2px 3px rgb(255 248 230 / 0.45);
+    animation: om-press 0.5s ease-out both;
+  }
+  @keyframes om-press { 0% { opacity: 0; scale: 1.25; } 100% { opacity: 0.85; } }
+
+  /* The foot of the tablet: the Pilgrim's own word, the colophon, and the Inscription on the lower edge. */
+  .face--omens .om-great-foot { display: grid; gap: 12px; margin-top: 10px; padding-top: 12px; border-top: 3px double rgb(90 68 44 / 0.4); }
+  .face--omens .om-typed { font: 400 0.92rem/1.4 var(--om-serif); color: var(--om-imp); }
+  .face--omens .om-typed-label { font: 600 0.68rem/1 var(--om-label); letter-spacing: 0.16em; text-transform: uppercase; color: var(--om-clay-deep); }
+  .face--omens .om-typed-glyph { font-size: 1.35rem; letter-spacing: 0.08em; color: #3e2c18; }
+  .face--omens .om-typed-latin { font-style: italic; color: var(--om-clay-deep); }
+  .face--omens .om-colophon { display: grid; gap: 4px; }
+  .face--omens .om-colophon-glyph { font-size: 1.05rem; letter-spacing: 0.12em; color: #3e2c18; }
+  .face--omens .om-colophon.is-pressing .om-colophon-glyph { animation: om-press-line 4s linear both; }
+  @keyframes om-press-line { 0% { clip-path: inset(0 100% 0 0); } 100% { clip-path: inset(0 0 0 0); } }
+  .face--omens .om-colophon-en { font: italic 400 0.9rem/1.45 var(--om-serif); color: var(--om-imp); }
+  .face--omens .om-colophon.is-pressing .om-colophon-en { animation: om-ink 2s ease 3.4s both; }
+  @keyframes om-ink { from { opacity: 0; } to { opacity: 1; } }
+  .face--omens .om-restore { justify-self: start; }
+  .face--omens .om-edge-note { font: italic 400 0.78rem/1.3 var(--om-serif); color: var(--om-clay-deep); }
+  .face--omens .om-great .inscription.om-edge {
+    margin: 0;
+    max-width: none;
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-size: clamp(0.95rem, 0.85rem + 0.5vw, 1.25rem);
+    line-height: 1.6;
+    letter-spacing: 0.08em;
+    word-spacing: 0.35em;
+    text-align: left;
+    color: #3e2c18;
+    background: rgb(80 56 30 / 0.1);
+    box-shadow: inset 1px 2px 3px rgb(60 40 20 / 0.28), inset -1px -1px 2px rgb(255 248 230 / 0.45);
+    text-shadow: 0.55px 0.75px 0 rgb(255 247 228 / 0.6), -0.35px -0.45px 0 rgb(40 24 10 / 0.3);
+  }
+
+  /* ════════════════════════════════════════════════════════════════════════ LACUNA ROT ═══ */
+  /* A line read for too long breaks at its edges. The shards are aria-hidden and drawn over the text,
+     which stays whole beneath them; hover (or a tap, or mercy) restores it. */
+  .face--omens .om-lac {
+    position: absolute;
+    top: -3px;
+    bottom: -3px;
+    z-index: 2;
+    display: none;
+    pointer-events: none;
+    user-select: none;
+    background-color: #977d59;
+    background-image:
+      var(--om-clay-tex, linear-gradient(transparent, transparent)),
+      var(--om-break);
+    background-size: 96px 96px, auto;
+    font: italic 400 0.86rem/1.42 var(--om-serif);
+    color: #2e2010;
+    overflow: hidden;
+    transition: opacity 0.6s ease;
+  }
+  .face--omens .om-lac--l {
+    --om-break: linear-gradient(90deg, rgb(255 240 210 / 0.12), rgb(60 38 18 / 0.18) 60%, rgb(40 24 8 / 0.55));
+    left: -6px;
+    width: calc(var(--lac-l, 2ch) + 6px);
+    clip-path: polygon(0 0, 78% 0, 100% 9%, 84% 22%, 97% 36%, 80% 51%, 94% 64%, 78% 79%, 92% 90%, 74% 100%, 0 100%);
+    text-align: center;
+  }
+  .face--omens .om-lac--r {
+    --om-break: linear-gradient(270deg, rgb(255 240 210 / 0.12), rgb(60 38 18 / 0.18) 60%, rgb(40 24 8 / 0.5));
+    right: -6px;
+    width: calc(var(--lac-r, 3ch) + 6px);
+    clip-path: polygon(100% 0, 24% 0, 6% 12%, 20% 25%, 2% 39%, 18% 52%, 4% 66%, 22% 78%, 8% 90%, 26% 100%, 100% 100%);
+    text-align: center;
+  }
+  .face--omens .om-lac::before {
+    content: '[…]';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    translate: 0 -50%;
+    white-space: pre;
+    text-shadow: 0.5px 0.7px 0 rgb(255 240 210 / 0.45);
+  }
+  .face--omens .om-lac--r::before { font-size: 0.78rem; letter-spacing: -0.04em; }
+  .face--omens .om-lac--r[data-damaged="x"]::before { content: '⸢x⸣ […]'; }
+  .face--omens .om-lac--r[data-damaged="ki"]::before { content: '⸢ki⸣ […]'; }
+  .face--omens .has-lacuna > .om-lac { display: block; }
+  .face--omens .om-lac-note {
+    position: absolute;
+    right: 0;
+    top: -1.1em;
+    font: italic 400 0.68rem/1 var(--om-serif);
+    color: var(--om-terra-lo);
+    opacity: 0;
+    pointer-events: none;
+    user-select: none;
+    transition: opacity 0.6s ease;
+  }
+  .face--omens .is-restored > .om-lac-note::before { content: 'restored by the editor'; }
+  .face--omens .is-restored > .om-lac-note { animation: om-note 5s ease both; }
+  @keyframes om-note { 0% { opacity: 0; } 12% { opacity: 1; } 75% { opacity: 1; } 100% { opacity: 0; } }
+
+  /* ═══════════════════════════════════════════════════════════════════ THE LIVER, AS THE FLESH ═══ */
+  .face--omens .om-liver-fig { position: relative; width: 100%; aspect-ratio: 1.6; margin: 4px 0 2px; }
+  .face--omens .om-liver-shadow { position: absolute; inset: 0; filter: blur(8px); opacity: 0.78; }
+  .face--omens .om-liver-shadow > i {
+    position: absolute;
+    inset: 0;
+    background: rgb(8 4 1 / 0.75);
+    clip-path: var(--om-liver-shape);
+    translate: calc(var(--om-shadow-len) * 3%) calc(var(--om-shadow-len) * 5%);
+  }
+  /* The gall bladder, the martum, hangs beside the lobes. */
+  .face--omens .om-liver-gall {
+    position: absolute;
+    left: 52%;
+    top: 62%;
+    width: 13%;
+    height: 34%;
+    rotate: 10deg;
+    border-radius: 46% 54% 50% 50% / 64% 62% 38% 36%;
+    background: radial-gradient(90% 80% at 34% 26%, #ddcba6, #ae9570 58%, #7a6142);
+    box-shadow: inset 2px 3px 4px rgb(255 248 228 / 0.5), inset -3px -4px 6px rgb(60 40 18 / 0.5), 6px 9px 10px -2px rgb(8 4 1 / 0.55);
+  }
+  .face--omens .om-liver-body {
+    position: absolute;
+    inset: 0;
+    clip-path: var(--om-liver-shape);
+    background-color: #846a49;
+    background-image: radial-gradient(120% 100% at 22% 10%, rgb(255 240 210 / 0.35), transparent 55%), radial-gradient(90% 80% at 90% 100%, rgb(40 24 10 / 0.45), transparent 60%);
+  }
+  /* The liver's grid: its areas are THE LIVER, AS THE BOOK DRAWS IT, below. */
+  .face--omens .om-liver-grid {
+    position: absolute;
+    inset: 22% 0;
+    display: grid;
+    grid-template-columns: repeat(20, minmax(0, 1fr));
+    grid-template-rows: repeat(7, minmax(0, 1fr));
+    filter: drop-shadow(-0.6px -0.7px 0 rgb(255 248 230 / 0.45)) drop-shadow(0.7px 0.9px 0 rgb(46 28 12 / 0.45));
+  }
+  .face--omens .om-zone {
+    position: relative;
+    display: block;
+    min-width: 0;
+    min-height: 0;
+    transform-origin: 0 0;
+    transform: translate(var(--tx), var(--ty)) scale(var(--sx), var(--sy));
+    clip-path: var(--flesh);
+    background: linear-gradient(158deg, #dccaa6, #cbb58f 60%, #bda57e);
+    transition:
+      transform 2.4s cubic-bezier(0.65, 0, 0.25, 1) calc(var(--i) * 60ms),
+      clip-path 2.4s cubic-bezier(0.65, 0, 0.25, 1) calc(var(--i) * 60ms);
+  }
+  .face--omens .om-zone:nth-child(3n) { background: linear-gradient(158deg, #d5c29d, #c4ad87 60%, #b49c76); }
+  .face--omens .om-zone:nth-child(4n + 1) { background: linear-gradient(158deg, #e1d0ae, #cdb792 60%, #bfa881); }
+  .face--omens .om-zone::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(160deg, var(--om-terra-hi), var(--om-terra) 50%, var(--om-terra-lo));
+    opacity: 0;
+    transition: opacity 1.4s ease calc(1.8s + var(--i) * 60ms);
+  }
+  .face--omens .om-liver-grain {
+    position: absolute;
+    inset: 0;
+    clip-path: var(--om-liver-shape);
+    background-image: var(--om-clay-tex, linear-gradient(transparent, transparent));
+    background-size: 200px 200px;
+    opacity: 0.8;
+    pointer-events: none;
+  }
+  .face--omens .om-liver-grain::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: var(--holes, none);
+    transition: opacity 1s ease;
+  }
+  .face--omens .om-liver-writ { position: absolute; inset: 0; width: 100%; height: 100%; transition: opacity 1s ease; }
+  /* Read in the Book, the zones go back to the places the Book gives them, and the clay is fired. */
+  .face--omens .om-liver[data-read] .om-zone { transform: translate(0%, 0%) scale(1, 1); clip-path: var(--om-book); }
+  .face--omens .om-liver-grid { transition: scale 2.4s cubic-bezier(0.65, 0, 0.25, 1); }
+  .face--omens .om-liver[data-read] .om-liver-grid { scale: 0.86; }
+  .face--omens .om-liver[data-read] .om-zone::after { opacity: 1; }
+  .face--omens .om-liver[data-read] .om-liver-grain::after,
+  .face--omens .om-liver[data-read] .om-liver-writ { opacity: 0; }
+  .face--omens .om-liver[data-read] .om-liver-grain { opacity: 0.5; }
+
+  .face--omens .om-marks {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2px 14px;
+    margin: 0;
+    padding: 8px 10px;
+    border-radius: 6px;
+    font: 400 0.84rem/1.35 var(--om-serif);
+    color: var(--om-on-mat);
+    background: rgb(20 12 6 / 0.35);
+  }
+  .face--omens .om-mark { min-width: 0; }
+  .face--omens .om-mark dt { font-weight: 400; }
+  .face--omens .om-mark dt i { color: #f0cf9a; }
+  .face--omens .om-mark dd { margin: 0 0 3px; }
+  /* The glosses wait to be asked: a hovering hand, or the focus (see omen II.9 for hands that cannot hover). */
+  .face--omens .om-gloss { display: none; font: italic 400 0.78rem/1.3 var(--om-label); color: rgb(239 226 201 / 0.75); }
+  .face--omens .om-marks:hover .om-gloss,
+  .face--omens .om-marks:focus-within .om-gloss { display: block; }
+  .face--omens .om-gloss.om-gloss--always { display: block; }
+
+  /* The scribe's field: what does the liver say? */
+  .face--omens .om-scribe {
+    display: grid;
+    gap: 8px;
+    padding: 12px 14px;
+    border-radius: 10px 13px 11px 14px;
+    background: rgb(20 12 6 / 0.42);
+    box-shadow: inset 0 0 0 1px rgb(239 226 201 / 0.14);
+  }
+  .face--omens .om-scribe-label { font: 600 0.78rem/1.2 var(--om-label); letter-spacing: 0.14em; text-transform: uppercase; color: var(--om-on-mat); }
+  .face--omens .om-scribe-row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .face--omens .om-scribe-input {
+    flex: 1 1 9em;
+    min-width: 0;
+    min-height: 38px;
+    padding: 6px 10px;
+    border: 0;
+    border-radius: 6px;
+    font: 400 1.05rem/1.2 var(--om-serif);
+    letter-spacing: 0.08em;
+    color: var(--om-imp);
+    background-color: var(--om-clay);
+    background-image: var(--om-clay-tex, linear-gradient(transparent, transparent));
+    background-size: 256px 256px;
+    box-shadow: inset 2px 3px 5px rgb(60 40 20 / 0.5), inset -1px -1px 2px rgb(255 248 230 / 0.5);
+  }
+  .face--omens .om-scribe-input::placeholder { color: rgb(90 70 48 / 0.55); font-style: italic; }
+  .face--omens .om-scribe-note { min-height: 1.4em; font: italic 400 0.9rem/1.45 var(--om-serif); color: #f3dcb8; }
+  .face--omens .om-liver[data-read] .om-scribe { box-shadow: inset 0 0 0 1px rgb(244 217 140 / 0.55); }
+  .face--omens .om-liver[data-read] .om-scribe-note { color: var(--om-gold-hi); }
+
+  /* ═══════════════════════════════════════════════════════════════════════════ THE ZIGGURAT ═══ */
+  .face--omens .om-zig-fig {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+    padding: 6px 0 4px;
+  }
+  .face--omens .om-zig-shrine {
+    grid-column: 1;
+    position: relative;
+    z-index: 9;
+    justify-self: center;
+    display: grid;
+    justify-items: center;
+    gap: 2px;
+    margin-bottom: -2px;
+  }
+  .face--omens .om-zig-shrine-face {
+    width: 34px;
+    height: 24px;
+    background: linear-gradient(90deg, #f1d58b, #c79a35 60%, #8a6214);
+    clip-path: polygon(10% 30%, 50% 0, 90% 30%, 90% 100%, 10% 100%);
+    box-shadow: inset 0 0 0 1px rgb(80 50 6 / 0.6);
+  }
+  .face--omens .om-zig-shrine code {
+    position: absolute;
+    left: calc(100% + 8px);
+    top: 2px;
+    font-size: 0.78rem;
+    color: var(--om-gold-hi);
+    white-space: nowrap;
+  }
+  .face--omens .om-zig-terraces { grid-column: 1 / -1; list-style: none; margin: 0; padding: 0; display: grid; }
+  .face--omens .om-terrace {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+    align-items: center;
+    height: 34px;
+    margin-top: -5px;
+  }
+  /* The cast shadow (and the gold of the thirty-third minute) is drawn around the clipped face. */
+  .face--omens .om-terrace-body {
+    justify-self: center;
+    width: var(--w);
+    height: 100%;
+    filter: drop-shadow(calc(var(--om-shadow-len) * 4px) calc(var(--om-shadow-len) * 5px) 3px rgb(10 5 2 / 0.5));
+  }
+  .face--omens .om-terrace-face {
+    display: block;
+    width: 100%;
+    height: 100%;
+    background-color: var(--c);
+    background-image:
+      var(--om-clay-tex, linear-gradient(transparent, transparent)),
+      linear-gradient(90deg, rgb(255 255 255 / 0.3), transparent 30%, transparent 62%, rgb(0 0 0 / 0.42)),
+      linear-gradient(180deg, rgb(255 255 255 / 0.28) 0 4px, transparent 4px);
+    background-size: 160px 160px, auto, auto;
+    clip-path: polygon(5% 0, 95% 0, 100% 100%, 0 100%);
+  }
+  .face--omens .om-terrace-label {
+    padding: 5px 0 0 10px;
+    font: 400 0.74rem/1.1 var(--om-label);
+    color: var(--om-on-mat);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .face--omens .om-terrace-name { font: italic 400 0.86rem/1 var(--om-serif); }
+  .face--omens .om-terrace-z { font-size: 0.7rem; color: rgb(239 226 201 / 0.72); }
+  /* Seven walls, seven colours, seven rungs of the Ladder: the higher terrace is painted over the lower. */
+  .face--omens .om-terrace[data-color="gold"] { z-index: 7; --w: 30%; --c: #c9a23a; }
+  .face--omens .om-terrace[data-color="silver"] { z-index: 6; --w: 40%; --c: #b8bcc4; }
+  .face--omens .om-terrace[data-color="orange"] { z-index: 5; --w: 50%; --c: #d27a2c; }
+  .face--omens .om-terrace[data-color="blue"] { z-index: 4; --w: 60%; --c: #2d4f9e; }
+  .face--omens .om-terrace[data-color="purple"] { z-index: 3; --w: 70%; --c: #6c2a5e; }
+  .face--omens .om-terrace[data-color="black"] { z-index: 2; --w: 80%; --c: #2a2422; }
+  .face--omens .om-terrace[data-color="white"] { z-index: 1; --w: 92%; --c: #e7e0d2; }
+  /* At the thirty-third minute the summit is lit in gold (omen V.23). */
+  .face--omens .om[data-gold] .om-terrace[data-color="gold"] .om-terrace-body { filter: drop-shadow(0 0 6px rgb(255 226 140)) drop-shadow(0 0 16px rgb(255 200 90 / 0.9)); }
+  .face--omens .om[data-gold] .om-zig-shrine-face { box-shadow: 0 0 14px 4px rgb(255 214 110 / 0.8); }
+  /* The stair runs downward, from the shrine to the ground. */
+  .face--omens .om-zig-stair {
+    position: absolute;
+    z-index: 8;
+    top: 34px;
+    bottom: 2px;
+    left: calc(100% * 1.55 / 2.55 / 2);
+    width: 8%;
+    translate: -50% 0;
+    background: repeating-linear-gradient(180deg, rgb(255 244 222 / 0.75) 0 2px, rgb(60 40 20 / 0.55) 2px 5px);
+    clip-path: polygon(38% 0, 62% 0, 100% 100%, 0 100%);
+    opacity: 0.9;
+  }
+  .face--omens .om-zig-arrow {
+    position: absolute;
+    bottom: -22px;
+    left: 50%;
+    translate: -50% 0;
+    font: 400 0.9rem/1 var(--om-serif);
+    color: var(--om-on-mat);
+  }
+  .face--omens .om-zig-lost { display: none; margin-top: 18px; grid-column: 1 / -1; font: italic 400 0.82rem/1.3 var(--om-serif); color: rgb(239 226 201 / 0.8); }
+
+  /* ════════════════════════════════════════════════════════════════════════ THE SKY TABLET ═══ */
+  .face--omens .om-sky-disc { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 14px; align-items: center; }
+  .face--omens .om-moon {
+    width: 84px;
+    height: 84px;
+    padding: 6px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 34% 28%, #e2d1ae, #b9a37d 62%, #8d7653);
+    box-shadow: inset 3px 4px 6px rgb(255 248 228 / 0.55), inset -4px -5px 8px rgb(60 40 18 / 0.5), calc(var(--om-shadow-len) * 6px) calc(var(--om-shadow-len) * 9px) 10px -2px rgb(8 4 1 / 0.6);
+  }
+  .face--omens .om-moon-dark { fill: #2a1d12; }
+  .face--omens .om-moon-lit { fill: #f2ead8; }
+  .face--omens .om-sky-text { display: grid; gap: 4px; font: 400 0.92rem/1.4 var(--om-serif); color: var(--om-on-mat); }
+  .face--omens .om-sky-day { font: 600 0.74rem/1.3 var(--om-label); letter-spacing: 0.14em; text-transform: uppercase; color: #f0cf9a; }
+  .face--omens .om-sky-omens,
+  .face--omens .om-sky-souls { font: italic 400 0.88rem/1.4 var(--om-serif); color: rgb(239 226 201 / 0.85); }
+  .face--omens .om-sky-reading {
+    position: relative;
+    padding: 12px 14px;
+    border-radius: 12px 16px 13px 17px;
+    font: 400 0.95rem/1.45 var(--om-serif);
+  }
+  .face--omens .om-sky-tally { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; font: 400 0.84rem/1.4 var(--om-label); color: var(--om-on-mat); }
+  .face--omens .om-sky-tally-label { font-weight: 600; }
+  .face--omens .om-tally-svg {
+    height: 1.6em;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background-color: var(--om-clay);
+    background-image: var(--om-clay-tex, linear-gradient(transparent, transparent));
+    background-size: 128px 128px;
+    box-shadow: inset 1px 1px 2px rgb(255 248 230 / 0.5), 2px 3px 0 rgb(0 0 0 / 0.3);
+  }
+  .face--omens .om-tally-text { color: rgb(239 226 201 / 0.7); }
+
+  /* ══════════════════════════════════════════════════════════════════════════ THE ENVELOPE ═══ */
+  .face--omens .om-env-stage { position: relative; display: grid; min-height: 200px; }
+  .face--omens .om-letter {
+    grid-area: 1 / 1;
+    padding: 18px 20px 20px;
+    border-radius: 16px 20px 18px 22px;
+    display: grid;
+    gap: 9px;
+  }
+  .face--omens .om-letter-h { font: 600 0.7rem/1.2 var(--om-label); letter-spacing: 0.2em; text-transform: uppercase; color: var(--om-clay-deep); }
+  .face--omens .om-letter-h:focus { outline: none; }
+  .face--omens .om-letter-body { display: grid; gap: 8px; }
+  .face--omens .om-letter-p { position: relative; font: 400 0.95rem/1.48 var(--om-serif); color: var(--om-imp); text-shadow: 0.55px 0.75px 0 rgb(255 247 228 / 0.55); }
+  .face--omens .om-letter-p--open { font-style: italic; }
+  .face--omens .om-env-btn {
+    grid-area: 1 / 1;
+    position: relative;
+    z-index: 2;
+    display: block;
+    width: 100%;
+    min-height: 200px;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    color: inherit;
+  }
+  .face--omens .om-env-btn[hidden] { display: none; }
+  .face--omens .om-env-btn:focus-visible { outline-offset: 6px; }
+  .face--omens .om-env-half {
+    position: absolute;
+    inset: 0;
+    border-radius: 22px 28px 24px 30px;
+    background-color: #c3a77f;
+    background-image:
+      var(--om-clay-tex, linear-gradient(transparent, transparent)),
+      radial-gradient(120% 100% at 18% 8%, rgb(255 246 222 / 0.45), transparent 55%),
+      radial-gradient(100% 100% at 90% 100%, rgb(80 50 24 / 0.38), transparent 60%);
+    background-size: 256px 256px, auto, auto;
+    box-shadow: inset 8px 10px 14px -6px rgb(255 248 230 / 0.6), inset -10px -14px 20px -8px rgb(66 40 18 / 0.5), 12px 18px 22px -4px rgb(8 4 1 / 0.6);
+    transition: transform 1.2s cubic-bezier(0.4, 0, 0.6, 1), opacity 1.2s ease;
+  }
+  .face--omens .om-env-face { position: absolute; inset: 0; display: grid; align-content: center; justify-items: center; gap: 8px; padding: 18px; }
+  .face--omens .om-env-address { font-size: 1.3rem; letter-spacing: 0.08em; color: #3e2a16; text-shadow: 0.55px 0.75px 0 rgb(255 247 228 / 0.6), -0.35px -0.45px 0 rgb(40 24 10 / 0.3); }
+  .face--omens .om-env-from { font-size: 0.95rem; letter-spacing: 0.08em; color: rgb(62 42 22 / 0.7); text-shadow: 0.55px 0.75px 0 rgb(255 247 228 / 0.6); }
+  .face--omens .om-env-rolled {
+    width: 100%;
+    height: 54px;
+    background-image: var(--seal-relief, none);
+    background-size: auto 100%;
+    background-repeat: repeat-x;
+    background-position: 20px 0;
+    opacity: 0.85;
+  }
+  .face--omens .om-env-cracks { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+  .face--omens .om-env-crack,
+  .face--omens .om-env-crack-lip {
+    fill: none;
+    stroke-linecap: round;
+    stroke-dasharray: 100px;
+    stroke-dashoffset: calc((1 - var(--crack, 0)) * 100px);
+  }
+  .face--omens .om-env-crack { stroke: rgb(40 22 8 / 0.8); stroke-width: 1.4; }
+  .face--omens .om-env-crack-lip { stroke: rgb(255 244 220 / 0.5); stroke-width: 3.2; }
+  .face--omens .om-env-btn.is-held .om-env-half { translate: 1px 1px; }
+  .face--omens .om-env-stage.is-open .om-env-half--a { transform: translate(-26%, 14%) rotate(-13deg); opacity: 0; }
+  .face--omens .om-env-stage.is-open .om-env-half--b { transform: translate(26%, 18%) rotate(11deg); opacity: 0; }
+  .face--omens .om-env-stage.is-open .om-env-cracks { opacity: 0; transition: opacity 0.4s ease; }
+
+  /* ══════════════════════════════════════════════════════════════════════ THE CYLINDER SEAL ═══ */
+  .face--omens .om-seal-bench {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 16px;
+    padding: 6px 4px 10px 0;
+  }
+  .face--omens .om-seal-strip {
+    height: 104px;
+    border-radius: 12px 16px 14px 18px;
+    background-color: var(--om-clay);
+    background-image:
+      var(--seal-relief, none),
+      var(--om-clay-tex, linear-gradient(transparent, transparent)),
+      radial-gradient(120% 100% at 14% 0%, rgb(255 248 228 / 0.4), transparent 55%),
+      radial-gradient(100% 100% at 92% 110%, rgb(80 52 26 / 0.36), transparent 60%);
+    background-size: auto 100%, 256px 256px, auto, auto;
+    background-repeat: repeat-x, repeat, no-repeat, no-repeat;
+    background-position: var(--roll, 0px) 0, 0 0, 0 0, 0 0;
+    box-shadow: inset 6px 8px 12px -6px rgb(255 249 233 / 0.6), inset -8px -10px 16px -8px rgb(66 42 20 / 0.5), 10px 15px 18px -4px rgb(8 4 1 / 0.6);
+    cursor: grab;
+    touch-action: pan-y;
+  }
+  .face--omens .om-seal-strip.is-rolling { cursor: grabbing; }
+  .face--omens .om-seal-cyl {
+    position: relative;
+    width: 58px;
+    height: 104px;
+    border-radius: 9px / 6px;
+    background-image:
+      linear-gradient(90deg, rgb(255 255 255 / 0.42) 0%, rgb(255 255 255 / 0.08) 26%, rgb(0 0 0 / 0) 50%, rgb(0 0 0 / 0.55) 100%),
+      var(--seal-stone, none);
+    background-size: auto, auto 100%;
+    background-repeat: no-repeat, repeat-x;
+    background-position: 0 0, calc(var(--roll, 0px) * -1) 0;
+    background-color: var(--stone, #27428e);
+    box-shadow: 9px 14px 14px -4px rgb(8 4 1 / 0.65), inset 0 0 0 1px rgb(0 0 0 / 0.35);
+  }
+  .face--omens .om-seal-cyl[data-stone="lapis"] { --stone: #24408f; }
+  .face--omens .om-seal-cyl[data-stone="carnelian"] { --stone: #b4482c; }
+  .face--omens .om-seal-cyl[data-stone="hematite"] { --stone: #3d3c42; }
+  .face--omens .om-seal-cyl[data-stone="chalcedony"] { --stone: #b9bcc6; }
+  .face--omens .om-seal-cyl[data-stone="serpentine"] { --stone: #3e5e47; }
+  .face--omens .om-seal-cyl[data-stone="lapis"]::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background-image: radial-gradient(1.2px 1.2px at 12px 18px, #f6d77a, transparent), radial-gradient(1px 1px at 38px 60px, #f6d77a, transparent), radial-gradient(1.4px 1.4px at 22px 88px, #f6d77a, transparent), radial-gradient(1px 1px at 46px 30px, #f6d77a, transparent);
+    pointer-events: none;
+  }
+  .face--omens .om-seal-cap {
+    position: absolute;
+    left: -2px;
+    right: -2px;
+    height: 7px;
+    border-radius: 50%;
+    background: linear-gradient(90deg, #f2d68a, #b48a2e 60%, #6a4a12);
+  }
+  .face--omens .om-seal-cap--top { top: -3px; }
+  .face--omens .om-seal-cap--bottom { bottom: -3px; }
+
+  /* ═══════════════════════════════════════════════════════════════════════════════ THE LYRE ═══ */
+  .face--omens .om-lyre-btn {
+    display: block;
+    width: 100%;
+    max-width: 420px;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    touch-action: pan-y;
+    border-radius: 12px;
+  }
+  .face--omens .om-lyre-svg { display: block; width: 100%; height: auto; overflow: visible; }
+  .face--omens .om-lyre-shadow { fill: rgb(8 4 1 / 0.5); filter: blur(4px); }
+  .face--omens .om-string-line { stroke: #f1e3c2; stroke-width: 1.2; stroke-linecap: round; }
+  .face--omens .om-string { transform-box: fill-box; transform-origin: 50% 50%; }
+  .face--omens .om-string.is-plucked { animation: om-pluck 0.8s linear both; }
+  .face--omens .om-string.is-plucked .om-string-line { stroke: #fff4d8; }
+  @keyframes om-pluck {
+    0% { transform: translateX(0); } 6% { transform: translateX(1.8px); } 13% { transform: translateX(-1.6px); }
+    20% { transform: translateX(1.3px); } 28% { transform: translateX(-1.1px); } 37% { transform: translateX(0.8px); }
+    48% { transform: translateX(-0.6px); } 62% { transform: translateX(0.4px); } 78% { transform: translateX(-0.2px); } 100% { transform: translateX(0); }
+  }
+  .face--omens .om-lyre-tuning { font-style: italic; }
+
+  /* ═══════════════════════════════════════════════════════════════════ THE PUPIL'S EXERCISE ═══ */
+  .face--omens .om-lentil {
+    position: relative;
+    width: min(100%, 300px);
+    aspect-ratio: 1;
+    justify-self: start;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-content: center;
+    padding: 12% 10%;
+    border-radius: 50%;
+  }
+  .face--omens .om-lentil::after {
+    content: '';
+    position: absolute;
+    top: 12%;
+    bottom: 10%;
+    left: 50%;
+    width: 0;
+    border-left: 1px solid rgb(80 56 32 / 0.35);
+    box-shadow: 1px 0 0 rgb(255 248 230 / 0.45);
+  }
+  .face--omens .om-lentil-half { display: grid; align-content: center; justify-items: center; gap: 8px; min-width: 0; }
+  .face--omens .om-lentil-cap { font: italic 400 0.72rem/1 var(--om-serif); color: var(--om-clay-deep); }
+  .face--omens .rosetta.om-rosetta {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px 12px;
+    margin: 0;
+  }
+  .face--omens .om-rosetta .rosetta-pair { display: grid; grid-template-columns: auto auto; align-items: baseline; gap: 4px; min-width: 0; }
+  .face--omens .om-rosetta dt {
+    font-size: 1.7rem;
+    line-height: 1.2;
+    padding: 0;
+    border: 0;
+    color: #3e2c18;
+    text-shadow: 0.55px 0.75px 0 rgb(255 247 228 / 0.6), -0.35px -0.45px 0 rgb(40 24 10 / 0.3);
+  }
+  .face--omens .om-rosetta dd { font: 600 0.8rem/1 var(--om-mono); color: var(--om-terra-lo); opacity: 1; }
+  .face--omens .om-pupil {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px 12px;
+  }
+  .face--omens .om-pupil-sign {
+    position: relative;
+    font-size: 1.7rem;
+    line-height: 1.2;
+    color: #4a3620;
+    rotate: var(--tilt);
+    translate: var(--dx) 0;
+    text-shadow: 0.55px 0.75px 0 rgb(255 247 228 / 0.55);
+  }
+  .face--omens .om-pupil-sign.is-wrong .glyph { display: inline-block; scale: -1 1; }
+  .face--omens .om-pupil-sign.is-wrong::after {
+    content: '';
+    position: absolute;
+    inset: -2px -6px;
+    border: 1.5px solid rgb(185 91 48 / 0.75);
+    border-radius: 50%;
+    rotate: -8deg;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════════ THE COMMENTARY ═══ */
+  .face--omens .om-comm-tablet {
+    display: grid;
+    gap: 12px;
+    padding: 18px 20px;
+    border-radius: 14px 18px 16px 20px;
+  }
+  .face--omens .om-comm-kicker { font: 600 0.66rem/1.3 var(--om-label); letter-spacing: 0.18em; text-transform: uppercase; color: var(--om-clay-deep); }
+  .face--omens .om-comm-verse { display: grid; gap: 3px; padding-left: 12px; border-left: 2px solid rgb(90 68 44 / 0.3); }
+  .face--omens .om-comm-text { position: relative; font: 400 0.98rem/1.45 var(--om-serif); color: var(--om-imp); text-shadow: 0.55px 0.75px 0 rgb(255 247 228 / 0.55); }
+  .face--omens .om-comm-frag { font: italic 400 0.86rem/1.35 var(--om-serif); color: var(--om-clay-deep); }
+  .face--omens .om-comm-ref { font: 600 0.68rem/1.2 var(--om-label); font-style: normal; letter-spacing: 0.14em; text-transform: uppercase; color: var(--om-terra-lo); }
+
+  /* ═════════════════════════════════════════════════════════════════════════════ the foot ═══ */
+  .face--omens .om-foot {
+    max-width: 1320px;
+    margin: clamp(28px, 4vw, 52px) auto 0;
+    padding-top: 14px;
+    border-top: 1px solid rgb(239 226 201 / 0.18);
+    font: italic 400 0.86rem/1.5 var(--om-serif);
+    color: rgb(239 226 201 / 0.66);
+  }
+
+  /* The mercy button, as a small tag of clay. */
+  html[data-face="omens"] #mercy {
+    font-family: var(--om-label, 'Corbel', sans-serif);
+    letter-spacing: 0.16em;
+    color: #2a1d12;
+    background: #d9c6a2;
+    border-color: #6b5236;
+    border-radius: 3px;
+    opacity: 0.8;
+  }
+  html[data-face="omens"] #mercy[aria-pressed="true"] { background: #2a1d12; color: #e8d6b4; opacity: 1; }
+
+  /* ══════════════════════════════════════════════════════════════ THE SERIES, IN THE BOOK ═══
+     Each block below is one omen of the great tablet: the line is fired, and its "then" is done,
+     under the very same condition. Lines are numbered as on the tablet. */
+
+  /* I.1  If the tablet stands on its end: the columns will fall into one, and the Pilgrim will read
+          downward, as water runs. */
+  @media (orientation: portrait) {
+    .face--omens .om-omen[data-omen="portrait"] { --om-fire: 1; }
+    .face--omens .om-table {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-areas: "great" "liver" "zig" "env" "seal" "lyre" "school" "sky" "comm";
+    }
+    .face--omens .om-head { grid-template-columns: minmax(0, 1fr); }
+  }
+
+  /* I.2  If the tablet is narrower than a span, twenty-five centimetres of the Old Law: the ziggurat
+          will lose a terrace. The silver one will not be rebuilt. */
+  @media (max-width: 25cm) {
+    .face--omens .om-omen[data-omen="span"] { --om-fire: 1; }
+    .face--omens .om-terrace[data-color="silver"] { display: none; }
+    .face--omens .om-zig-lost { display: block; }
+  }
+
+  /* I.3  If the tablet is wider than a forearm: the omens will be written in two columns, and the scribe
+          will be paid for both. */
+  @media (min-width: 32cm) {
+    .face--omens .om-omen[data-omen="forearm"] { --om-fire: 1; }
+    .face--omens .om-series { columns: 2; column-gap: 2.6em; column-rule: 1px solid rgb(90 68 44 / 0.22); }
+    .face--omens .om-group { break-inside: auto; }
+  }
+
+  /* I.4  If the tablet lies like a brick, twice as broad as it is tall: the light will come in low, and
+          every shadow on the table will be long. */
+  @media (min-aspect-ratio: 2/1) {
+    .face--omens .om-omen[data-omen="brick"] { --om-fire: 1; }
+    .face--omens { --om-shadow-len: 2.3; }
+  }
+
+  /* I.5  If the great tablet is narrower than thirty-four signs: the scribe will leave the line numbers
+          out of the margin, for there is no room for them. */
+  @container om-tablet (max-width: 34em) {
+    .face--omens .om-omen[data-omen="narrow"] { --om-fire: 1; }
+    .face--omens .om-omen { grid-template-columns: [num-start] 0 [num-end dis-start] 0.66em [dis-end text-start] minmax(0, 1fr) [text-end]; column-gap: 0.5em; }
+    .face--omens .om-num { visibility: hidden; }
+  }
+
+  /* I.6  If the Pilgrim stands like a reed: (the rest of this line is for the reed alone). */
+  @media (max-aspect-ratio: 1/2) {
+    .face--omens .om-omen[data-omen="reed"] { --om-fire: 1; }
+    .face--omens .om-omen--reed .om-reed-whole { display: block; }
+    .face--omens .om-omen--reed .om-cond { display: block; }
+    .face--omens .om-omen--reed .om-reed-broken { display: none; }
+  }
+
+  /* II.7  If the Pilgrim touches with a finger and not a reed: the buttons will grow, for a finger is
+           broad. */
+  @media (pointer: coarse) {
+    .face--omens .om-omen[data-omen="finger"] { --om-fire: 1; }
+    .face--omens .om-btn { min-height: 48px; padding: 0.7em 1.3em; font-size: 1rem; }
+    .face--omens .om-scribe-input { min-height: 48px; }
+    .face--omens .om-sic { padding: 6px 12px; }
+  }
+
+  /* II.8  If the Pilgrim points with a reed: the hand that points will become a stylus. */
+  @media (pointer: fine) {
+    .face--omens .om-omen[data-omen="stylus"] { --om-fire: 1; }
+    .face--omens .om {
+      cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M2 2 L7 4 L30 27 L27 30 L4 7 Z' fill='%23d9b56a' stroke='%233a240e' stroke-width='1.2' stroke-linejoin='round'/%3E%3Cpath d='M2 2 L7 4 L4 7 Z' fill='%233a240e'/%3E%3Cpath d='M9 9 L28 28' stroke='%23fff3d0' stroke-width='0.8' opacity='0.7'/%3E%3C/svg%3E") 2 2, auto;
+    }
+    .face--omens .om :is(button, a, input, [role="slider"]) { cursor: pointer; }
+    .face--omens .om .om-scribe-input { cursor: text; }
+    .face--omens .om .om-seal-strip { cursor: grab; }
+  }
+
+  /* II.9  If the Pilgrim's hand cannot hover over the clay: the glosses will be written out in full, and
+           the editor will not wait to be asked. */
+  @media (hover: none) {
+    .face--omens .om-omen[data-omen="nohover"] { --om-fire: 1; }
+    .face--omens .om-gloss { display: block; }
+    .face--omens .om-lac-note { opacity: 0.85; }
+  }
+
+  /* III.13  If the Pilgrim comes in a night of their own choosing: a lamp will be lit on the table, and
+             the clay will be read by it. */
+  @media (prefers-color-scheme: dark) {
+    .face--omens .om-omen[data-omen="night-choice"] { --om-fire: 1; }
+    html[data-face="omens"] { background: #0f0905; }
+    .face--omens { --om-mat: #22160c; --om-clay: #b89b72; --om-clay-hi: #d4b88d; --om-on-mat: #f3dfbf; }
+    .face--omens .om {
+      background-image:
+        radial-gradient(55% 44% at 9% 1%, rgb(255 176 88 / 0.4), rgb(255 146 64 / 0.12) 52%, transparent 78%),
+        radial-gradient(150% 110% at 16% 0%, transparent 28%, rgb(4 2 0 / 0.72) 100%),
+        linear-gradient(rgb(12 6 2 / 0.4), rgb(12 6 2 / 0.4)),
+        var(--om-mat-tex, linear-gradient(transparent, transparent));
+      background-size: auto, auto, auto, 112px 112px;
+    }
+    .face--omens .om::before {
+      content: '';
+      position: absolute;
+      left: 2%;
+      top: 0;
+      width: 36vmin;
+      height: 36vmin;
+      z-index: -1;
+      pointer-events: none;
+      background: radial-gradient(closest-side, rgb(255 190 110 / 0.22), transparent);
+      animation: om-lamp 7s ease-in-out infinite alternate;
+    }
+    @keyframes om-lamp { 0% { opacity: 0.75; } 40% { opacity: 1; } 100% { opacity: 0.82; } }
+  }
+
+  /* III.14  If the Pilgrim has asked the world to hold still: mercy is already in them, and the mercy
+             button will be fired. */
+  @media (prefers-reduced-motion: reduce) {
+    .face--omens .om-omen[data-omen="still-choice"] { --om-fire: 1; }
+    html[data-face="omens"] #mercy { background: #b95b30; color: #fff3e6; border-color: #6e2a10; opacity: 1; box-shadow: 2px 3px 0 #4a1a06; }
+  }
+
+  /* III.15  If the Pilgrim asks for the wedges to be cut deeper: every sign will be cut twice as deep. */
+  @media (prefers-contrast: more) {
+    .face--omens .om-omen[data-omen="deep"] { --om-fire: 1; }
+    .face--omens { --om-imp: #2a1a0a; --om-grey: #4e4334; --om-clay-deep: #4a3520; }
+    .face--omens .om-text { font-weight: 600; }
+    .face--omens .om-tablet :is(.om-text, .om-great-glyph, .om-colophon-glyph) { text-shadow: 1px 1.3px 0 rgb(255 250 236 / 0.85), -0.7px -0.9px 0 rgb(30 16 4 / 0.6); }
+  }
+
+  /* III.16  If the Pilgrim's eye counts two dots for every dot of the Old Law: the rulings will be cut as
+             fine as a hair. */
+  @media (min-resolution: 2dppx) {
+    .face--omens .om-omen[data-omen="fine-eye"] { --om-fire: 1; }
+    .face--omens .om-omen { border-bottom-width: 0.5px; }
+    .face--omens .om-group-h, .face--omens .om-great-head, .face--omens .om-great-foot { border-width: 1.5px; }
+  }
+
+  /* III.17  If the Pilgrim's eye sees colours the Old Law never named: the fired clay will be redder than
+             red. */
+  @media (color-gamut: p3) {
+    .face--omens .om-omen[data-omen="gamut"] { --om-fire: 1; }
+    .face--omens { --om-terra: color(display-p3 0.76 0.31 0.15); --om-terra-hi: color(display-p3 0.93 0.46 0.24); }
+  }
+
+  /* III.add  If the Pilgrim's colours prevail: Here the Pilgrim's colours prevail over the Word, as is
+              right. (The line is for forced-colours visitors alone.) */
+  @media (forced-colors: active) {
+    .face--omens .om-omen[data-omen="forced"] { --om-fire: 1; }
+    .face--omens .om-forced { display: grid; }
+    .face--omens .om-tablet, .face--omens .om-clay, .face--omens .om-label, .face--omens .om-scribe, .face--omens .om-marks { border: 1px solid CanvasText; }
+    .face--omens .om-omen.is-lit { outline: 2px solid Highlight; outline-offset: 2px; }
+    .face--omens .om-omen::before, .face--omens .om-omen::after, .face--omens .om-lac, .face--omens .om-cracks { display: none; }
+    .face--omens .om-zone { forced-color-adjust: none; background: GrayText; }
+    .face--omens .om-dis { forced-color-adjust: none; background: CanvasText; }
+  }
+
+  /* IV.18  If the tablet knows how to balance a line: every omen will end evenly, and no word will be left
+            alone at the end of one. */
+  @supports (text-wrap: balance) {
+    .face--omens .om-omen[data-omen="balance"] { --om-fire: 1; }
+    .face--omens .om-text { text-wrap: balance; }
+  }
+
+  /* IV.19  If the tablet knows the timeline of the scroll: the light will rake across the clay as the
+            Pilgrim reads. */
+  @supports (animation-timeline: scroll()) {
+    .face--omens .om-omen[data-omen="timeline"] { --om-fire: 1; }
+    .face--omens .om-sheen {
+      display: block;
+      position: fixed;
+      inset: -10% -40%;
+      z-index: 5;
+      pointer-events: none;
+      background: linear-gradient(112deg, transparent 38%, rgb(255 236 196 / 0.075) 47%, rgb(255 236 196 / 0.11) 50%, rgb(255 236 196 / 0.075) 53%, transparent 62%);
+      animation: om-rake linear both;
+      animation-timeline: scroll(root);
+    }
+    @keyframes om-rake { from { transform: translateX(-28%); } to { transform: translateX(28%); } }
+  }
+
+  /* ═══════════════════════════════════════════════════════ THE LIVER, AS THE BOOK DRAWS IT ═══
+     In the flesh, the clay is cut into sixteen zones by incised lines: the transforms and the clip-paths
+     below carry each zone to its place in the organic liver you see on the page. In the Book the same
+     sixteen zones stand where the grid puts them, and every one of them is a plain rectangle. Read them
+     from a step away. */
+  .face--omens .om-liver-grid {
+    grid-template-areas:
+      ".. .. .. .. .. .. .. .. .. .. .. .. .. .. .. .. .. .. .. .."
+      ".. z1 .. .. z2 .. z3 z3 z3 .. z4 .. .. .. z5 .. .. .. z6 .."
+      ".. z1 .. z7 .. .. .. z8 .. .. z4 .. .. .. z5 z9 .. .. z6 .."
+      ".. z1 za .. .. .. .. z8 .. .. z4 .. .. .. z5 .. zb .. z6 .."
+      ".. z1 .. zc .. .. .. z8 .. .. z4 .. .. .. z5 .. .. zd z6 .."
+      ".. z1 .. .. ze .. zf zf zf .. z4 zg zg .. z5 .. .. .. z6 .."
+      ".. .. .. .. .. .. .. .. .. .. .. .. .. .. .. .. .. .. .. ..";
+  }
+  /* The flesh: where each zone lies on the liver. */
+  .face--omens .om-zone[data-zone="z1"] { grid-area: z1; --i: 0; --tx: 37.04%; --ty: 18.44%; --sx: 1.949; --sy: 0.709;
+    --flesh: polygon(6.9% 0%, 25.7% 1.4%, 45.7% 7.6%, 65.5% 14.1%, 82.8% 22.4%, 95.2% 33%, 100% 45.4%, 97.6% 57.9%, 88.7% 69.4%, 74.2% 79.2%, 56.2% 87%, 36.9% 93.9%, 16.8% 100%, 10.7% 87.8%, 6.4% 75.4%, 3.7% 62.8%, 1.7% 50.2%, 0.1% 37.6%, 0% 25%, 2.4% 12.4%); }
+  .face--omens .om-zone[data-zone="z2"] { grid-area: z2; --i: 1; --tx: 28.26%; --ty: -192.84%; --sx: 3.306; --sy: 3.021;
+    --flesh: polygon(0% 7.8%, 15.7% 4.4%, 31.5% 2%, 47.5% 0.3%, 63.5% 0%, 79.4% 1.5%, 95.3% 3.8%, 99% 20.4%, 100% 37.9%, 99.9% 55.4%, 95.9% 72.2%, 86.6% 86.2%, 72.8% 94.9%, 57.6% 100%, 41.7% 99.3%, 29.4% 88.7%, 21.2% 73.7%, 14.5% 57.8%, 8.7% 41.4%, 3.4% 24.9%); }
+  .face--omens .om-zone[data-zone="z3"] { grid-area: z3; --i: 2; --tx: 58.04%; --ty: -283.24%; --sx: 1.406; --sy: 3.712;
+    --flesh: polygon(0.3% 27.5%, 15.9% 28.2%, 29.4% 20.2%, 37.6% 5%, 51% 0%, 55.1% 16.8%, 66.7% 27.6%, 82.3% 29.4%, 97.8% 27.2%, 100% 44.7%, 95.7% 61.4%, 84.3% 73.6%, 70.9% 82.8%, 56.6% 90.2%, 41.9% 96.3%, 26.6% 100%, 11.7% 95.6%, 3.5% 80.6%, 0.6% 63.1%, 0% 45.3%); }
+  .face--omens .om-zone[data-zone="z4"] { grid-area: z4; --i: 3; --tx: -81.22%; --ty: 1.19%; --sx: 3.136; --sy: 0.783;
+    --flesh: polygon(14.6% 24.9%, 28.6% 15.8%, 45% 9.7%, 61.6% 4.2%, 78.9% 0%, 96.2% 1.2%, 100% 15%, 97.8% 29.3%, 94.1% 43.4%, 89.4% 57.3%, 82% 70.5%, 71.5% 82.2%, 57.3% 91.1%, 40.3% 96%, 23% 100%, 10.8% 92.6%, 5.9% 78.7%, 1.8% 64.6%, 0% 50.5%, 4.3% 36.6%); }
+  .face--omens .om-zone[data-zone="z5"] { grid-area: z5; --i: 4; --tx: -187.92%; --ty: 16.54%; --sx: 2.572; --sy: 0.681;
+    --flesh: polygon(22.2% 5.6%, 38.6% 0%, 56.8% 1.8%, 73.4% 7.9%, 87.2% 17.1%, 96.1% 29.3%, 99.9% 42.9%, 100% 57%, 97.5% 70.9%, 91% 84%, 79.4% 94.9%, 62.4% 100%, 44.2% 97.8%, 27.3% 91.8%, 12.9% 83.3%, 3.6% 71.4%, 0% 57.7%, 0.6% 43.6%, 5.1% 30%, 11.5% 16.9%); }
+  .face--omens .om-zone[data-zone="z6"] { grid-area: z6; --i: 5; --tx: -159.11%; --ty: -49.21%; --sx: 2.518; --sy: 1.009;
+    --flesh: polygon(22.5% 11%, 32.4% 0%, 55.1% 3.9%, 72.8% 12%, 85.5% 22.3%, 93.1% 33.7%, 97% 45.6%, 99.4% 57.6%, 100% 69.7%, 97.9% 81.7%, 93.2% 93.5%, 81.7% 100%, 62.1% 92.9%, 43% 85.5%, 24.1% 78%, 9.7% 68.3%, 1.2% 57.1%, 0% 45.2%, 5% 33.5%, 13.6% 22.2%); }
+  .face--omens .om-zone[data-zone="z7"] { grid-area: z7; --i: 6; --tx: -132.72%; --ty: -249.03%; --sx: 3.041; --sy: 2.945;
+    --flesh: polygon(27.5% 26.5%, 39.5% 16.3%, 52.3% 7.3%, 66.2% 0.1%, 79.3% 0%, 85.5% 14.7%, 91.2% 29.6%, 96.7% 44.6%, 100% 60.3%, 99.3% 76.1%, 91.6% 89.7%, 77.9% 97.1%, 62.7% 100%, 47.3% 98.2%, 32.6% 92.8%, 19.1% 85%, 5.7% 76.9%, 0% 64.5%, 6.3% 49.9%, 16.2% 37.5%); }
+  .face--omens .om-zone[data-zone="z8"] { grid-area: z8; --i: 7; --tx: -89.13%; --ty: -6.53%; --sx: 3.055; --sy: 1.241;
+    --flesh: polygon(19.5% 9.4%, 35.6% 2.7%, 53.3% 0%, 70.5% 3.9%, 83% 14.4%, 90.6% 27.8%, 96% 42%, 100% 56.5%, 98.5% 71.3%, 88.9% 83.7%, 73.5% 91.5%, 56% 95.4%, 38.4% 98.5%, 20.4% 100%, 5.4% 93.8%, 0.9% 79.4%, 0% 64.6%, 0.4% 49.8%, 2.9% 35.1%, 8.7% 21.1%); }
+  .face--omens .om-zone[data-zone="z9"] { grid-area: z9; --i: 8; --tx: -285.3%; --ty: -352.43%; --sx: 4.736; --sy: 3.473;
+    --flesh: polygon(0.8% 19.6%, 15.3% 17.1%, 30% 16.8%, 44.5% 19.5%, 59.1% 20%, 72.5% 12.4%, 85.8% 3.9%, 100% 0%, 99.2% 16.8%, 93.9% 35.4%, 88.4% 53.9%, 82% 71.9%, 74.1% 88.7%, 62.2% 99.7%, 47.6% 100%, 33.4% 94.8%, 19.8% 87.4%, 7.4% 77.1%, 1% 59.4%, 0% 39.5%); }
+  .face--omens .om-zone[data-zone="za"] { grid-area: za; --i: 9; --tx: 147.76%; --ty: -81.94%; --sx: 2.51; --sy: 3.098;
+    --flesh: polygon(20.2% 14.3%, 36.1% 7%, 53.2% 1.9%, 71.4% 0%, 88.4% 4.5%, 96.2% 17.8%, 99.1% 32.4%, 100% 47.2%, 99.7% 62.1%, 99% 76.9%, 97.6% 91.7%, 87.9% 100%, 70.5% 95.4%, 53.3% 90.2%, 36.2% 84.9%, 20.4% 77.4%, 7.4% 67.1%, 0% 53.5%, 0.9% 38.7%, 7.8% 25.1%); }
+  .face--omens .om-zone[data-zone="zb"] { grid-area: zb; --i: 10; --tx: -115.01%; --ty: -99.47%; --sx: 3.679; --sy: 3.113;
+    --flesh: polygon(4.7% 10.5%, 15.8% 0%, 30% 0.9%, 43.1% 8%, 55.3% 17.1%, 66.7% 27.6%, 78% 38.2%, 89.2% 48.9%, 100% 60.3%, 94.7% 76.2%, 88.6% 91.6%, 78.4% 100%, 64.3% 96.8%, 50.1% 93.4%, 36% 89.8%, 22.6% 83.7%, 10.8% 74.2%, 2.7% 60.3%, 0% 43.8%, 0.7% 26.8%); }
+  .face--omens .om-zone[data-zone="zc"] { grid-area: zc; --i: 11; --tx: -110.59%; --ty: 83.29%; --sx: 3.23; --sy: 3.066;
+    --flesh: polygon(11.8% 16%, 24.2% 7.5%, 37.8% 1.8%, 52.5% 0%, 67.1% 1.8%, 81.3% 6%, 94% 13.3%, 100% 26.8%, 96.2% 41.5%, 88.4% 54.5%, 78.6% 66.2%, 68.6% 77.8%, 58.6% 89.2%, 48% 100%, 36.9% 89.7%, 26.8% 78.3%, 17.6% 66.1%, 9.4% 53.1%, 2.3% 39.5%, 0% 25.4%); }
+  .face--omens .om-zone[data-zone="zd"] { grid-area: zd; --i: 12; --tx: -313.33%; --ty: 86.03%; --sx: 3.996; --sy: 2.859;
+    --flesh: polygon(8.1% 15.4%, 18.8% 3.8%, 32.3% 0%, 46.1% 0.5%, 59.8% 3.2%, 73.3% 7%, 86.8% 11.3%, 100% 17.1%, 91.9% 32.7%, 82.6% 47%, 72.2% 59.7%, 61% 71.1%, 49.2% 81.2%, 36.8% 89.8%, 23.8% 96.5%, 10.3% 100%, 1.3% 90.4%, 0.3% 71.2%, 0% 51.8%, 2.2% 32.8%); }
+  .face--omens .om-zone[data-zone="ze"] { grid-area: ze; --i: 13; --tx: -19.99%; --ty: 50.92%; --sx: 3.235; --sy: 3.473;
+    --flesh: polygon(32.7% 30.2%, 43.9% 18.5%, 55.4% 7.1%, 69.1% 0%, 82.9% 8.3%, 89.2% 22.7%, 93% 38%, 95.8% 53.4%, 98.2% 68.9%, 100% 84.4%, 99.5% 100%, 82.7% 99.4%, 66% 97.4%, 49.6% 94.2%, 33.4% 90%, 17.6% 84.6%, 2.6% 77.6%, 0% 65.9%, 10.6% 53.8%, 21.6% 41.9%); }
+  .face--omens .om-zone[data-zone="zf"] { grid-area: zf; --i: 14; --tx: 32.94%; --ty: 17%; --sx: 1.112; --sy: 3.77;
+    --flesh: polygon(12% 17%, 26.8% 8.7%, 43.8% 4.6%, 60.9% 1%, 78.1% 0%, 84.8% 14.3%, 89.6% 29.3%, 93.8% 44.4%, 97.7% 59.6%, 100% 75%, 84.9% 82.9%, 68.8% 89.4%, 52.1% 94.3%, 35% 97.7%, 17.6% 100%, 7.1% 91.7%, 4.4% 76.4%, 1.8% 61%, 0% 45.5%, 2.6% 30.1%); }
+  .face--omens .om-zone[data-zone="zg"] { grid-area: zg; --i: 15; --tx: -44.18%; --ty: -24.26%; --sx: 1.812; --sy: 3.006;
+    --flesh: polygon(11.7% 7.7%, 28.9% 0.4%, 47.1% 0%, 64.7% 5.8%, 80.3% 17.5%, 92% 34.2%, 98.5% 54.7%, 99.5% 76.8%, 100% 98.9%, 82.2% 94%, 66.8% 82.2%, 54.7% 65.7%, 46.7% 45.9%, 36.1% 62.9%, 27.2% 82.2%, 16.5% 100%, 8.7% 90.1%, 4.2% 68.7%, 0% 47.2%, 1.3% 25.3%); }
+
+  /* ════════════════════════════════════════════════════════════════════════ narrow tables ═══ */
+  @media (max-width: 760px) {
+    .face--omens .om-head { grid-template-columns: minmax(0, 1fr); }
+    .face--omens .om-brick { justify-self: start; padding: 16px 22px 14px; }
+  }
+  @media (max-width: 420px) {
+    .face--omens .om { padding-inline: 12px; }
+    .face--omens .om-text, .face--omens .om-reed-broken { font-size: 0.97rem; }
+    .face--omens .om-omen { padding-right: 6px; }
+    .face--omens .om-marks { grid-template-columns: minmax(0, 1fr); }
+    .face--omens .om-zig-shrine code { left: auto; right: calc(100% + 6px); }
+    .face--omens .om-terrace-label { padding-left: 6px; }
+  }
+
+  /* ═════════════════════════════════════════════════════════════════════════════════ mercy ═══
+     CSS animation and transition are stilled by base.css; what remains is told to stand still here. */
+  html[data-mercy="on"] .face--omens .om-stylus { display: none; }
+  html[data-mercy="on"] .face--omens .om-sheen { animation: none; display: none; }
+  html[data-mercy="on"] .face--omens .om::before { animation: none; }
+}
