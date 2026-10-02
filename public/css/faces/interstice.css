@@ -1,0 +1,1339 @@
+/* THE INTERSTICE · Rooms Between the Boxes.
+   The unfinished inside of the temple at night. Each room is one empty div, drawn as six CSS planes in the
+   colours of the Inspector's box-model overlay, worn down to institutional paint: the margin nearest you a
+   dusty orange, a narrow band of sallow border, pale green padding, and the far wall, the content box, a
+   cold blue. Pencil dimension lines, wallpaper that never meets itself, a plaque on two wires, a lift
+   panel, a fire-plan of the floor, and one warm light somewhere. Melancholy, not menace.
+   Everything lives in @layer face, scoped to .face--interstice / [data-face="interstice"]. */
+@layer face {
+
+html[data-face="interstice"] {
+  background: #0a0a0b;
+  /* The glyph apparitions (glyphs layer) in the building's ink: warm light on a cold wall. */
+  --glyph-ink: #f3d590;
+  --glyph-halo: rgb(8 10 14 / 0.92);
+  --glyph-glow: rgb(255 210 140 / 0.42);
+  --glyph-whisper-ink: #e8ecec;
+  --glyph-whisper-bg: rgb(22 27 32 / 0.92);
+  --glyph-whisper-rule: rgb(142 162 129 / 0.7);
+  --glyph-aura: rgb(10 13 17 / 0.78);
+  --glyph-aura-edge: rgb(111 140 166 / 0.25);
+  --glyph-voice-family: Cambria, Constantia, 'Iowan Old Style', Georgia, serif;
+  --glyph-voice-style: italic;
+}
+
+.face--interstice {
+  /* the overlay's four colours, as paint */
+  --ix-margin: #b2885f;
+  --ix-border: #c6b26f;
+  --ix-padding: #8b9f7e;
+  --ix-content: #6b88a2;
+  /* the same, lit (the slot is the specimen, and is lit like one) */
+  --ix-margin-hi: #d6a676;
+  --ix-border-hi: #e7d48d;
+  --ix-padding-hi: #a9c196;
+  --ix-content-hi: #86a9c8;
+  --ix-void: #0a0a0b;
+  --ix-graphite: rgb(26 26 30 / 0.72);
+  --ix-lamp-cool: 226 238 236;
+  --ix-lamp-warm: 255 205 140;
+  --ix-sign: Corbel, 'Segoe UI', Frutiger, 'Helvetica Neue', Arial, sans-serif;
+  --ix-code: Consolas, 'SF Mono', Menlo, 'DejaVu Sans Mono', monospace;
+  --ix-pencil: 'Ink Free', 'Segoe Print', 'Bradley Hand', Noteworthy, 'Comic Neue', cursive;
+  --ix-marker: 'Segoe Print', 'Ink Free', 'Bradley Hand', 'Marker Felt', 'Comic Neue', cursive;
+  --ix-prose: Cambria, Constantia, 'Iowan Old Style', Georgia, serif;
+  color: #e8e6de;
+  background: var(--ix-void);
+  font-family: var(--ix-prose);
+}
+.face--interstice :focus-visible { outline: 2px solid #ffd27a; outline-offset: 3px; }
+.face--interstice a { color: #ffe1a6; }
+
+.face--interstice .ix {
+  position: relative;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--ix-void);
+}
+
+/* ─────────────────────────────────────────────────────────────────── the view (a lens on the room) ── */
+.face--interstice .ix-view {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  touch-action: none;
+  outline: none;
+  background: radial-gradient(120% 90% at 50% 45%, #15171a 0%, #0a0a0b 70%);
+  -webkit-user-select: none;
+  user-select: none;
+}
+.face--interstice .ix-view:focus-visible { outline: 2px solid rgb(255 210 122 / 0.5); outline-offset: -4px; }
+/* a lens: the corners of the room fall away into the dark */
+.face--interstice .ix-view::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  background: radial-gradient(130% 110% at 50% 46%, transparent 58%, rgb(4 4 6 / 0.55) 100%);
+}
+.face--interstice .ix-veil {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  background: #050507;
+  opacity: 0;
+  pointer-events: none;
+}
+.face--interstice .ix-cut {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 46%;
+}
+/* The boxes that hold the room take no pointer: only its walls, doorways and the slot do (in 3D the
+   room's own flat box would otherwise stand in front of every wall). */
+.face--interstice :is(.ix-cut, .ix-persp, .ix-room) { pointer-events: none; }
+.face--interstice .ix-persp {
+  position: absolute;
+  inset: 0;
+  perspective: var(--persp, 800px);
+  perspective-origin: 50% 46%;
+}
+.face--interstice .ix-room {
+  --D: calc(var(--depth, 1000px) * var(--deep, 1));
+  --lit: 1;
+  --dark: 0.06;
+  --lamp-rgb: var(--ix-lamp-cool);
+  --skirt: 3%;
+  /* the Magic Number: the far wall's paper misses the side walls' by this much (none, under mercy) */
+  --seam-off: var(--seam-magic, 0px);
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+}
+.face--interstice .ix-room[data-lamp="low"] { --lit: 0.55; --dark: 0.3; }
+.face--interstice .ix-room[data-lamp="off"] { --lit: 0; --dark: 0.6; }
+.face--interstice .ix-room[data-lamp="bulb"] { --lit: 1.15; --dark: 0.16; --lamp-rgb: var(--ix-lamp-warm); }
+.face--interstice .ix-room[data-lamp="all"] { --lit: 1.25; --dark: 0; --lamp-rgb: 255 236 205; }
+.face--interstice .ix[data-hush] .ix-room { --hush: 0.1; }
+
+/* ──────────────────────────────────────────────────────────────────────────────── the six planes ── */
+.face--interstice .ix-plane {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  backface-visibility: hidden;
+  pointer-events: none;
+  background-repeat: no-repeat;
+}
+.face--interstice .ix-wall { pointer-events: auto; }
+/* The Passable: seen, and never touched. Whatever lies behind it takes the pointer instead. */
+.face--interstice .ix-wall[data-passable] { pointer-events: none; }
+
+/* Darkness, laid over each plane: the room's light, a dim now and then, the dark at 108 s. */
+.face--interstice .ix-plane::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: #05060a;
+  opacity: calc(var(--dark) + var(--hush, 0) + var(--dim, 0));
+  transition: opacity 0.45s ease;
+  will-change: opacity; /* a flat colour on its own layer: a dim costs the compositor, not a repaint */
+}
+.face--interstice .ix-plane.is-dim { --dim: 0.18; }
+/* Warm light: the bulb in the one room that is not :empty, and every room once its letter is taken. */
+.face--interstice .ix-plane::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: radial-gradient(95% 85% at 50% 32%, rgb(255 212 150 / 0.34), rgb(255 196 128 / 0.12) 62%, rgb(255 190 120 / 0.04));
+  opacity: 0;
+  transition: opacity 2.4s ease;
+}
+.face--interstice .ix-room[data-lamp="bulb"] .ix-plane::before { opacity: 0.85; }
+.face--interstice .ix[data-solved] .ix-plane::before { opacity: 1; }
+.face--interstice .ix-prop::before { content: none; }
+
+.face--interstice .ix-far {
+  width: var(--vw);
+  height: var(--vh);
+  margin: calc(var(--vh) / -2) 0 0 calc(var(--vw) / -2);
+  transform: translateZ(calc(var(--D) * -1));
+  background-image:
+    var(--ix-grain),
+    linear-gradient(to top, #24211c 0 var(--skirt), #3b372f var(--skirt) calc(var(--skirt) + 0.5%), transparent calc(var(--skirt) + 0.5%)),
+    repeating-linear-gradient(90deg, rgb(10 16 24 / 0.16) 0 1px, transparent 1px var(--seam-w)),
+    radial-gradient(85% 70% at 50% 0%, rgb(var(--lamp-rgb) / calc(0.3 * var(--lit))), transparent 75%),
+    linear-gradient(to bottom, rgb(0 0 0 / 0.28), rgb(255 255 255 / 0.03) 10%, rgb(0 0 0 / 0.12) 60%, rgb(0 0 0 / 0.4)),
+    linear-gradient(90deg, rgb(0 0 0 / 0.3), transparent 9%, transparent 91%, rgb(0 0 0 / 0.3)),
+    linear-gradient(var(--ix-content), var(--ix-content));
+  background-size: 96px 96px, auto, auto, auto, auto, auto, auto;
+  background-repeat: repeat, no-repeat, repeat, no-repeat, no-repeat, no-repeat, no-repeat;
+  background-position: 0 0, 0 0, var(--seam-off) 0, 0 0, 0 0, 0 0, 0 0;
+}
+.face--interstice .ix-left,
+.face--interstice .ix-right {
+  width: calc(var(--D) + 2px);
+  height: calc(var(--vh) + 2px);
+  margin: calc(var(--vh) / -2 - 1px) 0 0 calc(var(--D) / -2 - 1px);
+  background-size: 96px 96px, auto, auto, auto, auto, auto, auto;
+  background-repeat: repeat, no-repeat, repeat, no-repeat, no-repeat, no-repeat, no-repeat;
+}
+.face--interstice .ix-left {
+  transform: translateX(calc(var(--vw) / -2)) translateZ(calc(var(--D) / -2)) rotateY(90deg);
+  background-image:
+    var(--ix-grain),
+    linear-gradient(to top, #24211c 0 var(--skirt), #3b372f var(--skirt) calc(var(--skirt) + 0.5%), transparent calc(var(--skirt) + 0.5%)),
+    repeating-linear-gradient(90deg, rgb(20 14 6 / 0.13) 0 1px, transparent 1px var(--seam-w)),
+    radial-gradient(70% 70% at 55% 0%, rgb(var(--lamp-rgb) / calc(0.32 * var(--lit))), transparent 72%),
+    linear-gradient(to right, rgb(4 4 6 / 0.5), rgb(0 0 0 / 0.08) 32%, rgb(0 0 0 / 0.06) 60%, rgb(0 0 0 / 0.4) 100%),
+    linear-gradient(to bottom, rgb(0 0 0 / 0.3), rgb(255 255 255 / 0.03) 9%, rgb(0 0 0 / 0.08) 55%, rgb(0 0 0 / 0.42)),
+    linear-gradient(to right, var(--ix-margin) 0 var(--m), var(--ix-border) var(--m) var(--b), var(--ix-padding) var(--b) 100%);
+}
+.face--interstice .ix-right {
+  transform: translateX(calc(var(--vw) / 2)) translateZ(calc(var(--D) / -2)) rotateY(-90deg);
+  background-image:
+    var(--ix-grain),
+    linear-gradient(to top, #24211c 0 var(--skirt), #3b372f var(--skirt) calc(var(--skirt) + 0.5%), transparent calc(var(--skirt) + 0.5%)),
+    repeating-linear-gradient(270deg, rgb(20 14 6 / 0.13) 0 1px, transparent 1px var(--seam-w)),
+    radial-gradient(70% 70% at 45% 0%, rgb(var(--lamp-rgb) / calc(0.3 * var(--lit))), transparent 72%),
+    linear-gradient(to left, rgb(4 4 6 / 0.54), rgb(0 0 0 / 0.1) 32%, rgb(0 0 0 / 0.08) 60%, rgb(0 0 0 / 0.44) 100%),
+    linear-gradient(to bottom, rgb(0 0 0 / 0.32), rgb(255 255 255 / 0.03) 9%, rgb(0 0 0 / 0.1) 55%, rgb(0 0 0 / 0.44)),
+    linear-gradient(to left, var(--ix-margin) 0 var(--m), var(--ix-border) var(--m) var(--b), var(--ix-padding) var(--b) 100%);
+}
+.face--interstice .ix-floor,
+.face--interstice .ix-ceil {
+  width: calc(var(--vw) + 2px);
+  height: calc(var(--D) + 2px);
+  margin: calc(var(--D) / -2 - 1px) 0 0 calc(var(--vw) / -2 - 1px);
+}
+.face--interstice .ix-floor {
+  transform: translateY(calc(var(--vh) / 2)) translateZ(calc(var(--D) / -2)) rotateX(90deg);
+  background-image:
+    var(--ix-grain),
+    radial-gradient(34% 26% at 50% 44%, rgb(var(--lamp-rgb) / calc(0.2 * var(--lit))), transparent 100%),
+    repeating-linear-gradient(0deg, rgb(0 0 0 / 0.13) 0 1px, transparent 1px 70px),
+    repeating-linear-gradient(90deg, rgb(0 0 0 / 0.1) 0 1px, transparent 1px 70px),
+    linear-gradient(to bottom, rgb(0 0 0 / 0.5), rgb(0 0 0 / 0.1) 45%, rgb(0 0 0 / 0.12) 70%, rgb(4 4 6 / 0.55)),
+    linear-gradient(90deg, rgb(0 0 0 / 0.35), transparent 14%, transparent 86%, rgb(0 0 0 / 0.35)),
+    linear-gradient(to top, var(--ix-margin) 0 var(--m), var(--ix-border) var(--m) var(--b), var(--ix-padding) var(--b) 100%);
+  background-size: 96px 96px, auto, auto, auto, auto, auto, auto;
+  background-repeat: repeat, no-repeat, repeat, repeat, no-repeat, no-repeat, no-repeat;
+}
+.face--interstice .ix-ceil {
+  transform: translateY(calc(var(--vh) / -2)) translateZ(calc(var(--D) / -2)) rotateX(-90deg);
+  background-image:
+    var(--ix-grain),
+    radial-gradient(48% 40% at 50% 55%, rgb(var(--lamp-rgb) / calc(0.28 * var(--lit))), transparent 100%),
+    repeating-linear-gradient(0deg, rgb(0 0 0 / 0.16) 0 1px, transparent 1px 86px),
+    repeating-linear-gradient(90deg, rgb(0 0 0 / 0.16) 0 1px, transparent 1px 86px),
+    linear-gradient(to bottom, rgb(4 4 6 / 0.55), rgb(0 0 0 / 0.12) 40%, rgb(0 0 0 / 0.2) 75%, rgb(0 0 0 / 0.5)),
+    linear-gradient(90deg, rgb(0 0 0 / 0.35), transparent 14%, transparent 86%, rgb(0 0 0 / 0.35)),
+    linear-gradient(to bottom, var(--ix-margin) 0 var(--m), var(--ix-border) var(--m) var(--b), var(--ix-padding) var(--b) 100%);
+  background-size: 96px 96px, auto, auto, auto, auto, auto, auto;
+  background-repeat: repeat, no-repeat, repeat, repeat, no-repeat, no-repeat, no-repeat;
+}
+
+/* The ceiling light: a panel of two tubes behind a diffuser. */
+.face--interstice .ix-lamp {
+  position: absolute;
+  left: 50%;
+  top: 52%;
+  width: 30%;
+  height: 11%;
+  translate: -50% -50%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8%;
+  padding: 2.4% 4%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #c9d1cf, #e9f1ee 50%, #c9d1cf);
+  box-shadow: 0 0 0 4px #8d938f, 0 0 70px 26px rgb(var(--lamp-rgb) / calc(0.22 * var(--lit)));
+  z-index: 2;
+}
+.face--interstice .ix-lamp-tube {
+  display: block;
+  border-radius: 99px;
+  background: rgb(var(--lamp-rgb));
+  box-shadow: 0 0 12px 3px rgb(var(--lamp-rgb) / 0.9);
+}
+.face--interstice .ix-room[data-lamp="low"] .ix-lamp-tube:last-child { background: #6c706d; box-shadow: none; }
+.face--interstice .ix-room[data-lamp="off"] .ix-lamp { background: linear-gradient(90deg, #4c514f, #5d6260 50%, #4c514f); box-shadow: 0 0 0 4px #3c403e; }
+.face--interstice .ix-room[data-lamp="off"] .ix-lamp-tube { background: #6a6f6c; box-shadow: none; }
+.face--interstice .ix-room[data-lamp="bulb"] .ix-lamp { background: linear-gradient(90deg, #545957, #646967 50%, #545957); box-shadow: 0 0 0 4px #3e4240; }
+.face--interstice .ix-room[data-lamp="bulb"] .ix-lamp-tube { background: #727774; box-shadow: none; }
+
+/* ──────────────────────────────────────────────────────────────────────────── pencil, on plaster ── */
+.face--interstice .ix-pencil {
+  position: absolute;
+  z-index: 0;
+  font: 400 calc(var(--vh) * 0.026) / 1.1 var(--ix-pencil);
+  color: var(--ix-graphite);
+  white-space: nowrap;
+  pointer-events: none;
+}
+.face--interstice .ix-pencil--floor {
+  bottom: 2%;
+  left: 7%;
+  font-size: calc(var(--vw) * 0.017);
+  color: rgb(28 28 30 / 0.55);
+  transform-origin: 0 100%;
+}
+.face--interstice .ix-pencil--m { bottom: calc((var(--m) * 0.5) - 1.2%); }
+.face--interstice .ix-pencil--b { bottom: calc(var(--m) + 0.4%); font-size: calc(var(--vw) * 0.012); }
+.face--interstice .ix-pencil--p { bottom: calc(var(--b) + 6%); }
+.face--interstice .ix-pencil--seam { left: 2.4%; top: 4%; font-size: calc(var(--vh) * 0.022); rotate: -4deg; color: rgb(16 24 34 / 0.5); }
+.face--interstice .ix-graffito {
+  position: absolute;
+  top: 19%;
+  left: 40%;
+  width: 44%;
+  font: 400 calc(var(--vh) * 0.046) / 1.22 var(--ix-pencil);
+  color: rgb(24 24 28 / 0.66);
+  rotate: var(--tilt);
+  text-wrap: balance;
+  pointer-events: none;
+}
+.face--interstice .ix-right .ix-graffito { left: auto; right: 40%; }
+.face--interstice .ix-notice {
+  position: absolute;
+  top: 22%;
+  left: 7%;
+  width: 16%;
+  padding: 1.4% 1.6% 1.8%;
+  font: 400 calc(var(--vh) * 0.019) / 1.3 var(--ix-prose);
+  color: #2b2a27;
+  background: linear-gradient(#eeeadd, #e2dccb);
+  box-shadow: 0 2px 6px rgb(0 0 0 / 0.35);
+  rotate: calc(var(--tilt) * -1.4);
+  pointer-events: none;
+}
+.face--interstice .ix-right .ix-notice { left: auto; right: 7%; }
+.face--interstice .ix-notice b {
+  display: block;
+  margin-bottom: 0.4em;
+  font: 700 0.9em/1 var(--ix-sign);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #8c2a1f;
+}
+/* the tape at its corners */
+.face--interstice .ix-notice::before {
+  content: '';
+  position: absolute;
+  left: 34%;
+  top: -0.5em;
+  width: 32%;
+  height: 1.1em;
+  background: rgb(233 221 180 / 0.86);
+  rotate: -3deg;
+}
+
+/* ─────────────────────────────────────────────────────────────── the slot: the room's own div ── */
+.face--interstice .ix-slot-holder {
+  position: absolute;
+  left: 50%;
+  top: 9%;
+  width: var(--slot);
+  translate: -50% 0;
+  z-index: 0;
+}
+.face--interstice .ix-slot {
+  box-sizing: content-box;
+  position: relative;
+  display: block;
+  height: auto;
+  margin: var(--box-m);
+  border: var(--box-b) solid var(--ix-border-hi);
+  padding: var(--box-p);
+  background:
+    linear-gradient(var(--ix-content-hi), var(--ix-content-hi)) content-box,
+    linear-gradient(var(--ix-padding-hi), var(--ix-padding-hi)) padding-box;
+  /* the margin, painted as the Inspector paints it: a shadow exactly as wide as the margin */
+  box-shadow: 0 0 0 var(--box-m) var(--ix-margin-hi), 0 0 0 calc(var(--box-m) + 1px) rgb(0 0 0 / 0.25);
+  color: #2a1d0c;
+  font: 400 calc(var(--vh) * 0.095) / 1.1 var(--ix-code);
+  text-align: center;
+  pointer-events: auto;
+}
+/* an :empty div has no content height: the content box is a hairline */
+.face--interstice .ix-slot:empty::before {
+  content: '';
+  position: absolute;
+  left: var(--box-p);
+  right: var(--box-p);
+  top: var(--box-p);
+  border-top: 1px dashed rgb(18 34 52 / 0.75);
+}
+.face--interstice .ix-slot:not(:empty) {
+  cursor: pointer;
+  background:
+    radial-gradient(60% 120% at 50% 50%, #fff3d6 0%, #f2cf8c 60%, #d9a95f 100%) content-box,
+    linear-gradient(var(--ix-padding-hi), var(--ix-padding-hi)) padding-box;
+  text-shadow: 0 1px 0 rgb(255 245 220 / 0.6);
+  box-shadow: 0 0 0 var(--box-m) var(--ix-margin-hi), 0 0 0 calc(var(--box-m) + 1px) rgb(0 0 0 / 0.25), 0 0 calc(var(--box-m) * 3) calc(var(--box-m) * 0.6) rgb(255 205 140 / 0.45);
+}
+.face--interstice .ix-slot:not(:empty):hover { color: #000; }
+.face--interstice .ix-dim {
+  left: 50%;
+  top: calc(9% - var(--vh) * 0.045);
+  translate: -50% 0;
+  font-size: calc(var(--vh) * 0.034);
+  color: rgb(10 18 28 / 0.78);
+}
+.face--interstice .ix-dim::before,
+.face--interstice .ix-dim::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: calc(var(--vw) * var(--slot) * 0.5 - 3.4em);
+  border-top: 1px solid rgb(10 18 28 / 0.55);
+}
+.face--interstice .ix-dim::before { right: calc(100% + 0.6em); }
+.face--interstice .ix-dim::after { left: calc(100% + 0.6em); }
+.face--interstice .ix-dim-side {
+  position: absolute;
+  top: 9%;
+  left: calc(50% + var(--vw) * var(--slot) * 0.5 + 1.2%);
+  display: grid;
+  gap: 0.15em;
+  font: 400 calc(var(--vh) * 0.026) / 1.1 var(--ix-pencil);
+  color: rgb(10 18 28 / 0.7);
+  pointer-events: none;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────────── doorways ── */
+.face--interstice .ix-door {
+  position: absolute;
+  z-index: 2;
+  display: block;
+  bottom: var(--skirt);
+  height: calc(var(--vh) * 0.55);
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
+}
+.face--interstice .ix-far .ix-door {
+  left: calc(var(--x) * 100%);
+  width: max(calc(var(--vw) * 0.14), calc(var(--vh) * 0.19));
+  translate: -50% 0;
+}
+.face--interstice .ix-left .ix-door { left: calc(var(--at) * 100%); width: calc(var(--D) * 0.17); }
+.face--interstice .ix-right .ix-door { right: calc(var(--at) * 100%); width: calc(var(--D) * 0.17); }
+.face--interstice .ix-door-hole {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: linear-gradient(#0c0e11, #15191e);
+  /* the architrave, in the border's yellow, and the reveal inside it */
+  box-shadow: 0 0 0 calc(var(--vh) * 0.012) #b9a76a, 0 0 0 calc(var(--vh) * 0.016) rgb(0 0 0 / 0.35), inset calc(var(--vh) * 0.012) 0 0 rgb(0 0 0 / 0.5), inset 0 calc(var(--vh) * 0.014) 0 rgb(0 0 0 / 0.55);
+}
+/* Through a far doorway: the next room, which is a box inside a box inside a box. */
+.face--interstice .ix-door--far .ix-door-glimpse {
+  position: absolute;
+  inset: 7% 9% 0;
+  --g: calc(var(--vh) * 0.011);
+  background:
+    linear-gradient(to top, rgb(0 0 0 / 0.5), transparent 40%),
+    radial-gradient(70% 50% at 50% 30%, rgb(var(--lamp-rgb) / 0.28), transparent 80%),
+    linear-gradient(#55708a, #44596d);
+  box-shadow:
+    inset 0 0 0 var(--g) #6c533b,
+    inset 0 0 0 calc(var(--g) * 1.35) #7a6c45,
+    inset 0 0 0 calc(var(--g) * 3.2) #56634d,
+    inset 0 calc(var(--g) * -3.2) 0 calc(var(--g) * 3.2) rgb(0 0 0 / 0.2);
+  opacity: 0.82;
+  transition: opacity 0.3s ease;
+}
+/* Through a side doorway: a dark room and the light lying on its floor. */
+.face--interstice .ix-door--side .ix-door-glimpse {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to top, rgb(var(--lamp-rgb) / 0.26) 0 7%, transparent 26%),
+    linear-gradient(90deg, rgb(255 255 255 / 0.05), transparent 60%),
+    linear-gradient(#101317, #1a1f25);
+  opacity: 0.9;
+}
+.face--interstice .ix-door:hover .ix-door-glimpse,
+.face--interstice .ix-door:focus-visible .ix-door-glimpse { opacity: 1; }
+.face--interstice .ix-door.is-warm .ix-door-glimpse {
+  --lamp-rgb: var(--ix-lamp-warm);
+}
+.face--interstice .ix-door--far.is-warm .ix-door-glimpse {
+  background:
+    linear-gradient(to top, rgb(0 0 0 / 0.45), transparent 40%),
+    radial-gradient(70% 55% at 50% 40%, rgb(255 205 140 / 0.42), transparent 80%),
+    linear-gradient(#5f6f7c, #4a5560);
+}
+.face--interstice .ix-door:focus-visible { outline: none; }
+.face--interstice .ix-door:focus-visible .ix-door-hole { box-shadow: 0 0 0 calc(var(--vh) * 0.012) #ffd27a, 0 0 0 calc(var(--vh) * 0.02) rgb(0 0 0 / 0.6); }
+.face--interstice .ix-door-plate {
+  position: absolute;
+  bottom: calc(100% + var(--vh) * 0.03);
+  left: 50%;
+  translate: -50% 0;
+  min-width: 2.2em;
+  padding: 0.18em 0.4em;
+  font: 700 calc(var(--vh) * 0.026) / 1 var(--ix-sign);
+  letter-spacing: 0.04em;
+  text-align: center;
+  color: #e9edea;
+  background: linear-gradient(#36414a, #27313a);
+  border-radius: 2px;
+  box-shadow: 0 0 0 1px #6b7780, 0 2px 4px rgb(0 0 0 / 0.4);
+}
+.face--interstice .ix-plate-last { display: none; }
+.face--interstice .ix-door.is-home .ix-door-glimpse {
+  background: radial-gradient(80% 70% at 50% 40%, #fff6dd, #f4d494 55%, #c99a5a);
+  box-shadow: none;
+  opacity: 1;
+}
+.face--interstice .ix-door.is-home .ix-door-plate { background: linear-gradient(#2d6b4b, #1f5138); }
+.face--interstice .ix-door.is-new { animation: ix-appear 2.4s ease both; }
+@keyframes ix-appear { from { opacity: 0; } to { opacity: 1; } }
+
+/* A doorway behind a wall that only looks solid: nothing to see but the light under it. */
+.face--interstice .ix-door--hidden { background: none; }
+.face--interstice .ix-leak {
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  bottom: 0;
+  height: calc(var(--vh) * 0.006);
+  min-height: 2px;
+  border-radius: 99px;
+  background: linear-gradient(90deg, transparent, rgb(255 214 150 / 0.95) 20%, rgb(255 226 170) 50%, rgb(255 214 150 / 0.95) 80%, transparent);
+  box-shadow: 0 0 calc(var(--vh) * 0.02) calc(var(--vh) * 0.006) rgb(255 190 110 / 0.5);
+  transition: opacity 0.3s ease;
+  opacity: 0.85;
+}
+.face--interstice .ix-door--hidden:hover .ix-leak { opacity: 1; }
+.face--interstice .ix-door--hidden:focus-visible {
+  outline: 2px dashed rgb(255 220 160 / 0.9);
+  outline-offset: -3px;
+  background: rgb(255 210 150 / 0.1);
+}
+.face--interstice .ix[data-solved] .ix-leak { opacity: 0.25; }
+.face--interstice .ix-spill {
+  position: absolute;
+  z-index: 2;
+  width: 34%;
+  height: 22%;
+  background: radial-gradient(closest-side, rgb(255 196 120 / 0.3), rgb(255 196 120 / 0.08) 60%, transparent);
+  pointer-events: none;
+}
+.face--interstice .ix-spill--left { left: 0; top: calc((0.91 - var(--at)) * 100%); translate: -38% -50%; }
+.face--interstice .ix-spill--right { right: 0; top: calc((0.91 - var(--at)) * 100%); translate: 38% -50%; }
+.face--interstice .ix-spill--far { left: calc(var(--at) * 100%); top: 0; translate: -50% -18%; width: 26%; }
+.face--interstice .ix-spill.is-soft { opacity: 0.8; background: radial-gradient(closest-side, rgb(255 200 130 / 0.22), rgb(255 200 130 / 0.07) 60%, transparent); }
+.face--interstice .ix[data-solved] .ix-spill { opacity: 0.3; }
+
+/* ──────────────────────────────────────────────────────────────── what else is in the rooms ── */
+.face--interstice .ix-dmg { position: absolute; pointer-events: none; }
+.face--interstice .ix-dmg--tile {
+  left: var(--x);
+  top: var(--y);
+  width: 9%;
+  height: 7%;
+  translate: -50% -50%;
+  background: linear-gradient(135deg, #0a0b0d, #1b1e22);
+  box-shadow: inset 0 0 0 2px rgb(0 0 0 / 0.5), 3px 3px 0 rgb(0 0 0 / 0.2);
+}
+.face--interstice .ix-dmg--stain {
+  left: var(--x);
+  top: 6%;
+  width: calc(14% * var(--s));
+  height: calc(30% * var(--s));
+  translate: -50% 0;
+  border-radius: 40% 46% 50% 40% / 30% 30% 70% 70%;
+  background: radial-gradient(closest-side, rgb(96 70 32 / 0.18), rgb(96 70 32 / 0.06) 70%, transparent);
+  box-shadow: inset 0 0 0 1px rgb(96 70 32 / 0.08);
+}
+.face--interstice .ix-dmg--peel {
+  left: var(--x);
+  top: calc(var(--y) * 0.5);
+  width: 5%;
+  height: 12%;
+  background: linear-gradient(115deg, transparent 48%, rgb(240 236 222 / 0.55) 49%, rgb(205 198 176 / 0.6) 70%, rgb(0 0 0 / 0.18) 71%, transparent 80%);
+}
+.face--interstice .ix-dmg--crack { left: calc(var(--x) * 0.6); top: 62%; width: 16%; color: rgb(10 16 24 / 0.5); }
+.face--interstice .ix-dmg--crack svg { width: 100%; height: auto; display: block; overflow: visible; }
+.face--interstice .ix-dmg--scuff {
+  left: var(--x);
+  top: var(--y);
+  width: 12%;
+  height: 4%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(0 0 0 / 0.2), transparent);
+}
+
+.face--interstice .ix-window {
+  position: absolute;
+  z-index: 2;
+  top: 17%;
+  left: 60%;
+  width: 20%;
+  height: 34%;
+  overflow: hidden;
+  background: #0d1420;
+  box-shadow: 0 0 0 calc(var(--vh) * 0.012) #cfc9b6, 0 0 0 calc(var(--vh) * 0.016) rgb(0 0 0 / 0.3), inset 0 0 calc(var(--vh) * 0.04) rgb(0 0 0 / 0.6);
+}
+.face--interstice .ix-right .ix-window { left: auto; right: 60%; }
+.face--interstice .ix-window-sky {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(1px 1px at 20% 30%, #fff, transparent),
+    radial-gradient(1px 1px at 70% 18%, #dfe9ff, transparent),
+    radial-gradient(1px 1px at 46% 62%, #fff, transparent),
+    radial-gradient(1px 1px at 84% 74%, #cfe0ff, transparent),
+    linear-gradient(#0b1630, #1c2a48);
+}
+.face--interstice .ix-window.is-day .ix-window-sky { background: linear-gradient(#7e98ad, #b9c7cf); }
+.face--interstice .ix-moon { position: absolute; left: 28%; top: 16%; width: 44%; height: auto; }
+.face--interstice .ix-moon-dark { fill: rgb(30 40 60 / 0.6); }
+.face--interstice .ix-moon-lit { fill: #f2efe0; }
+.face--interstice .ix[data-moon="full"] .ix-window { box-shadow: 0 0 0 calc(var(--vh) * 0.012) #cfc9b6, 0 0 calc(var(--vh) * 0.08) rgb(230 236 255 / 0.3); }
+.face--interstice .ix-window-bars {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent calc(50% - 2px), #cfc9b6 calc(50% - 2px) calc(50% + 2px), transparent calc(50% + 2px)),
+    linear-gradient(transparent calc(50% - 2px), #cfc9b6 calc(50% - 2px) calc(50% + 2px), transparent calc(50% + 2px));
+}
+
+/* the one warm light in the building */
+.face--interstice .ix-prop {
+  width: var(--vw);
+  height: var(--vh);
+  margin: calc(var(--vh) / -2) 0 0 calc(var(--vw) / -2);
+  transform: translateZ(calc(var(--D) * var(--z, 0.5) * -1));
+}
+.face--interstice .ix-prop::after { content: none; }
+.face--interstice .ix-flex {
+  position: absolute;
+  left: 27%;
+  top: 0;
+  width: 2px;
+  height: 26%;
+  translate: -50% 0;
+  background: linear-gradient(#2a2622, #3b3530);
+}
+.face--interstice .ix-bulb {
+  position: absolute;
+  left: 27%;
+  top: 26%;
+  width: calc(var(--vh) * 0.06);
+  height: calc(var(--vh) * 0.08);
+  translate: -50% 0;
+  border-radius: 46% 46% 50% 50% / 40% 40% 60% 60%;
+  background: radial-gradient(circle at 50% 60%, #fffaf0, #ffe3a8 45%, #f5b45e 100%);
+  box-shadow: 0 0 calc(var(--vh) * 0.06) calc(var(--vh) * 0.035) rgb(255 205 135 / 0.7), 0 0 calc(var(--vh) * 0.4) calc(var(--vh) * 0.16) rgb(255 190 110 / 0.24);
+}
+.face--interstice .ix-bulb::before {
+  content: '';
+  position: absolute;
+  left: 30%;
+  right: 30%;
+  top: -18%;
+  height: 22%;
+  background: linear-gradient(90deg, #6d665c, #a59c8c 50%, #6d665c);
+  border-radius: 2px;
+}
+
+.face--interstice .ix-wetsign {
+  position: absolute;
+  right: 20%;
+  bottom: 0;
+  width: calc(var(--vh) * 0.13);
+  height: calc(var(--vh) * 0.2);
+  padding: 2% 0.6%;
+  display: grid;
+  align-content: start;
+  justify-items: center;
+  gap: 0.4em;
+  clip-path: polygon(18% 0, 82% 0, 100% 100%, 0 100%);
+  background: linear-gradient(#e4c64a, #c9aa2f);
+  color: #1b1b1b;
+  font: 700 calc(var(--vh) * 0.017) / 1.05 var(--ix-sign);
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.face--interstice .ix-wetsign span { font: 400 calc(var(--vh) * 0.013) / 1.1 var(--ix-code); text-transform: none; letter-spacing: 0; }
+.face--interstice .ix[data-witching] .ix-floor {
+  background-image:
+    var(--ix-grain),
+    linear-gradient(to bottom, rgb(150 180 205 / 0.18), transparent 35%),
+    radial-gradient(34% 26% at 50% 44%, rgb(var(--lamp-rgb) / calc(0.34 * var(--lit))), transparent 100%),
+    repeating-linear-gradient(0deg, rgb(0 0 0 / 0.13) 0 1px, transparent 1px 70px),
+    linear-gradient(to bottom, rgb(0 0 0 / 0.42), rgb(0 0 0 / 0.08) 70%, rgb(0 0 0 / 0.22)),
+    linear-gradient(to top, var(--ix-margin) 0 var(--m), var(--ix-border) var(--m) var(--b), var(--ix-padding) var(--b) 100%);
+}
+
+/* The Waiting Room: figures made of placeholder grey, in a row set out by `order`. */
+.face--interstice .ix-prop--waiting { pointer-events: none; }
+.face--interstice .ix-row {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 70%;
+  translate: -50% 0;
+  display: flex;
+  justify-content: center;
+  gap: 2%;
+}
+.face--interstice .ix-seat {
+  position: relative;
+  flex: 0 0 11%;
+  height: calc(var(--vh) * 0.3);
+}
+/* a moulded plastic chair: back, seat, two legs */
+.face--interstice .ix-chair {
+  position: absolute;
+  inset: 34% 4% 0;
+  background:
+    linear-gradient(#5e3a2c, #5e3a2c) 6% 100% / 7% 44% no-repeat,
+    linear-gradient(#5e3a2c, #5e3a2c) 94% 100% / 7% 44% no-repeat,
+    linear-gradient(#9a5a40, #7d4632) 0 44% / 100% 13% no-repeat,
+    linear-gradient(#a66446, #8a4c36) 0 0 / 100% 34% no-repeat;
+  border-radius: 7px 7px 2px 2px;
+}
+/* a figure made of placeholder grey (a skeleton screen, waiting for its content) */
+.face--interstice .ix-figure {
+  position: absolute;
+  left: 14%;
+  right: 14%;
+  bottom: 38%;
+  height: 66%;
+  pointer-events: auto;
+  cursor: default;
+  outline: none;
+}
+.face--interstice .ix-figure > span { position: absolute; left: 50%; translate: -50% 0; display: block; }
+.face--interstice .ix-figure-head { top: 0; width: 46%; aspect-ratio: 1; border-radius: 50%; background: #9aa1a6; }
+.face--interstice .ix-figure-line { top: 34%; width: 92%; height: 52%; border-radius: 12px 12px 3px 3px; background: #8b9297; }
+.face--interstice .ix-figure-line--short { top: 92%; width: 64%; height: 8%; border-radius: 3px; background: #a9b0b4; }
+.face--interstice .ix-figure:focus-visible .ix-figure-head,
+.face--interstice .ix-figure:focus-visible .ix-figure-line { background: #d8dde0; box-shadow: 0 0 0 2px #ffd27a; }
+.face--interstice .ix-row[data-nodded] .ix-figure-head { translate: 0 6%; }
+
+/* The Mirror Room: a dark glass, and in it a point of light that moves as you moved 33 s ago. */
+.face--interstice .ix-far[data-glass] {
+  background-image:
+    linear-gradient(115deg, transparent 30%, rgb(255 255 255 / 0.06) 38%, transparent 46%),
+    linear-gradient(to top, #24211c 0 var(--skirt), transparent var(--skirt)),
+    linear-gradient(#141b22, #0b0f13);
+  background-size: auto;
+  background-repeat: no-repeat;
+}
+.face--interstice .ix-far[data-glass] .ix-slot-holder,
+.face--interstice .ix-far[data-glass] .ix-dim,
+.face--interstice .ix-far[data-glass] .ix-dim-side { opacity: 0.45; }
+.face--interstice .ix-echo {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 3;
+  width: calc(var(--vh) * 0.07);
+  height: calc(var(--vh) * 0.07);
+  margin: calc(var(--vh) * -0.035) 0 0 calc(var(--vh) * -0.035);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgb(236 244 255 / 0.95) 0 12%, rgb(180 205 240 / 0.45) 30%, rgb(160 190 230 / 0.12) 55%, transparent 70%);
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform;
+}
+.face--interstice .ix-echo.is-on { opacity: 1; }
+
+/* ─────────────────────────────────────────────────────────────── the Stairwell (/404): body ── */
+.face--interstice .ix-stair {
+  position: absolute;
+  left: 50%;
+  bottom: var(--skirt);
+  width: 26%;
+  height: 58%;
+  translate: -50% 0;
+  overflow: hidden;
+  background: #07080a;
+  box-shadow: 0 0 0 calc(var(--vh) * 0.012) #b9a76a, inset 0 0 calc(var(--vh) * 0.06) rgb(0 0 0 / 0.8);
+}
+.face--interstice .ix-stair-steps {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to bottom, #07080a 0 30%, transparent 62%),
+    linear-gradient(to top,
+      #6f6a5c 0 7%, #3a372f 7% 13%,
+      #625e51 13% 19%, #34312a 19% 24%,
+      #565246 24% 29%, #2e2c26 29% 33%,
+      #4a473d 33% 37%, #292722 37% 40.5%,
+      #3f3c34 40.5% 44%, #24231f 44% 47%,
+      #36342d 47% 50%, #1f1e1b 50% 52.5%,
+      #2c2a25 52.5% 55%, #0e0e0d 55% 100%);
+  clip-path: polygon(0 100%, 100% 100%, 82% 40%, 18% 40%);
+}
+.face--interstice .ix-down {
+  position: absolute;
+  left: 50%;
+  top: calc(100% - var(--skirt) - 58% - var(--vh) * 0.11);
+  z-index: 2;
+  translate: -50% 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  padding: 0.35em 0.7em;
+  font: 700 calc(var(--vh) * 0.034) / 1 var(--ix-sign);
+  letter-spacing: 0.04em;
+  color: #f4f6f2;
+  text-decoration: none;
+  background: linear-gradient(#2e6c4c, #1f5038);
+  border-radius: 3px;
+  box-shadow: 0 0 0 2px #c9d6cc, 0 0 calc(var(--vh) * 0.04) rgb(90 200 140 / 0.35);
+  pointer-events: auto;
+}
+.face--interstice .ix-down:focus-visible { outline: 3px solid #ffd27a; outline-offset: 4px; }
+.face--interstice .ix-down-arrow { font-size: 1.2em; }
+.face--interstice .ix-directory {
+  position: absolute;
+  top: 16%;
+  left: 10%;
+  width: 26%;
+  padding: 1.4% 1.6%;
+  display: grid;
+  gap: 0.35em;
+  font: 400 calc(var(--vh) * 0.02) / 1.1 var(--ix-sign);
+  color: #e9e7df;
+  background: #1d2023;
+  box-shadow: 0 0 0 calc(var(--vh) * 0.008) #7b7f80, 0 4px 10px rgb(0 0 0 / 0.35);
+  pointer-events: none;
+}
+.face--interstice .ix-directory-head { font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: #b9c3c4; margin-bottom: 0.3em; }
+.face--interstice .ix-directory-row { display: flex; justify-content: space-between; gap: 1em; border-bottom: 1px dotted rgb(233 231 223 / 0.25); }
+.face--interstice .ix-directory-row b { font-family: var(--ix-code); font-weight: 400; color: #ffe1a6; }
+.face--interstice .ix-scrawl {
+  position: absolute;
+  top: 56%;
+  left: 44%;
+  width: 46%;
+  display: grid;
+  gap: 0.5em;
+  font-size: calc(var(--vh) * 0.034);
+  color: rgb(28 30 34 / 0.6);
+  pointer-events: none;
+}
+.face--interstice .ix-scrawl-line:nth-child(2) { rotate: -2deg; margin-left: 12%; }
+.face--interstice .ix-scrawl-line:nth-child(3) { rotate: 1.5deg; margin-left: 4%; }
+.face--interstice .ix-clock {
+  position: absolute;
+  top: 14%;
+  right: 56%;
+  width: 16%;
+  display: grid;
+  justify-items: center;
+  gap: 0.4em;
+  font: 400 calc(var(--vh) * 0.02) / 1 var(--ix-sign);
+  color: rgb(20 24 26 / 0.7);
+  pointer-events: none;
+}
+.face--interstice .ix-clock svg { width: 100%; height: auto; }
+.face--interstice .ix-clock-face { fill: #e9e6dc; stroke: #2b2d2e; stroke-width: 1.6; }
+.face--interstice .ix-clock-tick { stroke: #2b2d2e; stroke-width: 1.2; }
+.face--interstice .ix-clock-hand { stroke: #1d1f20; stroke-width: 1.2; stroke-linecap: round; }
+.face--interstice .ix-clock-hand--h { stroke-width: 2; }
+.face--interstice .ix-clock-pin { fill: #9c2a1e; }
+
+/* The arrival: before the room, the Inspector's diagram of it, labelled the way the Inspector labels it. */
+.face--interstice .ix-diagram {
+  --s0: 0.25;
+  position: absolute;
+  left: 50%;
+  top: 47%;
+  z-index: 6;
+  width: calc(var(--vw) * var(--s0));
+  height: calc(var(--vh) * var(--s0));
+  translate: -50% -50%;
+  pointer-events: none;
+  font: 11px/1 var(--ix-code);
+  color: rgb(236 230 214 / 0.82);
+  text-shadow: 0 1px 2px rgb(0 0 0 / 0.8);
+}
+.face--interstice .ix[data-intro] .ix-diagram { display: block; }
+.face--interstice .ix-diagram { display: none; }
+.face--interstice .ix-diagram-l { position: absolute; }
+.face--interstice .ix-diagram-l--m { left: 2%; top: -16px; color: #e8b37e; }
+.face--interstice .ix-diagram-l--b { left: 5%; top: 6%; color: #ecd894; }
+.face--interstice .ix-diagram-l--p { left: 14%; top: 14%; color: #b9d3a4; }
+.face--interstice .ix-diagram-l--c { left: 50%; top: 56%; translate: -50% -50%; color: rgb(200 222 240 / 0.9); }
+.face--interstice .ix-tip {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 12px);
+  display: flex;
+  gap: 0.8em;
+  padding: 5px 9px;
+  border-radius: 3px;
+  font: 11px/1 var(--ix-code);
+  color: #e8eaed;
+  background: #2a2c30;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.5);
+  white-space: nowrap;
+}
+.face--interstice .ix-tip b { font-weight: 400; color: #8ab4f8; }
+.face--interstice .ix-tip::after {
+  content: '';
+  position: absolute;
+  right: 14px;
+  top: 100%;
+  border: 6px solid transparent;
+  border-top-color: #2a2c30;
+}
+
+/* nth-child(404), the Lost, hangs from its floor */
+.face--interstice .ix-cut[data-upside] .ix-persp { rotate: 180deg; }
+
+/* ───────────────────────────────────────────────────────────── the plaque, on its two wires ── */
+.face--interstice .ix-sign {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  z-index: 20;
+  /* between the cord and the plan, whatever the width */
+  width: min(560px, calc(100% - 480px));
+  translate: -50% 0;
+  padding-top: clamp(14px, 3.4vh, 30px);
+  pointer-events: none;
+}
+.face--interstice .ix-sign-wire {
+  position: absolute;
+  top: 0;
+  height: clamp(16px, 3.6vh, 32px);
+  width: 1px;
+  background: linear-gradient(#8d949a, #c9cfd3);
+}
+.face--interstice .ix-sign-wire--l { left: 16%; }
+.face--interstice .ix-sign-wire--r { right: 16%; }
+.face--interstice .ix-sign-plate {
+  position: relative;
+  padding: 8px 16px 9px;
+  border-radius: 3px;
+  text-align: center;
+  color: #edf0ed;
+  background: linear-gradient(#2c343a, #1d2327);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.12), 0 0 0 1px #5a646b, 0 12px 26px rgb(0 0 0 / 0.5);
+  pointer-events: auto;
+}
+.face--interstice .ix-sign-plate::before,
+.face--interstice .ix-sign-plate::after {
+  content: '';
+  position: absolute;
+  top: 7px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #d9dde0, #7d858b);
+}
+.face--interstice .ix-sign-plate::before { left: 7px; }
+.face--interstice .ix-sign-plate::after { right: 7px; }
+.face--interstice .ix-sign-kicker {
+  display: flex;
+  justify-content: space-between;
+  gap: 1em;
+  margin: 0 0 3px;
+  padding: 0 6px;
+  font: 600 10px/1.3 var(--ix-sign);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #9db0b6;
+}
+.face--interstice .ix-sign-hour { letter-spacing: 0.08em; text-transform: none; }
+.face--interstice .ix-sign-h { position: relative; margin: 0; font: 400 clamp(12.5px, 1.35vw, 16px) / 1.35 var(--ix-code); }
+.face--interstice .ix-sign-sel { font: inherit; transition: opacity 0.6s ease; }
+.face--interstice .ix-step { white-space: nowrap; }
+.face--interstice .ix-sign-ghost {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font: italic clamp(13px, 1.3vw, 16px) / 1.25 var(--ix-prose);
+  color: #ffd9a0;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+  pointer-events: none;
+}
+.face--interstice .ix-sign[data-possessed] .ix-sign-sel { opacity: 0; }
+.face--interstice .ix-sign[data-possessed] .ix-sign-ghost { opacity: 1; }
+.face--interstice .ix-sign-addr { margin: 3px 0 0; font: 11px/1.2 var(--ix-code); color: #9db0b6; }
+.face--interstice .ix-braille { margin-left: 0.9em; letter-spacing: 0.25em; color: #cdd5d7; }
+/* your mistake, on a strip of masking tape stuck across the plaque */
+.face--interstice .ix-tape {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  max-width: 92%;
+  padding: 0.18em 1.2em 0.26em;
+  translate: -50% -50%;
+  rotate: -2.2deg;
+  font: 700 clamp(15px, 1.7vw, 21px) / 1.1 var(--ix-marker);
+  color: #141414;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  background: linear-gradient(rgb(238 228 190 / 0.97), rgb(222 209 166 / 0.97));
+  box-shadow: 0 2px 4px rgb(0 0 0 / 0.35);
+  clip-path: polygon(0 8%, 3% 0, 6% 12%, 9% 2%, 91% 0, 94% 10%, 97% 1%, 100% 9%, 100% 92%, 97% 100%, 94% 89%, 91% 99%, 9% 100%, 6% 90%, 3% 99%, 0 91%);
+  display: none;
+}
+.face--interstice .ix-sign[data-taped] .ix-tape { display: block; }
+.face--interstice .ix[data-dark] .ix-sign-plate { box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.12), 0 0 0 1px #8a7a50, 0 0 30px rgb(255 214 140 / 0.25); }
+.face--interstice .ix[data-dark] .ix-sign-sel { color: #ffe3a8; text-shadow: 0 0 8px rgb(255 214 140 / 0.8); }
+
+/* ──────────────────────────────────────────────────────────────── the light cord (the summon) ── */
+.face--interstice .ix-cord {
+  position: absolute;
+  top: 0;
+  left: max(18px, 7%);
+  z-index: 21;
+  width: 34px;
+  height: clamp(110px, 30vh, 280px);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.face--interstice .ix-cord-line {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 22px;
+  width: 2px;
+  translate: -50% 0;
+  transform-origin: 50% 0;
+  background: repeating-linear-gradient(#ddd8cb 0 3px, #b9b3a3 3px 5px);
+  box-shadow: 1px 0 2px rgb(0 0 0 / 0.4);
+}
+.face--interstice .ix-cord-pull {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 14px;
+  height: 22px;
+  translate: -50% 0;
+  border-radius: 6px 6px 7px 7px / 5px 5px 10px 10px;
+  background: radial-gradient(circle at 36% 28%, #ffffff, #dcd7c9 55%, #a49e8e);
+  box-shadow: 0 4px 8px rgb(0 0 0 / 0.45);
+}
+.face--interstice .ix-cord:hover .ix-cord-pull { background: radial-gradient(circle at 36% 28%, #ffffff, #efe6cd 55%, #b9ad8a); }
+.face--interstice .ix-cord.is-pulled .ix-cord-line { animation: ix-cord-line 0.42s ease-out; }
+.face--interstice .ix-cord.is-pulled .ix-cord-pull { animation: ix-cord-pull 0.42s ease-out; }
+@keyframes ix-cord-line { 30% { transform: scaleY(1.09); } }
+@keyframes ix-cord-pull { 30% { transform: translateY(18px); } }
+
+/* ─────────────────────────────────────────────────────── the words (a text adventure, left on) ── */
+.face--interstice .ix-log {
+  position: absolute;
+  left: 14px;
+  bottom: 44px;
+  z-index: 20;
+  width: min(372px, 31vw);
+  max-height: 40vh;
+  overflow: auto;
+  padding: 12px 14px 11px;
+  border-radius: 4px;
+  background: linear-gradient(rgb(8 9 11 / 0.6), rgb(8 9 11 / 0.78));
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.06);
+  scrollbar-width: thin;
+  scrollbar-color: rgb(255 255 255 / 0.2) transparent;
+}
+.face--interstice .ix-say { margin: 0; font: 14px/1.48 var(--ix-prose); color: #ecebe4; }
+.face--interstice .ix-event:empty { display: none; }
+.face--interstice .ix-event {
+  margin: 0 0 8px;
+  padding-left: 10px;
+  border-left: 2px solid #e9b96e;
+  font: italic 14px/1.45 var(--ix-prose);
+  color: #ffe2b4;
+}
+.face--interstice .ix-note { margin: 9px 0 0; font: italic 13px/1.45 var(--ix-prose); color: #aaa69a; }
+.face--interstice .ix-hum:empty { display: none; }
+.face--interstice .ix-hum { margin: 8px 0 0; font: 600 10.5px/1.3 var(--ix-sign); letter-spacing: 0.2em; text-transform: uppercase; color: #8fa0a8; }
+
+/* ─────────────────────────────────────────────────────────── the lift panel, and the exit sign ── */
+.face--interstice .ix-lift {
+  position: absolute;
+  left: 50%;
+  bottom: 12px;
+  z-index: 20;
+  width: 228px;
+  translate: -50% 0;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-areas: 'exit exit' 'pad call' 'plate plate';
+  gap: 6px 12px;
+  align-items: center;
+  padding: 8px 10px 10px;
+  border-radius: 6px;
+  background:
+    repeating-linear-gradient(90deg, rgb(255 255 255 / 0.035) 0 1px, transparent 1px 3px),
+    linear-gradient(#7e8488, #5b6165 60%, #4c5155);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.25), inset 0 -1px 0 rgb(0 0 0 / 0.3), 0 0 0 1px #2d3134, 0 10px 24px rgb(0 0 0 / 0.5);
+}
+.face--interstice .ix-exit {
+  grid-area: exit;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 0.2em 0.8em;
+  min-width: 0;
+  padding: 5px 10px;
+  border-radius: 2px;
+  font: 600 11.5px/1.2 var(--ix-sign);
+  color: #effaf2;
+  text-decoration: none;
+  background: linear-gradient(#2c7a52, #1e5b3c);
+  box-shadow: 0 0 0 1px #0f2f20, 0 0 18px rgb(80 210 140 / 0.3), inset 0 1px 0 rgb(255 255 255 / 0.2);
+}
+.face--interstice .ix-exit-word { font-weight: 700; letter-spacing: 0.24em; text-transform: uppercase; }
+.face--interstice .ix-exit-word { white-space: nowrap; }
+.face--interstice .ix-exit-word::before { content: '⇣\00a0'; letter-spacing: 0; }
+.face--interstice .ix-exit.is-out .ix-exit-word::before { content: '⇡\00a0'; }
+.face--interstice .ix-exit-to { font: 10.5px/1.25 var(--ix-code); opacity: 0.92; overflow-wrap: anywhere; }
+.face--interstice .ix-exit.is-warm { box-shadow: 0 0 0 1px #0f2f20, 0 0 22px rgb(255 190 110 / 0.45), inset 0 1px 0 rgb(255 255 255 / 0.2); }
+.face--interstice .ix-pad {
+  grid-area: pad;
+  display: grid;
+  grid-template-columns: repeat(3, 30px);
+  grid-template-rows: repeat(3, 27px);
+  place-items: center;
+}
+.face--interstice .ix-key {
+  width: 27px;
+  height: 27px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  font: 11px/1 var(--ix-sign);
+  color: #2b2f31;
+  cursor: pointer;
+  background: radial-gradient(circle at 40% 32%, #f2f3f1, #c4c8c9 55%, #8e9496);
+  box-shadow: 0 0 0 2px #3b4043, 0 0 0 3px rgb(255 255 255 / 0.15), 0 2px 3px rgb(0 0 0 / 0.5);
+}
+.face--interstice .ix-key.is-lit { box-shadow: 0 0 0 2px #e8a64a, 0 0 10px 1px rgb(255 180 80 / 0.6), 0 2px 3px rgb(0 0 0 / 0.5); color: #000; }
+.face--interstice .ix-key:active { translate: 0 1px; }
+.face--interstice .ix-key--far { grid-area: 1 / 2; }
+.face--interstice .ix-key--left { grid-area: 2 / 1; }
+.face--interstice .ix-key--right { grid-area: 2 / 3; }
+.face--interstice .ix-key--back { grid-area: 3 / 2; }
+.face--interstice .ix-call {
+  grid-area: call;
+  justify-self: start;
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  margin: 0;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 4px;
+  font: 700 10px/1 var(--ix-sign);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #3a1508;
+  cursor: pointer;
+  background: radial-gradient(circle at 40% 30%, #ffb38d, #d9542f 60%, #9b3017);
+  box-shadow: 0 0 0 2px #3b4043, 0 2px 4px rgb(0 0 0 / 0.5);
+}
+.face--interstice .ix-call-icon { font: 18px/1 'Segoe UI Symbol', var(--ix-sign); letter-spacing: 0; }
+.face--interstice .ix-plate {
+  grid-area: plate;
+  padding: 6px 8px 7px;
+  border-radius: 2px;
+  background: linear-gradient(#c5b074, #a58f55);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.4), 0 0 0 1px #5c4e2a;
+}
+.face--interstice .ix-inscription {
+  margin: 0;
+  max-width: none;
+  font-size: 11.5px;
+  line-height: 1.45;
+  letter-spacing: 0.05em;
+  word-spacing: 0.22em;
+  color: #2a2414;
+  text-shadow: 0 1px 0 rgb(255 245 210 / 0.55);
+  text-align: center;
+}
+
+/* ─────────────────────────────────────────────── the plan of the floor (it is also the map key) ── */
+.face--interstice .ix-plan {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 20;
+  width: 212px;
+  margin: 0;
+  padding: 0 0 8px;
+  border-radius: 3px;
+  overflow: hidden;
+  color: #2a2d31;
+  background: #e7e4da;
+  box-shadow: 0 0 0 1px #9b978a, 0 10px 24px rgb(0 0 0 / 0.45);
+}
+.face--interstice .ix-plan-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 9px;
+  font: 700 9px/1 var(--ix-sign);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: #f1f5f0;
+  background: #22694a;
+}
+.face--interstice .ix-plan-you::before { content: '● '; color: #ff6a55; }
+.face--interstice .ix-plan-map {
+  display: block;
+  width: calc(100% - 16px);
+  height: 118px;
+  margin: 8px 8px 4px;
+  background-color: #f3f1ea;
+  background-image: linear-gradient(rgb(70 110 160 / 0.13) 1px, transparent 1px), linear-gradient(90deg, rgb(70 110 160 / 0.13) 1px, transparent 1px);
+  background-size: 13px 13px;
+  box-shadow: inset 0 0 0 1px #c9c4b4;
+}
+.face--interstice .ix-plan-link { stroke: #3c4044; stroke-width: 1.4; }
+.face--interstice .ix-plan-link--stub { stroke-dasharray: 2 2.5; stroke-width: 1; opacity: 0.7; }
+.face--interstice .ix-plan-room { fill: #fbfaf5; stroke: #33373b; stroke-width: 1.3; }
+.face--interstice .ix-plan-room--stub { fill: none; stroke-dasharray: 2 2; stroke-width: 1; opacity: 0.6; }
+.face--interstice .ix-plan-room.is-origin { fill: #d6e3ee; }
+.face--interstice .ix-plan-room.is-seed { fill: #f5c87e; }
+.face--interstice .ix-plan-glyph { font: 11px/1 var(--font-glyph, serif); fill: #2a2d31; }
+.face--interstice .ix-plan-num { font: 7px/1 var(--ix-code); fill: #2a2d31; }
+.face--interstice .ix-plan-here { fill: #e2463a; stroke: #fff; stroke-width: 1.3; }
+.face--interstice .ix-plan-in { fill: #2c6fb4; }
+.face--interstice .ix-plan-cap { margin: 0 9px; font: 11px/1.35 var(--ix-sign); color: #3d4146; }
+.face--interstice .ix-plan-key {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 7px 9px 0;
+  padding-top: 6px;
+  border-top: 1px solid #cbc6b6;
+}
+.face--interstice .ix-plan-key-h { font: 700 9px/1 var(--ix-sign); letter-spacing: 0.18em; text-transform: uppercase; color: #5b5f63; }
+.face--interstice .ix-rosetta { margin: 0; gap: 2px 7px; justify-content: flex-start; color: #23272b; }
+.face--interstice .ix-rosetta .rosetta-pair { min-width: 1.3em; gap: 1px; }
+.face--interstice .ix-rosetta dt { font-size: 17px; padding-bottom: 1px; border-bottom-color: rgb(35 39 43 / 0.3); }
+.face--interstice .ix-rosetta dd { font: 9px/1 var(--ix-code); letter-spacing: 0.05em; }
+
+/* ─────────────────────────────────────────────────────────────────────── what you carry out ── */
+.face--interstice .ix-pocket {
+  position: absolute;
+  right: 14px;
+  bottom: 92px;
+  z-index: 20;
+  width: 212px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-areas: 'h h' 'glyph letter' 'name name' 'mend mend';
+  gap: 4px 12px;
+  align-items: center;
+  padding: 10px 12px 12px;
+  border-radius: 4px;
+  color: #2a2010;
+  background: radial-gradient(120% 90% at 30% 20%, #fff6e2, #f0d7a6 70%, #d9b577);
+  box-shadow: 0 0 0 1px #a8874c, 0 0 40px rgb(255 200 130 / 0.35), 0 10px 24px rgb(0 0 0 / 0.5);
+}
+.face--interstice .ix-pocket[hidden] { display: none; }
+.face--interstice .ix-pocket-h { grid-area: h; font: 700 9.5px/1 var(--ix-sign); letter-spacing: 0.2em; text-transform: uppercase; color: #7a5a24; }
+.face--interstice .ix-pocket-glyph { grid-area: glyph; font-size: 44px; line-height: 1; color: #3a2408; }
+.face--interstice .ix-pocket-letter { grid-area: letter; font: 400 40px/1 var(--ix-code); color: #2a1a06; }
+.face--interstice .ix-pocket-name { grid-area: name; font: italic 12.5px/1.4 var(--ix-prose); color: #4a3a20; }
+.face--interstice .ix-pocket-mend { grid-area: mend; font: 12px/1.3 var(--ix-code); color: #6b2a10; overflow-wrap: anywhere; }
+
+/* ────────────────────────────────────────────────────────────────────────────────── states ── */
+/* the arrival: the plaque and the panels wait for the light */
+.face--interstice .ix[data-intro] :is(.ix-sign, .ix-log, .ix-lift, .ix-plan) { opacity: 0; }
+.face--interstice :is(.ix-sign, .ix-log, .ix-lift, .ix-plan) { transition: opacity 0.9s ease; }
+
+/* 108 s: every panel goes dark but one; the plates glow with their :nth-last-child */
+.face--interstice .ix[data-dark] .ix-plane:not(.is-kept)::after { opacity: 0.9; transition: opacity 2.4s ease; }
+.face--interstice .ix[data-dark] .ix-left::after { transition-delay: 0.3s; }
+.face--interstice .ix[data-dark] .ix-right::after { transition-delay: 0.6s; }
+.face--interstice .ix[data-dark] .ix-floor::after { transition-delay: 0.9s; }
+.face--interstice .ix[data-dark] .ix-ceil::after { transition-delay: 1.2s; }
+.face--interstice .ix[data-dark] .ix-plate-first { display: none; }
+.face--interstice .ix[data-dark] .ix-plate-last { display: inline; }
+.face--interstice .ix[data-dark] .ix-door-plate { color: #ffe3a8; text-shadow: 0 0 8px rgb(255 214 140 / 0.9); box-shadow: 0 0 0 1px #c9a45a, 0 0 18px rgb(255 214 140 / 0.45); }
+.face--interstice .ix[data-dark] .ix-plane:not(.is-kept) .ix-door-glimpse { opacity: 0.35; }
+
+/* after the letter is taken, every light in the building comes on */
+.face--interstice .ix[data-solved] .ix-room { --lit: 1.25; --dark: 0; --lamp-rgb: 255 236 205; }
+.face--interstice .ix[data-solved] .ix-view { background: radial-gradient(120% 90% at 50% 45%, #2a2622 0%, #12100e 70%); }
+
+/* the Eclipse (the ritual): the lights brown out all over the building, except where somebody left a bulb */
+html[data-eclipse] .face--interstice .ix-room:not([data-lamp="bulb"]) { --dark: 0.5; --lit: 0.35; }
+
+/* nth-child(404): the plaque hangs upside down too */
+.face--interstice .ix[data-upside] .ix-sign { rotate: 180deg; transform-origin: 50% 40%; }
+
+/* Mercy: no motion, and no curse that is only a curse */
+html[data-mercy="on"] .face--interstice .ix-cut[data-upside] .ix-persp,
+html[data-mercy="on"] .face--interstice .ix[data-upside] .ix-sign { rotate: none; }
+html[data-mercy="on"] .face--interstice .ix-room { --seam-off: 0px; }
+html[data-mercy="on"] .face--interstice .ix-pencil--seam { display: none; }
+html[data-mercy="on"] .face--interstice .ix-plane.is-dim { --dim: 0; }
+
+/* ───────────────────────────────────────────────────────────── small screens: the room on top ── */
+@media (max-width: 999px), (max-height: 679px) {
+  .face--interstice .ix {
+    height: auto;
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow: visible;
+    padding-bottom: 92px;
+    display: flex;
+    flex-direction: column;
+  }
+  .face--interstice .ix-view {
+    position: relative;
+    inset: auto;
+    flex: none;
+    height: min(64vh, 132vw);
+    height: min(64dvh, 132vw);
+  }
+  .face--interstice .ix-sign { width: calc(100% - 92px); left: calc(50% + 22px); }
+  .face--interstice .ix-sign-h { font-size: 12px; }
+  .face--interstice .ix-sign-kicker { font-size: 9px; letter-spacing: 0.16em; }
+  .face--interstice .ix-cord { left: 14px; height: clamp(90px, 22vh, 180px); }
+  .face--interstice .ix-log,
+  .face--interstice .ix-lift,
+  .face--interstice .ix-plan,
+  .face--interstice .ix-pocket {
+    position: relative;
+    inset: auto;
+    translate: none;
+    width: auto;
+    max-height: none;
+    margin: 12px 14px 0;
+  }
+  .face--interstice .ix-log { order: 1; }
+  .face--interstice .ix-pocket { order: 2; }
+  .face--interstice .ix-lift { order: 3; align-self: center; width: min(320px, calc(100% - 28px)); }
+  .face--interstice .ix-plan { order: 4; }
+  .face--interstice .ix-say { font-size: 15px; }
+}
+@media (max-width: 400px) {
+  .face--interstice .ix-sign-plate { padding: 7px 10px 8px; }
+  .face--interstice .ix-sign-kicker .ix-sign-hour { display: none; }
+}
+}
