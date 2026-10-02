@@ -1,0 +1,1774 @@
+/* THE ALL-NIGHT LAUNDERETTE. It is always 3:33 a.m. here.
+   Institutional mint walls under cold tubes, white enamel front-loaders with chrome portholes and red
+   seven-segment displays, embossed label-maker tape, a blue plastic basket, satin care labels, a cork board of
+   pastel flyers, orange bucket chairs, a free sheet of newsprint, and linoleum laid a magic number off true.
+   Everything lives in @layer face, scoped to .face--launderette / [data-face="launderette"] (CANON §3).
+   Motion is CSS only and compositor-friendly (transform, translate, rotate, opacity); mercy (base.css)
+   neutralises all of it, and every resting state is a finished picture. One rule below uses !important on
+   purpose: it is the riddle's stain, commented where it stands. */
+@layer face {
+
+html[data-face="launderette"] { background: #b9d2c4; }
+
+.face--launderette {
+  --lnd-wall-hi: #dcebe1;
+  --lnd-wall: #c6dccf;
+  --lnd-wall-lo: #9dbdad;
+  --lnd-ink: #1e2a29;
+  --lnd-ink-soft: #4a5a57;
+  --lnd-enamel: #f6f5f0;
+  --lnd-enamel-lo: #d8d7ce;
+  --lnd-chrome-hi: #f6f9fa;
+  --lnd-chrome: #b8c2c5;
+  --lnd-chrome-lo: #6c777b;
+  --lnd-panel: #1b2122;
+  --lnd-led: #ff4a36;
+  --lnd-led-ghost: rgb(255 74 54 / 0.1);
+  --lnd-green: #2fbf6c;
+  --lnd-tile-a: #ece4cd;
+  --lnd-tile-b: #5f918b;
+  --lnd-orange: #e8702a;
+  --lnd-blue: #2a78c8;
+  --lnd-cork: #b98a55;
+  --lnd-paper: #fbfaf3;
+  --lnd-tube: #f2fff8;
+  --lnd-tube-glow: rgb(200 255 230 / 0.7);
+  --lnd-sodium: #ffb347;
+  --lnd-sign: 'Bahnschrift', 'DIN Alternate', 'DIN Condensed', 'Arial Narrow', 'Roboto Condensed', 'Helvetica Neue', Arial, sans-serif;
+  --lnd-text: 'Helvetica Neue', Arial, 'Liberation Sans', 'Segoe UI', sans-serif;
+  --lnd-mono: Consolas, 'Lucida Console', 'Courier New', monospace;
+  --lnd-hand: 'Segoe Print', 'Bradley Hand', 'Marker Felt', 'Chalkboard SE', 'Comic Neue', cursive;
+  --lnd-news: Cambria, Georgia, 'Times New Roman', serif;
+  position: relative;
+  color: var(--lnd-ink);
+  font-family: var(--lnd-text);
+  overflow-x: clip;
+}
+.face--launderette :focus-visible { outline: 3px solid #1d63d1; outline-offset: 3px; }
+.face--launderette a { color: #1b4f9c; text-underline-offset: 3px; }
+.face--launderette code { font-family: var(--lnd-mono); font-size: 0.92em; }
+.face--launderette button { cursor: pointer; }
+
+/* The room: lit walls above a darker dado, a little grain, and room at the foot for the altar. */
+.face--launderette .lnd {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: 0 clamp(12px, 3vw, 30px) 128px;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.35), transparent 220px),
+    linear-gradient(180deg, var(--lnd-wall-hi) 0%, var(--lnd-wall) 46%, var(--lnd-wall-lo) 100%);
+}
+.face--launderette .lnd::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.5;
+  background:
+    radial-gradient(circle at 20% 30%, rgb(0 0 0 / 0.05) 0.6px, transparent 1.2px) 0 0 / 5px 7px,
+    radial-gradient(circle at 70% 60%, rgb(255 255 255 / 0.18) 0.6px, transparent 1.2px) 2px 3px / 7px 5px;
+}
+.face--launderette .lnd > :not(.lnd-light) { position: relative; max-width: 1240px; margin-inline: auto; }
+
+/* The light of the tubes. It dips with the dimming tube, once a period; it is never a flash. */
+.face--launderette .lnd-light {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  pointer-events: none;
+  background: #0b1e1a;
+  opacity: 0;
+  animation: lnd-dip var(--dim-period, 7s) ease-in-out var(--dim-delay, 0s) infinite;
+}
+.face--launderette .lnd-light::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: #06110f;
+  opacity: 0;
+  transition: opacity 2.4s ease;
+}
+.face--launderette .is-hushed .lnd-light::after { opacity: 0.1; }
+@keyframes lnd-dip {
+  0%, 72%, 100% { opacity: 0; }
+  80% { opacity: 0.055; }
+  88% { opacity: 0.015; }
+}
+
+/* ─────────────────────────────────────────────────────────────── the ceiling and its tubes ───────── */
+.face--launderette .lnd-ceiling {
+  display: flex;
+  justify-content: space-around;
+  gap: 4%;
+  height: 34px;
+  margin: 0 auto 10px;
+  padding: 6px 4% 0;
+  background: linear-gradient(180deg, #eef3ef, #d6e3db);
+  border-bottom: 1px solid rgb(0 0 0 / 0.08);
+}
+.face--launderette .lnd-fixture {
+  position: relative;
+  flex: 0 1 260px;
+  height: 18px;
+  border-radius: 3px;
+  background: linear-gradient(180deg, #c9d0cd, #9aa39f);
+  box-shadow: 0 1px 0 rgb(255 255 255 / 0.6) inset, 0 2px 3px rgb(0 0 0 / 0.18);
+}
+.face--launderette .lnd-tube {
+  position: absolute;
+  left: 7px;
+  right: 7px;
+  bottom: -4px;
+  height: 8px;
+  border-radius: 4px;
+  background: linear-gradient(180deg, #ffffff, var(--lnd-tube) 55%, #d6efe2);
+  box-shadow: 0 0 10px 2px var(--lnd-tube-glow), 0 8px 26px 6px rgb(220 255 240 / 0.45);
+}
+.face--launderette .lnd-fixture.is-dim .lnd-tube {
+  animation: lnd-tube-dim var(--dim-period, 7s) ease-in-out var(--dim-delay, 0s) infinite;
+}
+@keyframes lnd-tube-dim {
+  0%, 72%, 100% { opacity: 1; }
+  80% { opacity: 0.42; }
+  88% { opacity: 0.86; }
+}
+/* The tubes strike as you arrive: two slow, low pulses, then light. */
+.face--launderette .is-striking .lnd-tube { animation: lnd-strike 1.7s steps(1, end) both; }
+@keyframes lnd-strike {
+  0% { opacity: 0.25; }
+  22% { opacity: 0.7; }
+  38% { opacity: 0.3; }
+  62% { opacity: 0.85; }
+  76%, 100% { opacity: 1; }
+}
+.face--launderette .is-hushed .lnd-tube { opacity: 0.78; transition: opacity 2.4s ease; }
+
+/* ─────────────────────────────────────────────────────────────── the front ───────────────────────── */
+.face--launderette .lnd-front { padding-top: 4px; }
+.face--launderette .lnd-front-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: clamp(14px, 2.4vw, 30px);
+  align-items: start;
+}
+
+/* The window onto the real sky, mullioned in tired aluminium. */
+.face--launderette .lnd-window { margin: 0; }
+.face--launderette .lnd-pane {
+  position: relative;
+  aspect-ratio: 16 / 7.4;
+  overflow: hidden;
+  border: 10px solid #8d989a;
+  border-radius: 4px;
+  background: #0a1330;
+  box-shadow: inset 0 0 0 2px #5e686a, 0 1px 0 #fff, 0 10px 24px -14px rgb(0 0 0 / 0.6);
+}
+.face--launderette .lnd-pane::after {
+  /* the mullions */
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, transparent calc(50% - 4px), #8d989a calc(50% - 4px) calc(50% + 4px), transparent calc(50% + 4px)),
+    linear-gradient(180deg, transparent 22%, #8d989a 22% calc(22% + 6px), transparent calc(22% + 6px));
+}
+.face--launderette .lnd-sky { position: absolute; inset: 0; width: 100%; height: 100%; }
+.face--launderette .lnd-star { fill: #f4f7ff; opacity: 0.85; }
+/* SVG is repainted on the main thread, so the three twinkling stars change in a few steps, not every frame. */
+.face--launderette .lnd-star.is-twinkle { animation: lnd-twinkle var(--tw, 5s) steps(5, jump-none) infinite alternate; }
+@keyframes lnd-twinkle { from { opacity: 0.95; } to { opacity: 0.25; } }
+.face--launderette .lnd-moon-dark { fill: rgb(30 40 70 / 0.55); }
+.face--launderette .lnd-moon-lit { fill: #f6f1da; }
+.face--launderette .lnd-moon.is-pale .lnd-moon-lit { fill: rgb(255 255 255 / 0.65); }
+.face--launderette .lnd-moon.is-pale .lnd-moon-dark { fill: transparent; }
+.face--launderette .lnd-sun-disc { fill: #fff7d6; }
+.face--launderette .lnd-sun.is-eclipsed .lnd-sun-disc { fill: #fff1c4; }
+.face--launderette .lnd-sun-moon { fill: #121522; }
+.face--launderette .lnd-roofs { fill: #10151c; }
+.face--launderette .is-day .lnd-roofs, .face--launderette .is-dawn .lnd-roofs { fill: #3c4b58; }
+.face--launderette .lnd-litwin { fill: #ffd57a; opacity: 0.85; }
+.face--launderette .lnd-lamp-pole { fill: none; stroke: #20262c; stroke-width: 2.4; }
+.face--launderette .lnd-lamp-head { fill: #2b3238; }
+.face--launderette .lnd-lamp-glow { opacity: 0; }
+.face--launderette .lnd-lamp.is-on .lnd-lamp-glow { opacity: 1; }
+.face--launderette .lnd-lamp.is-on .lnd-lamp-head { fill: var(--lnd-sodium); }
+.face--launderette .lnd-vinyl {
+  position: absolute;
+  left: 50%;
+  bottom: 9%;
+  margin: 0;
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  translate: -50% 0;
+  scale: -1 1; /* seen from inside, the lettering on the glass reads backwards */
+  color: rgb(255 255 255 / 0.82);
+  font: 700 clamp(15px, 2.6vw, 30px)/1 var(--lnd-sign);
+  letter-spacing: 0.16em;
+  white-space: nowrap;
+  text-shadow: 0 0 1px rgb(0 0 0 / 0.4);
+}
+.face--launderette .lnd-vinyl span + span { font-size: 0.42em; letter-spacing: 0.24em; font-weight: 600; }
+/* A moonless night: the window is a mirror, and the tubes hang in it, faintly, the wrong way round. */
+.face--launderette .lnd-reflection {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, transparent 8%, rgb(220 255 236 / 0.34) 9%, rgb(220 255 236 / 0.34) 31%, transparent 32%) 0 8% / 100% 4px no-repeat,
+    linear-gradient(90deg, transparent 39%, rgb(220 255 236 / 0.3) 40%, rgb(220 255 236 / 0.3) 61%, transparent 62%) 0 8% / 100% 4px no-repeat,
+    linear-gradient(90deg, transparent 69%, rgb(220 255 236 / 0.26) 70%, rgb(220 255 236 / 0.26) 91%, transparent 92%) 0 8% / 100% 4px no-repeat,
+    radial-gradient(60% 40% at 50% 0%, rgb(200 240 220 / 0.12), transparent 70%),
+    linear-gradient(180deg, transparent 55%, rgb(198 220 207 / 0.1));
+  filter: blur(0.6px);
+}
+.face--launderette .lnd-glare {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(112deg, transparent 18%, rgb(255 255 255 / 0.12) 24%, transparent 31%, transparent 62%, rgb(255 255 255 / 0.07) 66%, transparent 71%);
+}
+.face--launderette .lnd-window figcaption {
+  margin-top: 7px;
+  font: 13px/1.45 var(--lnd-text);
+  color: var(--lnd-ink-soft);
+}
+.face--launderette .lnd-window-caption { margin: 0; }
+
+/* The lightbox sign over the counter. */
+.face--launderette .lnd-signs { display: grid; gap: 14px; }
+.face--launderette .lnd-lightbox {
+  position: relative;
+  padding: 12px 16px 10px;
+  text-align: center;
+  border: 7px solid #2b3233;
+  border-radius: 6px;
+  background: linear-gradient(180deg, #fffef6, #f4f0de);
+  box-shadow: 0 0 32px 2px rgb(255 252 225 / 0.65), inset 0 0 26px rgb(255 238 190 / 0.7), 0 12px 22px -14px rgb(0 0 0 / 0.55);
+}
+.face--launderette .lnd-lightbox h1 {
+  margin: 2px 0 4px;
+  display: grid;
+  font: 800 clamp(30px, 4.6vw, 54px)/0.92 var(--lnd-sign);
+  font-stretch: condensed;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.face--launderette .lnd-h1-a { color: #1d4fa3; font-size: 0.62em; letter-spacing: 0.12em; }
+.face--launderette .lnd-h1-b { color: #d1262b; }
+.face--launderette .lnd-lightbox-top,
+.face--launderette .lnd-lightbox-bottom {
+  margin: 0;
+  font: 700 11px/1.2 var(--lnd-sign);
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: #2b3233;
+}
+.face--launderette .lnd-lede { margin: 0; font: 15.5px/1.5 var(--lnd-text); max-width: 34em; }
+.face--launderette .lnd-lede code { background: rgb(255 255 255 / 0.55); padding: 0 4px; border-radius: 3px; }
+.face--launderette .lnd-signs-row { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 14px; align-items: start; }
+
+/* The clock that has said 3:33 since 1996. */
+.face--launderette .lnd-clock { margin: 0; text-align: center; }
+.face--launderette .lnd-clock-face { width: 104px; height: 104px; margin: 0 auto; overflow: visible; }
+.face--launderette .lnd-clock-rim { fill: #2b3233; }
+.face--launderette .lnd-clock-dial { fill: #fbfbf6; }
+.face--launderette .lnd-tick { stroke: #8a9391; stroke-width: 0.8; }
+.face--launderette .lnd-tick.is-hour { stroke: #1e2a29; stroke-width: 2; }
+.face--launderette .lnd-clock-num { font: 700 10px var(--lnd-sign); fill: #1e2a29; }
+.face--launderette .lnd-clock-brand { font: 600 5px var(--lnd-sign); letter-spacing: 0.2em; fill: #8a9391; }
+.face--launderette .lnd-hand-h { stroke: #1e2a29; stroke-width: 3.4; stroke-linecap: round; }
+.face--launderette .lnd-hand-m { stroke: #1e2a29; stroke-width: 2.2; stroke-linecap: round; }
+/* The second hand ticks backwards, one second at a time: that is how it stays 3:33. */
+.face--launderette .lnd-hand-s { animation: lnd-seconds 60s steps(60, end) var(--sec, 0s) infinite reverse; }
+.face--launderette .lnd-hand-s line { stroke: #d1262b; stroke-width: 1; }
+.face--launderette .lnd-hand-s circle { fill: #d1262b; }
+.face--launderette .lnd-clock-pin { fill: #2b3233; }
+@keyframes lnd-seconds { to { rotate: 360deg; } }
+.face--launderette .lnd-clock figcaption { margin-top: 4px; font: 11px/1.3 var(--lnd-text); color: var(--lnd-ink-soft); }
+.face--launderette .lnd-clock-said { display: block; font-weight: 700; color: var(--lnd-ink); }
+.face--launderette .lnd-clock-real { display: block; }
+
+/* The laminated instructions. */
+.face--launderette .lnd-howto {
+  padding: 10px 14px 10px 12px;
+  background: #fffdf4;
+  border: 1px solid #c9c4ad;
+  border-top: 8px solid var(--lnd-blue);
+  border-radius: 4px;
+  box-shadow: 0 6px 12px -8px rgb(0 0 0 / 0.5), inset 0 0 0 4px rgb(255 255 255 / 0.6);
+}
+.face--launderette .lnd-howto h2 {
+  margin: 0 0 6px;
+  font: 800 15px/1 var(--lnd-sign);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--lnd-blue);
+}
+.face--launderette .lnd-howto ol { margin: 0; padding-left: 1.3em; font: 13px/1.4 var(--lnd-text); }
+.face--launderette .lnd-howto li + li { margin-top: 3px; }
+.face--launderette .lnd-howto li:last-child { font-weight: 700; }
+
+/* ─────────────────────────────────────────────────────────────── the floor ───────────────────────── */
+.face--launderette .lnd-floor {
+  display: grid;
+  grid-template-columns: minmax(0, 330px) minmax(0, 1fr);
+  gap: 22px 26px;
+  margin-top: 26px;
+  align-items: start;
+}
+.face--launderette .lnd-plate {
+  display: inline-block;
+  margin: 0 0 10px;
+  padding: 5px 10px 4px;
+  font: 800 13px/1 var(--lnd-sign);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #f4f7f6;
+  background: #2b3233;
+  border-radius: 2px;
+  box-shadow: 0 2px 0 rgb(0 0 0 / 0.25);
+}
+
+/* The basket: blue plastic, a lattice of holes, garments on hangers with dry-cleaning tags. */
+.face--launderette .lnd-basket {
+  position: relative;
+  padding: 12px 12px 18px;
+  border-radius: 14px 14px 24px 24px;
+  background:
+    radial-gradient(ellipse 4px 8px at 50% 50%, rgb(0 0 0 / 0.28) 92%, transparent 100%) 0 0 / 18px 22px,
+    linear-gradient(180deg, #3b8ddb, #2369b3);
+  border-top: 9px solid #4d9be3;
+  box-shadow: inset 0 0 0 2px rgb(255 255 255 / 0.2), 0 14px 22px -14px rgb(0 0 0 / 0.6);
+}
+.face--launderette .lnd-basket .lnd-plate { background: #f4f7f6; color: #1d4f86; }
+.face--launderette .lnd-basket-note {
+  margin: 0 0 10px;
+  padding: 6px 8px;
+  font: 12.5px/1.4 var(--lnd-text);
+  color: #eaf4ff;
+  background: rgb(10 40 80 / 0.45);
+  border-radius: 6px;
+}
+.face--launderette .lnd-basket-list { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.face--launderette .lnd-basket.is-beckoning { animation: lnd-beckon 1.4s ease-out; }
+@keyframes lnd-beckon {
+  0%, 100% { box-shadow: inset 0 0 0 2px rgb(255 255 255 / 0.2), 0 14px 22px -14px rgb(0 0 0 / 0.6); }
+  30% { box-shadow: inset 0 0 0 2px rgb(255 255 255 / 0.2), 0 0 0 5px #ffd23f; }
+}
+.face--launderette .lnd-slot {
+  position: relative;
+  display: grid;
+  grid-template-columns: 116px minmax(0, 1fr);
+  gap: 8px;
+  align-items: start;
+  padding: 7px;
+  border-radius: 8px;
+  background: rgb(245 249 252 / 0.94);
+  box-shadow: 0 2px 0 rgb(0 0 0 / 0.18);
+}
+.face--launderette .lnd-hanger {
+  position: relative;
+  min-height: 78px;
+  padding-top: 16px;
+  border-radius: 6px;
+  background: linear-gradient(180deg, #e3e9ec, #f6f8f9 40%);
+  cursor: grab;
+  touch-action: auto;
+}
+.face--launderette .lnd-hanger-wire {
+  position: absolute;
+  left: 50%;
+  top: 1px;
+  width: 70px;
+  height: 18px;
+  translate: -50% 0;
+  fill: none;
+  stroke: #7d888c;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.face--launderette .lnd-slot.is-away .lnd-hanger { background: repeating-linear-gradient(135deg, #eef2f4 0 6px, #e2e8eb 6px 12px); }
+.face--launderette .lnd-slot.is-away .lnd-hanger::after {
+  content: 'in the wash';
+  position: absolute;
+  inset: 30px 0 auto;
+  text-align: center;
+  font: 600 11px/1 var(--lnd-sign);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #6c777b;
+}
+.face--launderette .lnd-slot.is-held { background: #fffbe2; box-shadow: 0 0 0 3px #ffd23f, 0 4px 10px rgb(0 0 0 / 0.25); }
+.face--launderette .is-dragging .lnd-hanger { cursor: grabbing; }
+.face--launderette .lnd-tag {
+  position: relative;
+  display: grid;
+  gap: 2px;
+  width: 100%;
+  margin: 0;
+  padding: 6px 9px 7px 19px;
+  text-align: left;
+  font: 11.5px/1.3 var(--lnd-text);
+  color: #3a3220;
+  background: linear-gradient(180deg, #f6e7b8, #efdca2);
+  border: 1px solid #c8b06e;
+  border-radius: 3px 8px 8px 3px;
+  box-shadow: 0 1px 0 rgb(255 255 255 / 0.6) inset;
+}
+.face--launderette .lnd-tag::before {
+  /* the punched hole */
+  content: '';
+  position: absolute;
+  left: 6px;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  translate: 0 -50%;
+  border-radius: 50%;
+  background: #cfd7da;
+  box-shadow: inset 0 1px 1px rgb(0 0 0 / 0.4);
+}
+.face--launderette .lnd-tag[aria-pressed="true"] { background: linear-gradient(180deg, #fff3a8, #ffe46b); border-color: #c99a1a; }
+.face--launderette .lnd-tag-name { font: 800 14px/1.1 var(--lnd-sign); letter-spacing: 0.04em; text-transform: uppercase; color: #2b2410; }
+.face--launderette .lnd-tag-what code { font-size: 11.5px; background: rgb(255 255 255 / 0.5); padding: 0 3px; border-radius: 2px; }
+.face--launderette .lnd-tag-state { font: italic 11.5px/1.3 var(--lnd-text); color: #6b5a2a; }
+.face--launderette .lnd-slot--tee .lnd-tag-state { color: #8a3d12; font-weight: 600; }
+.face--launderette .lnd-redress {
+  grid-column: 2;
+  justify-self: start;
+  margin: -2px 0 0;
+  padding: 3px 8px;
+  font: 11px/1.2 var(--lnd-text);
+  color: #1d4f86;
+  background: transparent;
+  border: 1px dashed #7aa5d3;
+  border-radius: 10px;
+}
+.face--launderette .lnd-ticket {
+  grid-column: 1 / -1;
+  margin: 2px 0 0;
+  padding: 8px 10px;
+  text-align: left;
+  font: 12.5px/1.35 var(--lnd-text);
+  color: #0d3b1f;
+  background: #dff7e6;
+  border: 2px solid #2fbf6c;
+  border-radius: 6px;
+}
+.face--launderette .lnd-ticket b { margin-right: 6px; padding: 1px 6px; color: #fff; background: #2fbf6c; letter-spacing: 0.14em; border-radius: 2px; }
+.face--launderette .lnd-ghost {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 60;
+  pointer-events: none;
+  padding: 6px 10px;
+  font: 800 12px/1 var(--lnd-sign);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #2b2410;
+  background: #ffe46b;
+  border: 1px solid #c99a1a;
+  border-radius: 4px;
+  box-shadow: 0 8px 18px rgb(0 0 0 / 0.35);
+  rotate: -4deg;
+}
+
+/* The ironing board: a striped cover with a pointed end, patches of declarations, a hot iron. */
+.face--launderette .lnd-iron { margin-top: 22px; }
+.face--launderette .lnd-iron-note { margin: 0 0 10px; font: 12.5px/1.45 var(--lnd-text); color: var(--lnd-ink-soft); }
+.face--launderette .lnd-board-cover {
+  display: grid;
+  gap: 10px;
+  padding: 14px 44px 14px 14px;
+  border-radius: 10px 70px 70px 10px / 10px 50% 50% 10px;
+  background: repeating-linear-gradient(135deg, #e3ecf5 0 7px, #d2deeb 7px 14px);
+  box-shadow: inset 0 0 0 2px rgb(255 255 255 / 0.5), 0 5px 0 #9aa4ab, 0 14px 18px -12px rgb(0 0 0 / 0.5);
+}
+.face--launderette .lnd-iron-patches { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; border: 0; min-width: 0; }
+.face--launderette .lnd-patch {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 8px;
+  font-size: 12px;
+  background: #fffef8;
+  border: 1px dashed #8a9aa6;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.face--launderette .lnd-patch input { margin: 0; accent-color: #2a68c4; }
+.face--launderette .lnd-patch:has(input:checked) { background: #fff3a8; border-style: solid; border-color: #c99a1a; }
+.face--launderette .lnd-patch:has(input:focus-visible) { outline: 3px solid #1d63d1; outline-offset: 2px; }
+.face--launderette .lnd-iron-go {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0;
+  padding: 7px 14px 7px 10px;
+  font: 800 12.5px/1 var(--lnd-sign);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #fff;
+  background: linear-gradient(180deg, #4b8de6, #2a68c4);
+  border: 1px solid #1d4f9c;
+  border-radius: 6px;
+  box-shadow: 0 3px 0 #173f7d;
+}
+.face--launderette .lnd-iron-go:active { translate: 0 2px; box-shadow: 0 1px 0 #173f7d; }
+.face--launderette .lnd-iron-icon {
+  width: 28px;
+  height: 15px;
+  background: linear-gradient(180deg, #ffffff, #b9c2c5 70%, #6c777b);
+  clip-path: polygon(0 100%, 26% 8%, 100% 8%, 100% 100%);
+  box-shadow: inset 0 -3px 0 #d1262b;
+}
+.face--launderette .lnd-iron-say { margin: 8px 0 0; font: italic 12.5px/1.4 var(--lnd-text); color: var(--lnd-ink); }
+
+/* The lining every garment hangs in: reset to plain, sensible values, so that a garment washed in INHERIT or
+   UNSET inherits from it and never from the room. It has no transform and no animation of its own. */
+.face--launderette .lnd-cloth {
+  all: initial;
+  display: block;
+  box-sizing: border-box;
+  font: 15px/1.3 Arial, 'Helvetica Neue', Helvetica, sans-serif;
+  color: #26302f;
+  text-align: center;
+}
+.face--launderette .lnd-hanger .lnd-cloth { width: 100%; min-height: 60px; padding: 4px 6px; }
+.face--launderette .lnd-hanger .lnd-cloth::after { content: ''; display: block; clear: both; }
+
+/* ─────────────────────────────────────────────────────────────── the garments ────────────────────── */
+/* Sunday Best wears everything in its style attribute (Idolatry): the face gives it nothing. */
+.face--launderette .lnd-g--wander {
+  float: left;
+  width: 61%;
+  padding: 5px 7px;
+  font: italic 700 13px/1.15 Georgia, serif;
+  color: #6b1d5e;
+  background: #ffe36e;
+  border: 3px dashed #d0247a;
+  rotate: -5deg;
+  box-shadow: 3px 3px 0 rgb(0 0 0 / 0.2);
+}
+.face--launderette .lnd-g--blink {
+  font: 700 15px/1 'Courier New', monospace;
+  color: #e8001c;
+  background: #ffff00;
+  padding: 2px 6px;
+  animation: lnd-blink 1.6s steps(1, end) infinite;
+}
+@keyframes lnd-blink { 0%, 55% { opacity: 1; } 56%, 100% { opacity: 0.15; } }
+/* The Pride of Ids: grace (3,1,0) it did not earn. An inline wash outranks it all the same. */
+#temple.face--launderette #lnd-room #lnd-pride {
+  display: inline-block;
+  padding: 6px 10px;
+  font: 900 16px/1 Impact, 'Arial Black', sans-serif;
+  letter-spacing: 0.12em;
+  color: #ffd700;
+  background: #3b0a57;
+  border: 4px double #ffd700;
+  text-shadow: 0 0 6px rgb(255 215 0 / 0.7);
+}
+.face--launderette .lnd-g--covenant { font: 12px/1.2 'Times New Roman', Times, serif; color: #000; }
+.face--launderette .lnd-g--tee {
+  /* The custom properties survive every wash: `all` never touches them. */
+  --lnd-amp: 1;
+  --lnd-stain-ink:
+    radial-gradient(closest-side, rgb(110 62 20 / 0) 48%, rgb(110 62 20 / 0.95) 56%, rgb(132 80 32 / 0.62) 65%, rgb(132 80 32 / 0.22) 76%, rgb(132 80 32 / 0) 83%),
+    radial-gradient(closest-side, rgb(98 54 16 / 0.9), rgb(98 54 16 / 0.5) 55%, rgb(98 54 16 / 0) 100%),
+    radial-gradient(closest-side, rgb(106 60 20 / 0.85), rgb(106 60 20 / 0) 100%);
+  display: inline-block;
+  width: 7.6em;
+  padding: 9px 10px 11px;
+  font: 800 10px/1.15 'Arial Black', Arial, sans-serif;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: #2a3a8f;
+  background-color: #fdfdfb;
+  border-radius: 12px 12px 6px 6px;
+  box-shadow: 0 2px 0 #d9d9d2, 0 4px 8px rgb(0 0 0 / 0.16);
+}
+.face--launderette .lnd-g--tee.is-clean { box-shadow: 0 0 0 2px #fff, 0 0 16px rgb(150 225 255 / 0.85); }
+
+/* ⚠ THE STAIN: THE INVERSION, ON PURPOSE (CANON §4 permits a deliberate, commented Inversion effect).
+   This is the riddle. The stain is an IMPORTANT animation declared in this face's own layer. A wash writes
+   `all: <keyword>` into the garment's style attribute: an ordinary declaration, and an ordinary declaration
+   never beats an important one, so the trembling outlives every machine. Its keyframes are the stain itself
+   (the mark, its shape, and the shaking), and keyframe values outrank every ordinary declaration too.
+   Mercy's !important lives in the FIRST layer (base.css, @layer reset); among important declarations the
+   first layer wins, and mercy sets exactly animation-duration, -iteration-count and -delay. The animation
+   then ends, with no fill, and the stain with it. Nothing else on this face uses !important. */
+.face--launderette .lnd-g.lnd-stain {
+  animation: lnd-stain 0.5s linear infinite !important;
+}
+@keyframes lnd-stain {
+  0%, 100% {
+    display: inline-block;
+    translate: 0 0;
+    background-image: var(--lnd-stain-ink);
+    background-position: 76% 62%, 16% 22%, 34% 100%;
+    background-size: 5.2em 4.4em, 2.1em 1.8em, 1em 2em;
+    background-repeat: no-repeat;
+  }
+  20% { translate: calc(var(--lnd-amp, 1) * 1px) calc(var(--lnd-amp, 1) * -0.6px); }
+  40% { translate: calc(var(--lnd-amp, 1) * -1.1px) calc(var(--lnd-amp, 1) * 0.4px); }
+  60% { translate: calc(var(--lnd-amp, 1) * 0.7px) calc(var(--lnd-amp, 1) * 0.9px); }
+  80% { translate: calc(var(--lnd-amp, 1) * -0.5px) calc(var(--lnd-amp, 1) * -0.8px); }
+}
+.face--launderette .is-restless .lnd-g--tee { --lnd-amp: 1.8; }
+.face--launderette .is-inverted .lnd-g--tee { --lnd-amp: 2.6; }
+
+/* Garments brought in from other faces, dressed in their manner. */
+.face--launderette .lnd-g--from-sanctum {
+  display: inline-block;
+  padding: 0 9px;
+  font: 700 40px/1.05 'Palatino Linotype', Palatino, 'Book Antiqua', serif;
+  color: #a3281b;
+  background: linear-gradient(135deg, #f6e7a8, #d4a53a 45%, #f3dc8a 62%, #b8862a);
+  border: 3px double #7d5f14;
+  text-shadow: 1px 1px 0 #f6e7a8;
+}
+.face--launderette .lnd-g--from-possession {
+  margin: 0;
+  padding: 6px 8px;
+  font: 600 13px/1.2 Arial, sans-serif;
+  color: #c2001f;
+  background: #111;
+  text-shadow: 0 0 6px #79ff4d, 0 0 1px #000;
+}
+.face--launderette .lnd-g--from-recruitment {
+  padding: 0 3px;
+  font: 700 16px/1 'Times New Roman', Times, serif;
+  color: #0000ee;
+  text-decoration: underline;
+  background: #ffff00;
+}
+.face--launderette .lnd-g--from-ashram {
+  display: inline-block;
+  width: 56px;
+  height: 56px;
+  font: 32px/56px var(--font-sacred, serif);
+  color: #f4a300;
+  background: radial-gradient(circle, #2e2576, #110d31);
+  border-radius: 50%;
+  text-shadow: 0 0 12px rgb(244 163 0 / 0.8);
+}
+.face--launderette .lnd-g--from-departure {
+  padding: 5px 8px;
+  font: 700 12px/1 'Lucida Console', Consolas, monospace;
+  letter-spacing: 0.12em;
+  color: #8dffc4;
+  background: #03140c;
+  text-shadow: 0 0 4px #8dffc4;
+}
+.face--launderette .lnd-g--from-babel {
+  padding: 3px 8px;
+  font: 15px/1.2 'Palatino Linotype', Palatino, serif;
+  font-variant: small-caps;
+  color: #5b3a1a;
+  background: #f3ead6;
+  border-bottom: 1px solid #b08d4a;
+}
+.face--launderette .lnd-g--from-omens {
+  display: inline-block;
+  padding: 8px 12px;
+  font: 700 15px/1 Georgia, serif;
+  letter-spacing: 0.1em;
+  color: #5a2a14;
+  background: #c77a4a;
+  border-radius: 8px 14px 10px 12px;
+  box-shadow: inset 2px 2px 3px rgb(255 220 190 / 0.5), inset -2px -3px 4px rgb(60 20 5 / 0.45);
+}
+.face--launderette .lnd-g--from-interstice {
+  width: 64px;
+  height: 22px;
+  margin: 10px auto;
+  padding: 6px;
+  background: linear-gradient(#9cc3d6, #9cc3d6) content-box, #c3dba6;
+  border: 4px solid #ecd98a;
+  box-shadow: 0 0 0 8px #f5c393;
+}
+.face--launderette .lnd-g--from-launderette {
+  display: inline-block;
+  padding: 10px 8px 6px;
+  font: 700 11px/1 var(--lnd-sign);
+  text-transform: uppercase;
+  color: #222;
+  background: repeating-linear-gradient(0deg, #f7f7f2 0 6px, #d8462d 6px 9px);
+  border-radius: 4px 4px 14px 22px;
+}
+.face--launderette .lnd-g--from-nowhere {
+  padding: 4px;
+  font: 13px/1.2 'Courier New', monospace;
+  color: #777;
+  border: 1px dashed #999;
+}
+
+/* ─────────────────────────────────────────────────────────────── the machines ────────────────────── */
+.face--launderette .lnd-machines { position: relative; }
+.face--launderette .lnd-row {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: clamp(8px, 1.4vw, 16px);
+  align-items: end;
+}
+.face--launderette .lnd-washer {
+  --walk: 1px;
+  position: relative;
+  display: grid;
+  gap: 7px;
+  padding: 0 10px 14px;
+  border-radius: 12px 12px 6px 6px;
+  background: linear-gradient(90deg, #dddcd3 0%, #f4f3ee 16%, #fbfaf7 50%, #efeee8 84%, #d3d2c9 100%);
+  border: 1px solid #b4b6ad;
+  box-shadow: inset 0 -12px 0 #dfded6, 0 14px 18px -10px rgb(20 40 35 / 0.5);
+  color: var(--lnd-ink);
+}
+.face--launderette .lnd-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin: 0 -10px;
+  padding: 8px 8px 7px;
+  border-radius: 11px 11px 0 0;
+  background: linear-gradient(180deg, #2c3334, #161b1c);
+  border-bottom: 2px solid #0a0d0d;
+}
+.face--launderette .lnd-dymo {
+  margin: 0;
+  padding: 4px 6px 3px;
+  font: 700 clamp(9px, 0.95vw, 12px)/1 var(--lnd-mono);
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+  color: #fff;
+  background: #c8102e;
+  border-radius: 2px;
+  rotate: -1.5deg;
+  text-shadow: 0 1px 0 rgb(0 0 0 / 0.35), 0 -1px 0 rgb(255 255 255 / 0.3);
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.18), 0 1px 1px rgb(0 0 0 / 0.4);
+}
+.face--launderette .lnd-washer--inherit .lnd-dymo { background: #1f57b8; rotate: 1deg; }
+.face--launderette .lnd-washer--unset .lnd-dymo { background: #111; rotate: -0.5deg; }
+.face--launderette .lnd-washer--revert .lnd-dymo { background: #1f7a3c; rotate: 1.5deg; }
+.face--launderette .lnd-washer--revert-layer .lnd-dymo { background: #d9620f; rotate: -1deg; letter-spacing: 0.04em; }
+.face--launderette .lnd-dymo--black { background: #111; }
+.face--launderette .lnd-seg-wrap {
+  display: block;
+  padding: 3px 4px;
+  background: #0b0606;
+  border-radius: 3px;
+  box-shadow: inset 0 1px 3px #000;
+}
+.face--launderette .lnd-seg { display: block; width: 46px; height: 18px; filter: drop-shadow(0 0 2px rgb(255 74 54 / 0.55)); }
+.face--launderette .lnd-seg .seg { fill: var(--lnd-led-ghost); }
+.face--launderette .lnd-seg .seg.on { fill: var(--lnd-led); }
+.face--launderette .lnd-seg-wrap--green .lnd-seg { filter: drop-shadow(0 0 2px rgb(87 255 154 / 0.5)); }
+.face--launderette .lnd-seg-wrap--green .seg { fill: rgb(87 255 154 / 0.1); }
+.face--launderette .lnd-seg-wrap--green .seg.on { fill: #57ff9a; }
+.face--launderette .lnd-led { flex: none; width: 8px; height: 8px; border-radius: 50%; background: #3b1512; box-shadow: inset 0 1px 1px rgb(0 0 0 / 0.6); }
+.face--launderette .lnd-washer:is([data-state="running"], [data-state="self"]) .lnd-led { background: #57ff9a; box-shadow: 0 0 6px #57ff9a; }
+.face--launderette .lnd-washer[data-state="done"] .lnd-led { background: #ffc23a; box-shadow: 0 0 6px #ffc23a; }
+.face--launderette .lnd-washer[data-state="loaded"] .lnd-led { background: #4aa3ff; box-shadow: 0 0 5px #4aa3ff; }
+.face--launderette .lnd-wash {
+  margin: 0;
+  display: grid;
+  align-content: center;
+  gap: 1px;
+  min-height: calc(3 * 1.25em + 2px); /* every machine keeps room for a two-line name, so the doors line up */
+  text-align: center;
+  text-wrap: balance;
+  font: 11px/1.25 var(--lnd-text);
+  color: var(--lnd-ink-soft);
+}
+.face--launderette .lnd-wash-name { font-style: italic; }
+.face--launderette .lnd-wash code { font-size: 11px; color: var(--lnd-ink); }
+
+/* The porthole: a chrome ring, dark glass, a perforated drum with three baffles. */
+.face--launderette .lnd-door {
+  position: relative;
+  width: min(100%, 150px);
+  aspect-ratio: 1;
+  margin: 2px auto 0;
+  padding: 9%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 28%, #ffffff 0%, #c8d0d3 38%, #7b868a 66%, #dfe5e7 100%);
+  box-shadow: 0 3px 6px rgb(0 0 0 / 0.35), inset 0 2px 2px #fff, inset 0 -3px 6px rgb(0 0 0 / 0.3);
+  cursor: pointer;
+}
+.face--launderette .lnd-glass {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 50%;
+  isolation: isolate;
+  background: radial-gradient(circle at 50% 50%, #1d3d43 0%, #0c1d22 68%, #050c0f 100%);
+  box-shadow: inset 0 0 0 3px #283234, inset 0 8px 16px rgb(0 0 0 / 0.6);
+}
+.face--launderette .lnd-glass::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  border-radius: 50%;
+  pointer-events: none;
+  background: linear-gradient(135deg, rgb(255 255 255 / 0.34) 0%, rgb(255 255 255 / 0.07) 26%, transparent 38%, transparent 72%, rgb(255 255 255 / 0.06) 86%);
+}
+.face--launderette .lnd-drum {
+  position: absolute;
+  inset: 5%;
+  border-radius: 50%;
+  opacity: 0.8;
+  background:
+    radial-gradient(circle, rgb(170 192 198 / 0.28) 1.1px, transparent 1.5px) 0 0 / 9px 9px,
+    radial-gradient(circle at 50% 50%, #3b5054, #1c2a2e 76%);
+}
+.face--launderette .lnd-baffle {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 14%;
+  height: 12%;
+  margin-left: -7%;
+  border-radius: 0 0 45% 45%;
+  background: linear-gradient(180deg, #a9b9bd, #5f6e72);
+  transform-origin: 50% 416.67%;
+}
+.face--launderette .lnd-baffle:nth-child(2) { rotate: 120deg; }
+.face--launderette .lnd-baffle:nth-child(3) { rotate: 240deg; }
+.face--launderette .lnd-water {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(180deg, rgb(140 205 225 / 0.2), rgb(80 170 205 / 0.55));
+  translate: 0 100%;
+  transition: translate 0.9s ease;
+}
+.face--launderette .lnd-washer:is([data-phase="fill"], [data-phase="wash"], [data-phase="rinse"]) .lnd-water { translate: 0 40%; }
+.face--launderette .lnd-tumble {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+}
+.face--launderette .lnd-glass .lnd-cloth { width: 80%; }
+.face--launderette .lnd-suds { position: absolute; inset: auto 0 6% 0; z-index: 3; height: 40%; pointer-events: none; }
+.face--launderette .lnd-suds i {
+  position: absolute;
+  bottom: 0;
+  width: 18%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, rgb(255 255 255 / 0.9), rgb(220 240 250 / 0.55) 55%, rgb(200 230 245 / 0.1));
+  opacity: 0;
+}
+.face--launderette .lnd-suds i:nth-child(1) { left: 18%; }
+.face--launderette .lnd-suds i:nth-child(2) { left: 44%; width: 24%; }
+.face--launderette .lnd-suds i:nth-child(3) { left: 66%; width: 14%; }
+.face--launderette .lnd-ticker {
+  position: absolute;
+  left: 6%;
+  right: 6%;
+  bottom: 13%;
+  z-index: 5;
+  margin: 0;
+  text-align: center;
+  font: 700 9.5px/1.15 var(--lnd-mono);
+  color: #e3fbff;
+  text-shadow: 0 1px 2px #000, 0 0 4px #000;
+}
+.face--launderette .lnd-controls { display: grid; gap: 5px; }
+.face--launderette .lnd-go {
+  min-height: calc(2 * 1.1em + 17px); /* room for a two-line label, so the row stays level */
+  margin: 0;
+  padding: 9px 6px 8px;
+  font: 800 12.5px/1.1 var(--lnd-sign);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #233;
+  background: linear-gradient(180deg, #f2f4f4, #cfd5d6);
+  border: 1px solid #8e999b;
+  border-radius: 6px;
+  box-shadow: 0 3px 0 #7d8789, inset 0 1px 0 #fff;
+  overflow-wrap: anywhere;
+}
+.face--launderette .lnd-go:active { translate: 0 2px; box-shadow: 0 1px 0 #7d8789, inset 0 1px 0 #fff; }
+.face--launderette .is-holding .lnd-washer[data-state="empty"] .lnd-go { color: #3a2a00; background: linear-gradient(180deg, #ffe98a, #ffd23f); border-color: #c99a1a; box-shadow: 0 3px 0 #a37c10; }
+.face--launderette .lnd-washer[data-state="loaded"] .lnd-go { color: #04230f; background: linear-gradient(180deg, #5fe39a, #26a95f); border-color: #1a7a43; box-shadow: 0 3px 0 #146236, inset 0 1px 0 rgb(255 255 255 / 0.45); }
+.face--launderette .lnd-washer:is([data-state="running"], [data-state="self"]) .lnd-go { color: #6e6146; background: #ece6d2; border-color: #c9bf9f; box-shadow: none; cursor: default; }
+.face--launderette .lnd-washer[data-state="done"] .lnd-go { color: #fff; background: linear-gradient(180deg, #4b8de6, #2a68c4); border-color: #1d4f9c; box-shadow: 0 3px 0 #173f7d; }
+.face--launderette .lnd-out { margin: 0; padding: 3px; font: 11px/1.2 var(--lnd-text); color: #4a5a57; background: transparent; border: 0; text-decoration: underline; }
+.face--launderette .lnd-washer:not([data-state="loaded"]) .lnd-out { visibility: hidden; }
+.face--launderette .lnd-toe { position: absolute; left: 8px; right: 8px; bottom: -9px; height: 9px; background: #262b2c; border-radius: 0 0 4px 4px; }
+.face--launderette .is-holding .lnd-washer[data-state="empty"] .lnd-door { box-shadow: 0 0 0 3px #ffd23f, 0 3px 6px rgb(0 0 0 / 0.35); }
+.face--launderette .lnd-washer.is-target { outline: 3px dashed #ffd23f; outline-offset: 4px; }
+
+/* REVERT-LAYER is still in its plastic. It works anyway. */
+.face--launderette .lnd-plastic {
+  position: absolute;
+  inset: -3px;
+  z-index: 4;
+  pointer-events: none;
+  border-radius: 14px 14px 8px 8px;
+  background:
+    repeating-linear-gradient(97deg, transparent 0 38px, rgb(255 255 255 / 0.16) 38px 40px, transparent 40px 71px),
+    linear-gradient(115deg, rgb(255 255 255 / 0) 0%, rgb(255 255 255 / 0.4) 11%, rgb(255 255 255 / 0.05) 22%, rgb(255 255 255 / 0) 50%, rgb(255 255 255 / 0.3) 60%, rgb(255 255 255 / 0.04) 69%);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.7), inset 0 0 18px rgb(200 230 255 / 0.4);
+}
+.face--launderette .lnd-plastic.is-torn { clip-path: polygon(0 0, 100% 0, 100% 58%, 72% 74%, 60% 100%, 0 100%); }
+.face--launderette .lnd-plastic-sticker {
+  position: absolute;
+  right: -6px;
+  top: 38px;
+  display: grid;
+  place-content: center;
+  width: 54px;
+  height: 54px;
+  text-align: center;
+  rotate: 12deg;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #fff36b, #ffd200 70%);
+  box-shadow: 0 2px 4px rgb(0 0 0 / 0.3);
+  color: #b3200f;
+  font: 700 8px/1.05 var(--lnd-sign);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.face--launderette .lnd-plastic-sticker b { font-size: 15px; letter-spacing: 0.06em; }
+
+/* The cycle, as the drum turns. */
+.face--launderette .lnd-washer[data-phase] .lnd-drum { animation: lnd-turn 2.6s linear infinite; }
+.face--launderette .lnd-washer[data-phase="spin"] .lnd-drum { animation-duration: 0.42s; }
+.face--launderette .lnd-washer[data-phase="wash"] .lnd-tumble { animation: lnd-sway 1.7s ease-in-out infinite alternate; }
+.face--launderette .lnd-washer[data-phase="spin"] .lnd-tumble { animation: lnd-turn 0.7s linear infinite; }
+.face--launderette .lnd-washer:is([data-phase="wash"], [data-phase="rinse"]) .lnd-suds i { animation: lnd-sud 1.9s ease-in-out infinite; }
+.face--launderette .lnd-washer .lnd-suds i:nth-child(2) { animation-delay: -0.7s; }
+.face--launderette .lnd-washer .lnd-suds i:nth-child(3) { animation-delay: -1.3s; }
+/* The machines walk, a pixel or two, during the spin (a little further for the restless). */
+.face--launderette .lnd-washer[data-phase="spin"] { animation: lnd-walk 0.18s steps(2, jump-none) infinite; }
+.face--launderette .is-restless .lnd-washer { --walk: 2px; }
+.face--launderette .lnd-washer.is-clunk .lnd-door { animation: lnd-clunk 0.8s ease-out; }
+@keyframes lnd-turn { to { rotate: 360deg; } }
+@keyframes lnd-sway { from { rotate: -16deg; } to { rotate: 16deg; } }
+@keyframes lnd-sud {
+  0% { opacity: 0; translate: 0 10%; scale: 0.6; }
+  35% { opacity: 0.9; }
+  100% { opacity: 0; translate: 0 -120%; scale: 1.1; }
+}
+@keyframes lnd-walk {
+  from { translate: calc(var(--walk) * -1) 0; }
+  to { translate: var(--walk) calc(var(--walk) * -0.5); }
+}
+@keyframes lnd-clunk {
+  0% { translate: 0 0; }
+  12% { translate: 3px 0; }
+  24% { translate: -2px 0; }
+  40% { translate: 1px 0; }
+  100% { translate: 0 0; }
+}
+
+/* The kickplate under the row, with the Inscription cast into it, and the floor in front. */
+.face--launderette .lnd-kickplate {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+  padding: 7px 14px;
+  border-radius: 3px;
+  background:
+    repeating-linear-gradient(90deg, rgb(255 255 255 / 0.07) 0 1px, transparent 1px 3px),
+    linear-gradient(180deg, #c3cbce, #8f9a9e 55%, #aab4b7);
+  box-shadow: inset 0 1px 0 #eef2f3, inset 0 -1px 0 #5e686b, 0 2px 4px rgb(0 0 0 / 0.25);
+}
+.face--launderette .lnd-kick-est { flex: none; font: 800 10px/1 var(--lnd-sign); letter-spacing: 0.24em; color: #4f5a5d; text-shadow: 0 1px 0 #e9eef0; }
+.face--launderette .lnd-inscription {
+  flex: 1;
+  margin: 0;
+  max-width: none;
+  font-size: clamp(14px, 1.5vw, 19px);
+  line-height: 1.5;
+  letter-spacing: 0.08em;
+  word-spacing: 0.3em;
+  text-align: center;
+  color: #3e484b;
+  text-shadow: 0 1px 0 rgb(255 255 255 / 0.65), 0 -1px 0 rgb(0 0 0 / 0.25);
+}
+.face--launderette .lnd-tiles {
+  --off: 13px;
+  position: relative;
+  min-height: 92px;
+  margin-top: 0;
+  border-radius: 0 0 8px 8px;
+  background:
+    linear-gradient(180deg, rgb(20 40 36 / 0.32), transparent 45%),
+    conic-gradient(var(--lnd-tile-a) 25%, var(--lnd-tile-b) 0 50%, var(--lnd-tile-a) 0 75%, var(--lnd-tile-b) 0) var(--off) var(--off) / 46px 46px;
+  box-shadow: inset 0 -8px 16px rgb(0 0 0 / 0.12);
+}
+.face--launderette .lnd-tiles-note {
+  position: absolute;
+  right: 10px;
+  bottom: 6px;
+  margin: 0;
+  padding: 2px 6px;
+  font: 11px/1.2 var(--lnd-hand);
+  color: #3a3226;
+  background: rgb(255 255 255 / 0.6);
+  rotate: -2deg;
+}
+.face--launderette .lnd-lint { position: absolute; inset: 0; }
+.face--launderette .lnd-fluff {
+  position: absolute;
+  width: var(--s, 10px);
+  height: calc(var(--s, 10px) * 0.7);
+  border-radius: 46% 54% 40% 60% / 60% 42% 58% 40%;
+  background: radial-gradient(circle at 40% 40%, #e2e2dc, #b4b5ad 60%, rgb(160 160 150 / 0.4));
+  box-shadow: 0 0 2px rgb(120 120 110 / 0.6);
+  cursor: pointer;
+  animation: lnd-fluff-in 2.4s ease-out;
+}
+.face--launderette .lnd-fluff.is-swept { animation: lnd-sweep 0.7s ease-in forwards; animation-delay: calc(var(--i, 0) * 25ms); }
+@keyframes lnd-fluff-in { from { opacity: 0; } }
+@keyframes lnd-sweep { to { opacity: 0; translate: -60px 6px; } }
+.face--launderette .lnd-broom {
+  position: absolute;
+  left: 10px;
+  bottom: 8px;
+  margin: 0;
+  padding: 4px 9px;
+  font: 600 11.5px/1.2 var(--lnd-text);
+  color: #2b2410;
+  background: #f4e6b4;
+  border: 1px solid #b89b4c;
+  border-radius: 12px;
+}
+
+/* ─────────────────────────────────────────────────────────────── the care labels ─────────────────── */
+.face--launderette .lnd-under {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 250px);
+  gap: 22px;
+  margin-top: 20px;
+  align-items: start;
+}
+.face--launderette .lnd-labels-empty { margin: 0; font: italic 13px/1.4 var(--lnd-text); color: var(--lnd-ink-soft); }
+.face--launderette .lnd-labels { display: grid; gap: 14px; margin: 0; padding: 0; list-style: none; }
+.face--launderette .lnd-label {
+  position: relative;
+  padding: 14px 14px 12px;
+  background:
+    repeating-linear-gradient(0deg, rgb(0 0 0 / 0.025) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(90deg, rgb(255 255 255 / 0.4) 0 1px, transparent 1px 4px),
+    #fbfaf4;
+  border-radius: 2px;
+  box-shadow: 0 1px 0 #fff inset, 0 8px 16px -10px rgb(0 0 0 / 0.55);
+  outline: 1px dashed rgb(120 110 90 / 0.5);
+  outline-offset: -6px;
+  font: 12px/1.35 var(--lnd-text);
+  color: #2c2a24;
+}
+.face--launderette .lnd-label::before {
+  /* the fold where it was sewn in */
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 6px;
+  background: linear-gradient(180deg, rgb(0 0 0 / 0.1), transparent);
+}
+.face--launderette .lnd-label-kicker { margin: 0; font: 700 10px/1 var(--lnd-sign); letter-spacing: 0.22em; text-transform: uppercase; color: #8a7f66; }
+.face--launderette .lnd-label h3 { margin: 4px 0 2px; font: 800 15px/1.15 var(--lnd-sign); letter-spacing: 0.02em; }
+.face--launderette .lnd-label-what { margin: 0 0 8px; color: #5c574a; }
+.face--launderette .lnd-label table { width: 100%; border-collapse: collapse; font: 11.5px/1.3 var(--lnd-mono); }
+.face--launderette .lnd-label th, .face--launderette .lnd-label td { padding: 2px 4px; text-align: left; vertical-align: top; overflow-wrap: anywhere; }
+.face--launderette .lnd-label thead th { font: 700 9.5px/1.2 var(--lnd-sign); letter-spacing: 0.16em; text-transform: uppercase; color: #8a7f66; border-bottom: 1px solid #d9d2bd; }
+.face--launderette .lnd-label tbody th { font-weight: 400; color: #6c6555; width: 34%; }
+.face--launderette .lnd-label tr.is-changed td.lnd-after { font-weight: 700; color: #0c4f8a; }
+.face--launderette .lnd-label tr.is-changed td.lnd-before { text-decoration: line-through; text-decoration-color: rgb(180 40 30 / 0.6); color: #7b725f; }
+.face--launderette .lnd-label tbody tr:nth-child(odd) { background: rgb(0 0 0 / 0.025); }
+.face--launderette .lnd-label-stamp {
+  display: inline-grid;
+  margin: 10px 0 0;
+  padding: 4px 10px;
+  font: 800 14px/1.1 var(--lnd-sign);
+  letter-spacing: 0.12em;
+  color: #b3200f;
+  border: 2px solid #b3200f;
+  border-radius: 3px;
+  rotate: -3deg;
+  opacity: 0.88;
+}
+.face--launderette .lnd-label-stamp small { font: 600 10px/1.2 var(--lnd-mono); letter-spacing: 0; }
+.face--launderette .lnd-label-note { margin: 8px 0 0; font-style: italic; }
+.face--launderette .lnd-label-dir { color: #6c6555; }
+.face--launderette .lnd-label-doctrine { margin: 8px 0 0; padding-top: 8px; border-top: 1px dotted #c9c0a6; }
+.face--launderette .lnd-label-marks { display: flex; align-items: baseline; gap: 10px; margin: 8px 0 0; font: 700 9.5px/1 var(--lnd-sign); letter-spacing: 0.18em; text-transform: uppercase; color: #8a7f66; }
+.face--launderette .lnd-label-glyphs { font-size: 20px; letter-spacing: 0.12em; text-transform: none; color: #1f57b8; }
+
+/* ─────────────────────────────────────────────────────────────── the back of the shop ────────────── */
+.face--launderette .lnd-back {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  gap: 26px;
+  margin-top: 42px;
+  align-items: start;
+}
+
+/* The machine at the back: almond enamel, older, bigger, nearly done. */
+.face--launderette .lnd-endless {
+  position: relative;
+  display: grid;
+  gap: 10px;
+  padding: 0 14px 16px;
+  border-radius: 10px 10px 6px 6px;
+  background: linear-gradient(90deg, #d8cdb0, #efe6cf 20%, #f4ecd8 50%, #e8dec3 82%, #cfc3a5);
+  border: 1px solid #a99c79;
+  box-shadow: inset 0 -12px 0 #ddd2b4, 0 16px 20px -12px rgb(40 30 10 / 0.5);
+}
+.face--launderette .lnd-panel--old { margin: 0 -14px; background: linear-gradient(180deg, #5d6b3a, #3f4a26); border-radius: 9px 9px 0 0; border-bottom-color: #2a3218; }
+.face--launderette .lnd-endless-bay { position: relative; width: min(100%, 210px); aspect-ratio: 1; margin: 0 auto; perspective: 700px; }
+.face--launderette .lnd-endless-inside {
+  position: absolute;
+  inset: 8%;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 8px;
+  padding: 12%;
+  border-radius: 50%;
+  background: radial-gradient(circle, #3a3324 0%, #17140d 80%);
+  box-shadow: inset 0 10px 24px rgb(0 0 0 / 0.75);
+  text-align: center;
+}
+.face--launderette .lnd-endless-shape { width: 46%; aspect-ratio: 1.4; border-radius: 30% 30% 22% 22%; background: linear-gradient(180deg, #f2efe6, #cfc9b8); box-shadow: 0 4px 10px rgb(0 0 0 / 0.5); }
+.face--launderette .lnd-reach { margin: 0; padding: 5px 10px; font: 700 11.5px/1.1 var(--lnd-sign); letter-spacing: 0.06em; text-transform: uppercase; color: #2b2410; background: #f4e6b4; border: 1px solid #b89b4c; border-radius: 14px; }
+.face--launderette .lnd-reach:disabled { opacity: 0.45; cursor: default; }
+.face--launderette .lnd-endless-door {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  padding: 8%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 28%, #fffaf0 0%, #d4c9a9 40%, #8a7d5a 68%, #e3d8bb 100%);
+  box-shadow: 0 4px 8px rgb(0 0 0 / 0.35), inset 0 2px 2px #fff, inset 0 -3px 6px rgb(0 0 0 / 0.3);
+  transform-origin: 2% 50%;
+  transition: rotate 1.1s cubic-bezier(0.3, 0.8, 0.3, 1), translate 1.1s ease;
+  rotate: y 0deg;
+}
+.face--launderette .lnd-endless.is-open .lnd-endless-door { rotate: y -78deg; translate: -6% 0; pointer-events: none; }
+.face--launderette .lnd-endless-glass {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 50%;
+  background: radial-gradient(circle, #2a3a2c, #0f1710 72%);
+  box-shadow: inset 0 0 0 3px #3d3a2c, inset 0 8px 18px rgb(0 0 0 / 0.6);
+}
+.face--launderette .lnd-endless-glass::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgb(255 255 255 / 0.3), transparent 32%, transparent 74%, rgb(255 255 255 / 0.06));
+}
+.face--launderette .lnd-endless-drum {
+  position: absolute;
+  inset: 5%;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, rgb(200 210 180 / 0.2) 1.1px, transparent 1.5px) 0 0 / 10px 10px,
+    radial-gradient(circle, #34452f, #172117 78%);
+  animation: lnd-turn 9s linear infinite;
+}
+.face--launderette .lnd-endless-thing {
+  position: absolute;
+  left: 30%;
+  top: 56%;
+  width: 40%;
+  height: 22%;
+  border-radius: 40% 50% 30% 45%;
+  background: linear-gradient(180deg, rgb(240 236 225 / 0.55), rgb(200 196 180 / 0.35));
+}
+.face--launderette .lnd-endless-note { margin: 0; text-align: center; }
+.face--launderette .lnd-marker { display: inline-block; font: 700 15px/1.25 var(--lnd-hand); color: #1c2b6b; rotate: -2deg; }
+.face--launderette .lnd-endless-note .lnd-marker + .lnd-marker { color: #a0170c; rotate: 1.5deg; }
+.face--launderette .lnd-endless-since { margin: 0; text-align: center; font: italic 12.5px/1.4 var(--lnd-text); color: #5a5038; }
+.face--launderette .lnd-endless-result { margin: 0; text-align: center; font: 13px/1.4 var(--lnd-text); color: #2b2410; }
+.face--launderette .lnd-endless.is-finished .lnd-endless-inside { position: relative; inset: auto; border-radius: 10px; aspect-ratio: auto; padding: 0; background: none; box-shadow: none; }
+.face--launderette .lnd-endless.is-finished .lnd-endless-bay { aspect-ratio: auto; width: 100%; }
+.face--launderette .lnd-endless.is-finished .lnd-endless-door { display: none; }
+.face--launderette .lnd-endless.is-finished .lnd-nearly { text-decoration: line-through 2px #ff4a36; opacity: 0.55; }
+
+/* The certificate, folded and pressed. */
+.face--launderette .lnd-cert {
+  position: relative;
+  padding: 16px 16px 14px;
+  text-align: left;
+  font: 12.5px/1.45 var(--lnd-text);
+  color: #23301f;
+  background:
+    repeating-linear-gradient(90deg, rgb(0 0 0 / 0.02) 0 1px, transparent 1px 5px),
+    linear-gradient(180deg, #fffef6, #f2f8ec);
+  border: 2px solid #2fbf6c;
+  border-radius: 4px;
+  box-shadow: 0 0 0 5px #fffef6, 0 0 0 6px #9fd9b2, 0 12px 20px -12px rgb(0 0 0 / 0.5);
+}
+.face--launderette .lnd-cert:focus-visible { outline-offset: 8px; }
+.face--launderette .lnd-cert-kicker { margin: 0; font: 700 10px/1.2 var(--lnd-sign); letter-spacing: 0.2em; text-transform: uppercase; color: #3f7a52; }
+.face--launderette .lnd-cert h3 { margin: 4px 0 8px; font: 800 22px/1.05 var(--lnd-sign); letter-spacing: 0.04em; text-transform: uppercase; color: #145c32; }
+.face--launderette .lnd-cert p { margin: 0 0 7px; }
+.face--launderette .lnd-cert-item { font-weight: 700; }
+.face--launderette .lnd-cert-aside { font-style: italic; color: #5a6a50; }
+.face--launderette .lnd-cert-sign { font: 700 15px/1.3 var(--lnd-hand); color: #1c2b6b; margin-top: 10px; }
+.face--launderette .lnd-cert-tee::before {
+  /* the collar */
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 20px;
+  height: 9px;
+  margin-left: -10px;
+  border-radius: 0 0 10px 10px;
+  background: #e1e7e8;
+  box-shadow: inset 0 -2px 0 #cdd5d7;
+}
+.face--launderette .lnd-cert-tee {
+  position: relative;
+  float: right;
+  width: 62px;
+  height: 44px;
+  margin: 0 0 6px 10px;
+  border-radius: 6px;
+  background:
+    linear-gradient(90deg, transparent 47%, rgb(0 0 0 / 0.08) 47% 53%, transparent 53%),
+    linear-gradient(180deg, #ffffff, #eceff0);
+  box-shadow: 0 3px 0 #d5d9da, 0 6px 10px rgb(0 0 0 / 0.18);
+}
+
+/* The dryers. */
+.face--launderette .lnd-dryers-note { margin: 0 0 10px; font: 13px/1.4 var(--lnd-text); color: var(--lnd-ink-soft); }
+.face--launderette .lnd-dryer-stack { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin: 0; padding: 0; list-style: none; }
+.face--launderette .lnd-dryer {
+  display: grid;
+  gap: 5px;
+  padding: 8px 6px 6px;
+  border-radius: 6px;
+  background: linear-gradient(180deg, #e9ecea, #c9cfcd);
+  border: 1px solid #9ea7a5;
+  box-shadow: inset 0 1px 0 #fff, 0 6px 10px -8px rgb(0 0 0 / 0.5);
+}
+.face--launderette .lnd-dryer-glass {
+  position: relative;
+  width: min(100%, 132px);
+  margin: 4px auto 0;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 50%;
+  background: radial-gradient(circle, #2b3336, #111618 74%);
+  box-shadow: 0 0 0 4px #aab2b3, 0 0 0 5px #6c777b, inset 0 6px 12px rgb(0 0 0 / 0.6);
+}
+.face--launderette .lnd-sheet {
+  position: absolute;
+  left: 16%;
+  top: 26%;
+  width: 68%;
+  min-height: 46%;
+  padding: 4px 5px;
+  rotate: var(--tilt, 0deg);
+  background: #fdfdf8;
+  border-radius: 2px;
+  box-shadow: 0 2px 6px rgb(0 0 0 / 0.5);
+  animation: lnd-tumble-sheet var(--spin, 8s) linear infinite var(--dir, normal);
+}
+.face--launderette .lnd-sheet code { display: block; white-space: pre; font: 600 5.5px/1.25 var(--lnd-mono); color: #26302f; overflow: hidden; }
+.face--launderette .lnd-sheet.is-blank { background: #ffffff; }
+@keyframes lnd-tumble-sheet {
+  from { rotate: var(--tilt, 0deg); }
+  to { rotate: calc(var(--tilt, 0deg) + 360deg); }
+}
+.face--launderette .lnd-dryer-label { margin: 0; text-align: center; font: 10.5px/1.2 var(--lnd-text); color: #3a4644; overflow-wrap: anywhere; }
+.face--launderette .lnd-dryer:not(.is-known) .lnd-dryer-label { font-style: italic; color: #7b8684; }
+.face--launderette .lnd-dryer-no { font: 700 9.5px var(--lnd-mono); color: #fff; background: #2b3233; padding: 1px 3px; border-radius: 2px; }
+
+/* The change machine on the wall, and its receipts. */
+.face--launderette .lnd-changer {
+  position: relative;
+  display: grid;
+  gap: 10px;
+  padding: 14px 14px 16px;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #d9d5c7, #bdb8a8);
+  border: 1px solid #8f8a78;
+  box-shadow: inset 0 1px 0 #f4f1e6, 0 14px 18px -12px rgb(0 0 0 / 0.5);
+}
+.face--launderette .lnd-changer-plate { margin: 0; display: grid; font: 800 20px/1 var(--lnd-sign); letter-spacing: 0.2em; color: #2b3233; }
+.face--launderette .lnd-changer-plate small { font: 600 10px/1.4 var(--lnd-sign); letter-spacing: 0.18em; text-transform: uppercase; color: #5b5a4f; }
+.face--launderette .lnd-changer-led {
+  margin: 0;
+  padding: 6px 8px;
+  font: 700 13px/1 var(--lnd-mono);
+  letter-spacing: 0.16em;
+  color: var(--lnd-led);
+  background: #120606;
+  border-radius: 3px;
+  text-shadow: 0 0 4px rgb(255 74 54 / 0.7);
+  box-shadow: inset 0 1px 3px #000;
+}
+.face--launderette .lnd-changer-face { position: relative; display: grid; justify-items: center; padding: 8px 0 4px; }
+.face--launderette .lnd-coinslot {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 10px 14px 9px;
+  font: 700 12px/1.15 var(--lnd-sign);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #2b3233;
+  background: linear-gradient(180deg, #f3f6f7, #b9c2c5);
+  border: 1px solid #6c777b;
+  border-radius: 8px;
+  box-shadow: inset 0 1px 0 #fff, 0 3px 0 #6c777b;
+}
+.face--launderette .lnd-coinslot:active { translate: 0 2px; box-shadow: inset 0 1px 0 #fff, 0 1px 0 #6c777b; }
+.face--launderette .lnd-coinslot-mouth { width: 6px; height: 30px; border-radius: 3px; background: #0d1112; box-shadow: inset 1px 0 2px #000, 0 0 0 3px #8e999d; }
+.face--launderette .lnd-coin {
+  position: absolute;
+  left: 50%;
+  top: -6px;
+  width: 26px;
+  height: 26px;
+  margin-left: 18px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff1b0, #d9a93a 55%, #8a5a12);
+  box-shadow: inset 0 0 0 2px rgb(140 90 20 / 0.6);
+  opacity: 0;
+  pointer-events: none;
+}
+.face--launderette .lnd-coin.is-dropping { animation: lnd-coin 0.9s ease-in forwards; }
+@keyframes lnd-coin {
+  0% { opacity: 1; translate: 10px -14px; scale: 1 1; }
+  45% { opacity: 1; translate: -18px 18px; scale: 0.25 1; }
+  100% { opacity: 0; translate: -18px 34px; scale: 0.2 1; }
+}
+.face--launderette .lnd-changer-note { margin: 0; font: 12px/1.4 var(--lnd-text); color: #3e3d34; }
+.face--launderette .lnd-receipts { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.face--launderette .lnd-receipt {
+  padding: 8px 10px 10px;
+  font: 11px/1.4 var(--lnd-mono);
+  color: #2e2e2a;
+  background: linear-gradient(180deg, #fbfbf7, #f1f0ea);
+  box-shadow: 0 4px 8px -4px rgb(0 0 0 / 0.4);
+  -webkit-mask: linear-gradient(#000 0 0) top / 100% calc(100% - 5px) no-repeat, conic-gradient(from -45deg at bottom, transparent, #000 1deg 89deg, transparent 90deg) bottom / 10px 5px repeat-x;
+  mask: linear-gradient(#000 0 0) top / 100% calc(100% - 5px) no-repeat, conic-gradient(from -45deg at bottom, transparent, #000 1deg 89deg, transparent 90deg) bottom / 10px 5px repeat-x;
+}
+.face--launderette .lnd-receipt p { margin: 0; }
+.face--launderette .lnd-receipt-head, .face--launderette .lnd-receipt-foot { font-weight: 700; letter-spacing: 0.08em; text-align: center; }
+.face--launderette .lnd-receipt .lnd-receipt-verse { margin: 6px 0 2px; font-family: var(--lnd-news); font-size: 12.5px; }
+.face--launderette .lnd-receipt-ref { text-align: right; color: #6b6a62; }
+
+/* ─────────────────────────────────────────────────────────────── the wall: notices ───────────────── */
+.face--launderette .lnd-wall {
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr);
+  gap: 24px;
+  margin-top: 44px;
+  align-items: start;
+}
+.face--launderette .lnd-board-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; }
+.face--launderette .lnd-board-souls { margin: 0; font: italic 13px/1.3 var(--lnd-text); color: var(--lnd-ink-soft); }
+.face--launderette .lnd-cork {
+  position: relative;
+  padding: 22px 18px 18px;
+  border: 12px solid #7a5634;
+  border-radius: 4px;
+  background:
+    radial-gradient(circle at 20% 30%, rgb(60 30 0 / 0.16) 0.8px, transparent 1.6px) 0 0 / 7px 9px,
+    radial-gradient(circle at 70% 60%, rgb(255 230 190 / 0.14) 0.8px, transparent 1.6px) 3px 4px / 11px 8px,
+    radial-gradient(circle at 50% 50%, rgb(90 50 10 / 0.12) 1.2px, transparent 2px) 5px 2px / 13px 15px,
+    var(--lnd-cork);
+  box-shadow: inset 0 0 18px rgb(60 30 0 / 0.35), 0 14px 24px -14px rgb(0 0 0 / 0.6);
+}
+.face--launderette .lnd-flyers { display: flex; flex-wrap: wrap; gap: 16px 14px; margin: 0; padding: 0; list-style: none; align-items: flex-start; }
+.face--launderette .lnd-flyers + .lnd-flyers { margin-top: 18px; }
+.face--launderette .lnd-flyer {
+  --tab-h: 100px;
+  position: relative;
+  flex: 1 1 150px;
+  max-width: 230px;
+  padding: 16px 12px 0;
+  background: var(--paper, #fbfaf3);
+  rotate: var(--rot, 0deg);
+  /* a drop shadow follows the paper itself, torn tabs and all */
+  filter: drop-shadow(0 3px 3px rgb(0 0 0 / 0.32));
+  font: 13px/1.35 var(--lnd-text);
+  color: #2a2620;
+}
+/* A flyer with tabs is paper down to the tabs; each tab still hanging is its own strip of paper. */
+.face--launderette .lnd-flyer:has(.lnd-tabs) {
+  background: linear-gradient(var(--paper, #fbfaf3) 0 0) top / 100% calc(100% - var(--tab-h)) no-repeat;
+}
+.face--launderette .lnd-pin {
+  position: absolute;
+  left: 50%;
+  top: 4px;
+  width: 11px;
+  height: 11px;
+  margin-left: -5px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff 0 12%, var(--pin, #d93a2b) 40%, color-mix(in srgb, var(--pin, #d93a2b) 60%, #000));
+  box-shadow: 1px 2px 2px rgb(0 0 0 / 0.4);
+}
+.face--launderette .lnd-flyer-title { margin: 0 0 4px; font: 800 17px/1.05 var(--lnd-sign); letter-spacing: 0.06em; text-transform: uppercase; }
+.face--launderette .lnd-flyer-body, .face--launderette .lnd-flyer-plea { margin: 0 0 6px; }
+.face--launderette .lnd-flyer-plea { font-weight: 700; }
+.face--launderette .lnd-flyer-sign { margin: 0 0 10px; font: 13px/1.2 var(--lnd-hand); color: #2b3a7a; }
+.face--launderette .lnd-flyer--house { padding-bottom: 6px; }
+.face--launderette .lnd-flyer-text { margin: 0 0 6px; font-size: 21px; line-height: 1.3; color: #1b2a6b; overflow-wrap: anywhere; }
+.face--launderette .lnd-flyer-meta { margin: 0 0 8px; font: italic 11px/1.2 var(--lnd-text); color: #6f6758; }
+.face--launderette .lnd-flyer-found { margin: 0 0 8px; padding: 2px 6px; font: 700 12px/1.3 var(--lnd-sign); letter-spacing: 0.08em; color: #145c32; border: 2px solid #2fbf6c; rotate: -3deg; text-align: center; }
+.face--launderette .lnd-sock-drawing {
+  position: absolute;
+  right: 10px;
+  top: 18px;
+  width: 22px;
+  height: 34px;
+  border-radius: 6px 6px 4px 14px;
+  background: repeating-linear-gradient(0deg, #ffffff 0 5px, #d8462d 5px 8px);
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 0.15);
+  rotate: 10deg;
+}
+.face--launderette .lnd-flyer--sock.is-found .lnd-sock-drawing { opacity: 0.35; }
+.face--launderette .lnd-tabs {
+  display: flex;
+  margin: 0 -12px;
+  padding: 0;
+  list-style: none;
+  border-top: 1px dashed rgb(0 0 0 / 0.3);
+}
+.face--launderette .lnd-tabs li {
+  flex: 1;
+  min-width: 0;
+  height: var(--tab-h);
+  border-left: 1px dashed rgb(0 0 0 / 0.25);
+  background: var(--paper, #fbfaf3);
+}
+.face--launderette .lnd-tabs li:first-child { border-left: 0; }
+.face--launderette .lnd-tabs li.is-torn {
+  background: linear-gradient(var(--paper, #fbfaf3) 0 0) top / 100% 5px no-repeat;
+  border-left-color: transparent;
+  clip-path: polygon(0 0, 100% 0, 100% 4px, 80% 7px, 55% 3px, 30% 8px, 0 4px);
+}
+.face--launderette .lnd-tabs a {
+  display: block;
+  height: 100%;
+  padding: 4px 0;
+  writing-mode: vertical-rl;
+  font: 600 8.5px/1 var(--lnd-mono);
+  letter-spacing: 0.02em;
+  color: #2b3a7a;
+  text-decoration: none;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.face--launderette .lnd-tabs a:hover, .face--launderette .lnd-tabs a:focus-visible { background: rgb(255 255 255 / 0.6); text-decoration: underline; }
+.face--launderette .lnd-board-empty { margin: 18px 0 0; padding: 10px 12px; font: italic 13px/1.4 var(--lnd-text); color: #3a2a12; background: rgb(255 248 230 / 0.75); }
+
+/* The care-marks poster: this face's Rosetta fragment. */
+.face--launderette .lnd-wall-side { display: grid; gap: 22px; }
+.face--launderette .lnd-poster {
+  padding: 0 0 12px;
+  overflow: hidden;
+  background: #fdfdfb;
+  border-radius: 6px;
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.08), 0 0 0 5px rgb(255 255 255 / 0.5), 0 12px 20px -12px rgb(0 0 0 / 0.5);
+}
+.face--launderette .lnd-poster h2 {
+  display: grid;
+  margin: 0;
+  padding: 10px 14px 8px;
+  font: 800 20px/1 var(--lnd-sign);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #fff;
+  background: var(--lnd-blue);
+}
+.face--launderette .lnd-poster h2 small { font: 600 11px/1.4 var(--lnd-text); letter-spacing: 0.06em; text-transform: none; color: #d6e8ff; }
+.face--launderette .lnd-rosetta { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 12px 8px; margin: 14px 12px 6px; padding: 0; }
+.face--launderette .lnd-rosetta .rosetta-pair { display: grid; justify-items: center; gap: 4px; min-width: 0; }
+.face--launderette .lnd-rosetta dt {
+  display: grid;
+  place-items: center;
+  width: 50px;
+  height: 50px;
+  padding: 0;
+  font-size: 30px;
+  line-height: 1;
+  color: #1f57b8;
+  border: 2px solid #1f57b8;
+  border-radius: 38% 38% 46% 46% / 30% 30% 58% 58%;
+}
+.face--launderette .lnd-rosetta dd { margin: 0; font: 800 13px/1 var(--lnd-sign); letter-spacing: 0.12em; opacity: 1; color: #1e2a29; }
+.face--launderette .lnd-rosetta dd.lnd-mark-gloss { font: italic 11px/1.2 var(--lnd-text); letter-spacing: 0; text-align: center; color: var(--lnd-ink-soft); }
+.face--launderette .lnd-poster-note { margin: 4px 14px 0; font: 12px/1.4 var(--lnd-text); color: var(--lnd-ink-soft); }
+
+/* The attendant: back soon, since 1996. */
+.face--launderette .lnd-attendant { position: relative; display: grid; justify-items: start; gap: 10px; }
+.face--launderette .lnd-attendant-sign {
+  position: relative;
+  display: grid;
+  margin: 0;
+  padding: 14px 18px 12px;
+  font-size: 22px;
+  line-height: 1.1;
+  color: #1c2b6b;
+  background: #fffef9;
+  box-shadow: 0 8px 14px -10px rgb(0 0 0 / 0.6);
+}
+.face--launderette .lnd-attendant-sign::before,
+.face--launderette .lnd-attendant-sign::after {
+  content: '';
+  position: absolute;
+  top: -8px;
+  width: 46px;
+  height: 16px;
+  background: rgb(255 250 220 / 0.7);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.15);
+}
+.face--launderette .lnd-attendant-sign::before { left: 10px; rotate: -8deg; }
+.face--launderette .lnd-attendant-sign::after { right: 10px; rotate: 6deg; }
+.face--launderette .lnd-attendant-sign small { font: 14px/1.4 var(--lnd-hand); color: #a0170c; }
+.face--launderette .lnd-bell {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  padding: 7px 14px 7px 8px;
+  font: 700 13px/1.1 var(--lnd-sign);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #2b3233;
+  background: #f4f6f6;
+  border: 1px solid #8e999d;
+  border-radius: 20px;
+  box-shadow: 0 2px 0 #8e999d;
+}
+.face--launderette .lnd-bell-dome {
+  width: 30px;
+  height: 18px;
+  border-radius: 15px 15px 2px 2px;
+  background: radial-gradient(circle at 35% 30%, #ffffff, #c9d0d3 45%, #7b868a);
+  box-shadow: 0 3px 0 #2b3233;
+}
+.face--launderette .lnd-notepad { width: 100%; }
+.face--launderette .lnd-notes { margin: 0; padding: 0; list-style: none; }
+.face--launderette .lnd-note {
+  padding: 12px 14px 10px;
+  background: linear-gradient(180deg, #fff59a, #ffe96b);
+  box-shadow: 0 10px 14px -10px rgb(0 0 0 / 0.55);
+  rotate: -1deg;
+}
+.face--launderette .lnd-note p { margin: 0 0 6px; }
+.face--launderette .lnd-note-kicker { font: italic 12px/1.3 var(--lnd-text); color: #5c4a0a; }
+.face--launderette .lnd-note-text { font: 15px/1.4 var(--lnd-hand); color: #1c2b6b; }
+.face--launderette .lnd-note-more { font: 11px/1.3 var(--lnd-text); color: #7a6614; }
+
+/* ─────────────────────────────────────────────────────────────── the lounge ──────────────────────── */
+.face--launderette .lnd-lounge {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 2fr);
+  gap: 26px;
+  margin-top: 46px;
+  align-items: end;
+}
+.face--launderette .lnd-chairs { display: flex; justify-content: center; gap: 8px; padding-bottom: 10px; }
+.face--launderette .lnd-chair { width: 66px; height: 100px; rotate: var(--chair-tilt, 0deg); overflow: visible; filter: drop-shadow(0 5px 4px rgb(0 0 0 / 0.22)); }
+.face--launderette .lnd-chair-legs { fill: none; stroke: #8f9a9d; stroke-width: 2.6; stroke-linecap: round; }
+.face--launderette .lnd-chair-back { fill: var(--lnd-orange); stroke: #c4561a; stroke-width: 1; }
+.face--launderette .lnd-chair-seat { fill: #d4611f; }
+.face--launderette .lnd-chair-paper { fill: #efece2; stroke: #b9b5a8; stroke-width: 0.6; }
+
+/* The free sheet: newsprint. */
+.face--launderette .lnd-sheet-paper {
+  padding: 16px 20px 18px;
+  font: 14px/1.5 var(--lnd-news);
+  color: #2a2a26;
+  background:
+    radial-gradient(circle at 30% 40%, rgb(0 0 0 / 0.03) 0.6px, transparent 1px) 0 0 / 4px 4px,
+    #eeebe1;
+  box-shadow: 0 1px 0 #fff inset, 0 14px 22px -14px rgb(0 0 0 / 0.55);
+  rotate: 0.4deg;
+}
+.face--launderette .lnd-masthead { display: grid; grid-template-columns: 1fr auto 1fr; align-items: end; gap: 10px; padding-bottom: 6px; border-bottom: 3px double #2a2a26; }
+.face--launderette .lnd-masthead h2 { margin: 0; font: 900 clamp(26px, 4vw, 40px)/0.95 var(--lnd-sign); font-stretch: condensed; letter-spacing: 0.02em; text-transform: uppercase; text-align: center; }
+.face--launderette .lnd-mast-ear { margin: 0; font: 600 10.5px/1.2 var(--lnd-sign); letter-spacing: 0.14em; text-transform: uppercase; color: #55534b; }
+.face--launderette .lnd-mast-ear:last-child { text-align: right; }
+.face--launderette .lnd-headline { margin: 10px 0 10px; font: 800 clamp(20px, 2.6vw, 28px)/1.05 var(--lnd-sign); text-transform: uppercase; letter-spacing: 0.01em; }
+.face--launderette .lnd-sheet-cols { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.3fr) minmax(0, 0.9fr); gap: 18px; }
+.face--launderette .lnd-sheet-cols > * + * { padding-left: 18px; border-left: 1px solid #b9b5a8; }
+.face--launderette .lnd-sheet-story p { margin: 0 0 10px; text-align: justify; hyphens: auto; }
+.face--launderette .lnd-sheet-scripture h4,
+.face--launderette .lnd-forecast h4 { margin: 0 0 6px; font: 800 13px/1.1 var(--lnd-sign); letter-spacing: 0.16em; text-transform: uppercase; }
+.face--launderette .lnd-verses { margin: 0; padding: 0; list-style: none; }
+.face--launderette .lnd-verse { margin: 0 0 8px; }
+.face--launderette .lnd-verse-n { font: 700 11px/1 var(--lnd-sign); color: #8f2a1c; vertical-align: 1px; }
+.face--launderette .lnd-forecast p { margin: 0 0 8px; font-style: italic; }
+.face--launderette .lnd-forecast dl { margin: 0; display: grid; gap: 4px; font: 12px/1.35 var(--lnd-text); }
+.face--launderette .lnd-forecast dl div { display: grid; grid-template-columns: 4.6em 1fr; gap: 6px; }
+.face--launderette .lnd-forecast dt { font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; font-size: 10.5px; color: #55534b; }
+.face--launderette .lnd-forecast dd { margin: 0; }
+
+/* The lost sock, floated left into the news. Clearing it is Absolution. */
+.face--launderette .lnd-sock {
+  float: left;
+  position: relative;
+  width: 30px;
+  height: 52px;
+  margin: 4px 12px 4px 0;
+  padding: 0;
+  border: 0;
+  border-radius: 6px 6px 5px 18px;
+  background: repeating-linear-gradient(0deg, #ffffff 0 6px, #d8462d 6px 10px);
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 0.15), 2px 3px 4px rgb(0 0 0 / 0.2);
+  rotate: -8deg;
+}
+.face--launderette .lnd-sock-cuff { position: absolute; left: 0; right: 0; top: 0; height: 10px; border-radius: 6px 6px 0 0; background: #2b3233; }
+.face--launderette .lnd-sheet-lead.is-cleared { clear: left; }
+.face--launderette .lnd-sock.is-cleared { rotate: 0deg; box-shadow: 0 0 0 2px #2fbf6c, 2px 3px 4px rgb(0 0 0 / 0.2); }
+
+/* ─────────────────────────────────────────────────────────────── the foot ────────────────────────── */
+.face--launderette .lnd-foot { margin-top: 46px; padding-top: 14px; border-top: 1px solid rgb(0 0 0 / 0.12); font: 12.5px/1.6 var(--lnd-text); color: var(--lnd-ink-soft); }
+.face--launderette .lnd-foot p { margin: 0 0 4px; }
+.face--launderette .lnd-foot nav { overflow-wrap: anywhere; }
+
+/* ─────────────────────────────────────────────────────────────── the sky, inside ─────────────────── */
+/* By day, light falls through the window across the floor, where no light should be at 3:33. At night the
+   street lamp lays a faint sodium bar over the same place. Painted once (no motion), above the furniture. */
+.face--launderette .lnd-machines { position: relative; }
+.face--launderette .lnd-machines::after {
+  content: '';
+  position: absolute;
+  top: -70px;
+  left: -4%;
+  right: 12%;
+  height: 560px;
+  z-index: 3;
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(104deg, transparent 22%, rgb(255 246 214 / 0.42) 34%, rgb(255 246 214 / 0.22) 48%, transparent 62%);
+  clip-path: polygon(0 0, 44% 0, 100% 100%, 46% 100%);
+}
+.face--launderette .lnd[data-outside="day"] .lnd-machines::after { opacity: 0.5; }
+.face--launderette .lnd:is([data-outside="dusk"], [data-outside="dawn"]) .lnd-machines::after {
+  opacity: 0.5;
+  background: linear-gradient(104deg, transparent 22%, rgb(255 190 140 / 0.45) 34%, rgb(255 190 140 / 0.22) 48%, transparent 62%);
+}
+.face--launderette .lnd:is([data-outside="night"], [data-outside="evening"]) .lnd-machines::after {
+  opacity: 0.45;
+  background: linear-gradient(104deg, transparent 26%, rgb(255 179 71 / 0.28) 36%, rgb(255 179 71 / 0.12) 48%, transparent 60%);
+}
+
+/* The riddle solved: the tubes warm and stop dimming, as if the attendant had come back. */
+.face--launderette .lnd.is-blessed {
+  --lnd-tube: #fff4d8;
+  --lnd-tube-glow: rgb(255 226 160 / 0.7);
+}
+.face--launderette .lnd.is-blessed .lnd-light { animation: none; opacity: 0.05; background: #ffb347; }
+.face--launderette .lnd.is-blessed .lnd-fixture.is-dim .lnd-tube { animation: none; }
+
+/* An eclipse: the tubes give up and the room runs on the window. */
+html[data-eclipse] .face--launderette .lnd-light { animation: none; opacity: 0.22; }
+html[data-eclipse] .face--launderette .lnd-tube { opacity: 0.3; box-shadow: none; }
+
+/* ─────────────────────────────────────────────────────────────── the temple's own marks ──────────── */
+/* Mercy, in label-maker tape. */
+html[data-face="launderette"] #mercy {
+  font: 700 11px/1 var(--font-mono, monospace);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 6px 9px 5px;
+  color: #fff;
+  background: #1d1f20;
+  border: 0;
+  border-radius: 2px;
+  opacity: 0.85;
+  text-shadow: 0 -1px 0 rgb(0 0 0 / 0.6), 0 1px 0 rgb(255 255 255 / 0.22);
+  box-shadow: 0 2px 0 rgb(0 0 0 / 0.35), inset 0 0 0 1px rgb(255 255 255 / 0.08);
+}
+html[data-face="launderette"] #mercy:hover, html[data-face="launderette"] #mercy:focus-visible { opacity: 1; }
+html[data-face="launderette"] #mercy[aria-pressed="true"] { background: #c8102e; opacity: 1; }
+
+/* Glyph apparitions in laundry-marker blue on fresh cotton. */
+[data-face="launderette"] {
+  --glyph-ink: #1f57b8;
+  --glyph-halo: rgb(246 252 249 / 0.95);
+  --glyph-glow: rgb(120 200 255 / 0.4);
+  --glyph-whisper-ink: #1e2a29;
+  --glyph-whisper-bg: rgb(251 252 248 / 0.96);
+  --glyph-whisper-rule: #2a78c8;
+  --glyph-aura: rgb(232 244 238 / 0.9);
+  --glyph-aura-edge: rgb(42 120 200 / 0.2);
+  --glyph-voice-family: 'Segoe Print', 'Bradley Hand', 'Marker Felt', 'Chalkboard SE', cursive;
+  --glyph-voice-style: normal;
+  --glyph-voice-size: 0.95rem;
+  --glyph-voice-tracking: 0;
+}
+
+/* ─────────────────────────────────────────────────────────────── smaller rooms ───────────────────── */
+@media (max-width: 1120px) {
+  .face--launderette .lnd-floor { grid-template-columns: minmax(0, 1fr); }
+  .face--launderette .lnd-basket-list { grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); }
+  .face--launderette .lnd-back { grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); }
+}
+@media (max-width: 880px) {
+  .face--launderette .lnd-front-grid { grid-template-columns: minmax(0, 1fr); }
+  .face--launderette .lnd-row { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 26px; }
+  .face--launderette .lnd-wall { grid-template-columns: minmax(0, 1fr); }
+  .face--launderette .lnd-wall-side { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; }
+  .face--launderette .lnd-lounge { grid-template-columns: minmax(0, 1fr); }
+  .face--launderette .lnd-chairs { order: 1; }
+  .face--launderette .lnd-sheet-cols { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .face--launderette .lnd-sheet-cols .lnd-forecast { grid-column: 1 / -1; padding-left: 0; border-left: 0; padding-top: 10px; border-top: 1px solid #b9b5a8; }
+}
+@media (max-width: 640px) {
+  .face--launderette .lnd { padding-inline: 12px; }
+  .face--launderette .lnd-pane { aspect-ratio: 16 / 8; border-width: 7px; }
+  .face--launderette .lnd-signs-row { grid-template-columns: 88px minmax(0, 1fr); gap: 10px; }
+  .face--launderette .lnd-clock-face { width: 84px; height: 84px; }
+  .face--launderette .lnd-row { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; row-gap: 24px; }
+  /* The fifth machine, still in its plastic, stands alone in the middle of the last row. */
+  .face--launderette .lnd-row > .lnd-washer:last-child { grid-column: 1 / -1; justify-self: center; width: calc(50% - 6px); }
+  .face--launderette .lnd-sheet-story p { text-align: left; }
+  .face--launderette .lnd-washer { padding-inline: 8px; }
+  .face--launderette .lnd-panel { margin-inline: -8px; padding-inline: 6px; }
+  .face--launderette .lnd-seg { width: 40px; height: 16px; }
+  .face--launderette .lnd-back { grid-template-columns: minmax(0, 1fr); }
+  .face--launderette .lnd-under { grid-template-columns: minmax(0, 1fr); }
+  .face--launderette .lnd-dryer-stack { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+  .face--launderette .lnd-wall-side { grid-template-columns: minmax(0, 1fr); }
+  .face--launderette .lnd-flyer { max-width: none; }
+  .face--launderette .lnd-sheet-paper { padding: 14px 14px 16px; }
+  .face--launderette .lnd-sheet-cols { grid-template-columns: minmax(0, 1fr); }
+  .face--launderette .lnd-sheet-cols > * + * { padding-left: 0; border-left: 0; padding-top: 10px; border-top: 1px solid #b9b5a8; }
+  .face--launderette .lnd-masthead { grid-template-columns: 1fr; text-align: center; }
+  .face--launderette .lnd-mast-ear:last-child { text-align: center; }
+  .face--launderette .lnd-kickplate { flex-direction: column; gap: 4px; }
+}
+@media (max-width: 400px) {
+  .face--launderette .lnd-slot { grid-template-columns: 104px minmax(0, 1fr); }
+  .face--launderette .lnd-dymo { font-size: 9px; letter-spacing: 0.04em; padding-inline: 4px; }
+  .face--launderette .lnd-washer--revert-layer .lnd-dymo { font-size: 8px; letter-spacing: 0; }
+  .face--launderette .lnd-dryer-stack { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+}
