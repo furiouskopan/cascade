@@ -1037,6 +1037,22 @@
   .face--recruitment .rc-thumb--babel { background: linear-gradient(#f3ead7, #f3ead7 60%, #d8ccb0); }
   .face--recruitment .rc-thumb--babel i:nth-child(1) { left: 14px; right: 14px; top: 8px; bottom: 0; background: repeating-linear-gradient(#5b3a1a 0 1px, transparent 1px 6px); opacity: 0.55; mask-image: linear-gradient(#000 40%, transparent); -webkit-mask-image: linear-gradient(#000 40%, transparent); }
   .face--recruitment .rc-thumb--babel i:nth-child(2) { left: 6px; top: 8px; width: 5px; height: 5px; border-radius: 50%; background: #9c2a1a; box-shadow: 0 16px 0 #9c2a1a, 0 32px 0 #9c2a1a; }
+  /* the All-Night Launderette: a front-loader, porthole and red display */
+  .face--recruitment .rc-thumb--launderette { background: #dfece4; }
+  .face--recruitment .rc-thumb--launderette i:nth-child(1) { left: 50%; top: 50%; width: 46px; height: 46px; translate: -50% -42%; border-radius: 50%; border: 5px solid #b8c2c5; background: radial-gradient(circle at 40% 35%, #3f6f78, #0c1d22 70%); }
+  .face--recruitment .rc-thumb--launderette i:nth-child(2) { left: 10px; top: 7px; width: 24px; height: 9px; background: #200; box-shadow: inset 0 0 0 2px #444; }
+  .face--recruitment .rc-thumb--launderette i:nth-child(2)::after { content: '3:33'; position: absolute; inset: 0; font: bold 7px/9px monospace; color: #f33; text-align: center; }
+  .face--recruitment .rc-thumb--launderette i:nth-child(3) { right: 10px; top: 8px; width: 30px; height: 7px; background: #1d1f20; }
+  /* the Omen Tablets: a clay tablet with one omen fired red */
+  .face--recruitment .rc-thumb--omens { background: #8a6a46; }
+  .face--recruitment .rc-thumb--omens i:nth-child(1) { left: 16%; right: 16%; top: 8px; bottom: 8px; border-radius: 10px 14px 12px 16px; background: repeating-linear-gradient(transparent 0 7px, rgba(70, 44, 20, 0.45) 7px 9px), #cdb793; }
+  .face--recruitment .rc-thumb--omens i:nth-child(2) { left: calc(16% + 8px); width: 40%; top: 24px; height: 3px; background: #b3261e; }
+  .face--recruitment .rc-thumb--omens i:nth-child(3) { left: calc(16% + 8px); top: 14px; width: 4px; height: 8px; background: #46301a; clip-path: polygon(0 0, 100% 0, 50% 100%); }
+  /* the Interstice: an empty div, drawn as the Inspector draws it */
+  .face--recruitment .rc-thumb--interstice { background: #c9935f; }
+  .face--recruitment .rc-thumb--interstice i:nth-child(1) { inset: 9px; background: #d8c26b; }
+  .face--recruitment .rc-thumb--interstice i:nth-child(2) { inset: 14px; background: #a8c79a; }
+  .face--recruitment .rc-thumb--interstice i:nth-child(3) { inset: 22px 30px; background: #8db0cf; }
 
   /* ---------------------------------------------------------------- members-only */
   .face--recruitment .rc-members { padding-left: 1.3em; list-style: '\2605  '; }

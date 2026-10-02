@@ -719,6 +719,9 @@ const VOICES = {
   ashram: { kicker: 'वेदी · vedi', title: 'The Altar of Breath', pray: 'Pray' },
   departure: { kicker: 'channel 108 · ground relay', title: 'ALTAR RELAY', pray: 'TRANSMIT PRAYER' },
   babel: { kicker: 'Hexagon 108 · shelf 3 · volume 33', title: 'The Altar of the Library', pray: 'Pray' },
+  launderette: { kicker: 'counter · attendant back soon', title: 'The Altar · Self Service', pray: 'START PRAYER' },
+  omens: { kicker: 'Tablet room · the diviner’s bench', title: 'The Altar of Clay', pray: 'Press a prayer' },
+  interstice: { kicker: '/404 · lost property', title: 'The Altar of the Lost', pray: 'Pray into the wall' },
 }
 const DEFAULT_VOICE = { kicker: 'the shared ritual', title: 'The Altar', pray: 'Pray' }
 
@@ -739,6 +742,9 @@ const FACE_PRAYER_LINES = {
   ashram: ['The bead moves on the out-breath, as it should.', 'Let the prayer go. The thread will keep it.'],
   departure: ['PRAYER RECEIVED. RELAYING TO Z-INDEX 2147483647. STAND BY.', 'SIGNAL LOGGED. THE FLEET ACKNOWLEDGES ONE BEAD.'],
   babel: ['Your prayer has been shelved, where it has always been.', 'The librarian stamps it: received, and also foretold.'],
+  launderette: ['Prayer accepted. Cycle complete. Please remove your prayer from the drum.', 'One more bead on the thread. The machine at the back is still nearly done.'],
+  omens: ['Pressed. The scribe adds one wedge to the tally and does not look up.', 'If a Pilgrim prays at the altar: the tally grows by one wedge. It is written, and so it is.'],
+  interstice: ['Your prayer goes into the wall, where the wiring runs. Somewhere upstairs a light steadies.', 'Counted. The building settles, the way empty buildings do when somebody remembers them.'],
 }
 
 // Counts the Cascade holds sacred (CANON §2) are remarked upon when a prayer lands on them.
@@ -913,13 +919,15 @@ export async function init(ctx) {
   // hints and how strong the last one was), and another face of the temple (main.js keeps the rules).
   $.askHint = h('button', { type: 'button', class: 'altar-minor' }, 'ask for a hint')
   $.askFace = h('button', { type: 'button', class: 'altar-minor' }, 'ask for another face')
+  // While a face's own riddle is unsolved its hints come first; this asks about the five Words instead.
+  $.askWords = h('button', { type: 'button', class: 'altar-minor altar-ask-words', hidden: true }, 'a hint for the five Words instead')
   $.oracleNote = h('p', { class: 'altar-oracle-note', role: 'status' })
   const prayPane = [
     $.mala, $.until,
     h('div', { class: 'altar-actions altar-actions--center' }, $.prayBtn),
     $.prayNote, $.mine, $.sky,
     h('div', { class: 'altar-oracle' },
-      h('div', { class: 'altar-actions altar-actions--center' }, $.askHint, $.askFace),
+      h('div', { class: 'altar-actions altar-actions--center' }, $.askHint, $.askFace, $.askWords),
       $.oracleNote,
     ),
   ]
@@ -1482,15 +1490,19 @@ export async function init(ctx) {
   })
 
   // The Oracle, for those who never open the console
-  $.askHint.addEventListener('click', () => {
-    const x = ctx.secrets?.hint?.()
+  function showHint(which) {
+    const x = ctx.secrets?.hint?.(which)
     if (!x) {
       $.oracleNote.textContent = 'The Oracle is not listening yet. Ask again in a moment.'
       return
     }
     $.oracleNote.replaceChildren(h('strong', {}, `${x.title}, hint ${x.tier + 1} of ${x.of}. `), x.text,
       x.tier + 1 < x.of ? h('span', { class: 'altar-oracle-more' }, ' Ask again for a stronger one.') : '')
-  })
+    $.askWords.hidden = !(x.riddle || which === 'words')
+  }
+  $.askHint.addEventListener('click', () => showHint())
+  $.askWords.addEventListener('click', () => showHint('words'))
+  bus.on('face:ready', () => { $.askWords.hidden = true; $.oracleNote.textContent = '' })
   $.askFace.addEventListener('click', () => {
     const r = ctx.askFace?.()
     if (r?.ok) {

@@ -39,6 +39,9 @@ All times are local (CEST), 24 September 2026.
 | 00:46 | `docs/ROADMAP.md`: 39 proposals judged down to 8 new faces, 4 chains and a meta-puzzle, in three phases. |
 | 14:49 (26 Sep) | The owner reviews the roadmap: *"it should mostly be playful, weird and cool… it shouldn't require weeks"*. The Descent stands alone, weekly and long-term plays are cut, the calendar becomes invented, hints go public, and the temple goes online. The roadmap is rewritten: 7 faces, 2 one-sitting chains, no meta-puzzle. The first draft is kept whole on the `extreme` branch, for a future Extreme mode: the temple will have two modes or more. |
 | 15:05 (26 Sep) | *"Ok proceed with the changes"*: Phase 0, "Open the doors". Public hints (`cascade.hint()`, the altar, `docs/HINTS.md`), asking the altar for another face, the whole glyph key on one babel page (`/verse/of/the/alphabet`), the door at the top of the Ladder always open and lit in gold at :33, a face registry, and the online preparation (`TRUST_PROXY`, refused words, a moderation tool). Two builders (babel, the registry) and the orchestrator. |
+| 14:37 (1 Oct) | *"Proceed with development"*: Phase 1, "Three strange rooms". The kernel sends every unknown address to the Interstice with a real 404; three builders build the All-Night Launderette, Šumma the Omen Tablets and the Interstice, each with a riddle for one sitting. |
+| 16:40 (1 Oct) | *"Add it as a github repo on furiouskopan"*: the history's author email is rewritten to the GitHub no-reply address, the owner creates the empty public repo, and `main` and `extreme` are pushed to github.com/furiouskopan/cascade. |
+| 2 Oct | The session ended while the reviewers were checking the three faces. *"Commit and commence with next phases"*: the faces are wired into the altar, the hints and the lot, checked together, and committed; the reviews resume alongside Phase 2. |
 
 ---
 
@@ -264,7 +267,7 @@ longer fire from inside form fields, memory that survives several open tabs, the
 
 ## 9. Where it stands
 
-*As of 15:50, 26 September 2026.*
+*As of 2 October 2026.*
 
 - **Built, reviewed and committed:** all six faces (sanctum, possession, recruitment, ashram, departure,
   babel) and all five layers (glyphs, hell, audio, ritual, secrets), one commit each, then the kernel
@@ -273,9 +276,14 @@ longer fire from inside form fields, memory that survives several open tabs, the
 - **Phase 0 of the simplified roadmap, done:** public hints, asking for another face, the whole glyph key on one
   page, the door at the top always open (gold at :33), the face registry, and the online preparation. Every face
   loads with zero console errors; the altar's 580 hostile-input checks pass.
-- **Next:** `docs/ROADMAP.md` Phase 1, three faces (the Launderette, the Omen Tablets, the Interstice), then a
-  short second chain down to the unstyled Undercroft with the Archons and the Source, then optional extras. At
-  most 3 builders at once. The first, deeper roadmap waits on the `extreme` branch.
+- **Phase 1, built and integrated:** the All-Night Launderette and Šumma, the Omen Tablets join the Oracle's lot;
+  the Interstice answers every unknown address with a real 404. Each has a riddle with three public hints, a
+  themed altar, and a place on the recruitment page. The independent reviews and fresh-eyes riddle tests resume
+  alongside Phase 2.
+- **Online:** the repo is public at https://github.com/furiouskopan/cascade (`main` and `extreme`).
+- **Next:** `docs/ROADMAP.md` Phase 2, a short second chain down to the unstyled Undercroft, with the Archons and
+  the Source; then the optional extras. At most 3 builders at once. The first, deeper roadmap waits on the
+  `extreme` branch.
 - **Not yet done:** the full integration pass (a fresh-eyes solver for the whole chain, cross-face checks,
   performance), and moving this conversation into the repo's chat history.
 

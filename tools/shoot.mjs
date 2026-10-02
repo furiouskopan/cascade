@@ -14,6 +14,8 @@
 //   --after MS        extra wait after the evals, before the screenshot (default 600)
 //   --eval-timeout MS give up on a single --eval after this long (default 45000)
 //   --full            capture the full scrollable page instead of the viewport
+//   --expect STATUS   the page itself may answer with this HTTP status (e.g. 404 for the Interstice) without
+//                     being counted as a failed request; its own sub-requests are still checked
 //
 // Prints one JSON object per page: { path, screenshot, console[], errors[], failedRequests[], evals[] }.
 // Screenshots can be viewed with the Read tool.
@@ -31,7 +33,7 @@ import { fileURLToPath } from 'node:url'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const argv = process.argv.slice(2)
-const opts = { port: 3401, out: 'shots', size: '1280x800', wait: 3500, after: 600, evalTimeout: 45000, evals: [], paths: [] }
+const opts = { port: 3401, out: 'shots', size: '1280x800', wait: 3500, after: 600, evalTimeout: 45000, evals: [], paths: [], expect: new Set() }
 for (let i = 0; i < argv.length; i++) {
   const a = argv[i]
   if (a === '--port') opts.port = Number(argv[++i])
@@ -44,6 +46,7 @@ for (let i = 0; i < argv.length; i++) {
   else if (a === '--after') opts.after = Number(argv[++i])
   else if (a === '--eval') opts.evals.push(argv[++i])
   else if (a === '--full') opts.full = true
+  else if (a === '--expect') opts.expect.add(Number(argv[++i]))
   else if (a === '--eval-timeout') opts.evalTimeout = Number(argv[++i])
   // Git Bash rewrites "/verse/x" into "C:/Program Files/Git/verse/x"; undo that.
   else opts.paths.push(a.replace(/^[A-Za-z]:[\\/].*?[\\/]Git(?=[\\/])/, '').replace(/\\/g, '/'))
@@ -203,6 +206,7 @@ try {
     for (const path of opts.paths) {
       beat()
       const report = { path, screenshot: null, console: [], errors: [], failedRequests: [], evals: [] }
+      const pageUrl = path.startsWith('http') ? path : `http://localhost:${opts.port}${path}`
       const { targetId } = await send('Target.createTarget', { url: 'about:blank', browserContextId })
       const { sessionId } = await send('Target.attachToTarget', { targetId, flatten: true })
       const onEvent = (msg) => {
@@ -214,9 +218,12 @@ try {
           const d = msg.params.exceptionDetails
           report.errors.push(`${d.exception?.description ?? d.text} @ ${d.url ?? ''}:${d.lineNumber}`.slice(0, 800))
         } else if (msg.method === 'Log.entryAdded' && msg.params.entry.level === 'error') {
-          report.errors.push(`[log] ${msg.params.entry.text} ${msg.params.entry.url ?? ''}`.slice(0, 500))
+          // Chrome logs the page's own expected status (--expect) as a failed load; that is not an error.
+          const own = msg.params.entry.url === pageUrl && [...opts.expect].some((s) => msg.params.entry.text.includes(`status of ${s}`))
+          if (!own) report.errors.push(`[log] ${msg.params.entry.text} ${msg.params.entry.url ?? ''}`.slice(0, 500))
         } else if (msg.method === 'Network.responseReceived' && msg.params.response.status >= 400) {
-          report.failedRequests.push(`${msg.params.response.status} ${msg.params.response.url}`)
+          const expected = msg.params.type === 'Document' && opts.expect.has(msg.params.response.status)
+          if (!expected) report.failedRequests.push(`${msg.params.response.status} ${msg.params.response.url}`)
         }
       }
       listeners.add(onEvent)
@@ -227,8 +234,7 @@ try {
         await send('Page.enable', {}, sessionId)
         await send('Emulation.setDeviceMetricsOverride', { width: W, height: H, deviceScaleFactor: 1, mobile: W < 600 }, sessionId)
         await send('Emulation.setFocusEmulationEnabled', { enabled: true }, sessionId)
-        const url = path.startsWith('http') ? path : `http://localhost:${opts.port}${path}`
-        await send('Page.navigate', { url }, sessionId)
+        await send('Page.navigate', { url: pageUrl }, sessionId)
         await sleep(opts.wait)
         for (const code of opts.evals) {
           try {

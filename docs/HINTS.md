@@ -2,7 +2,7 @@
 
 Stuck? Every step has three hints, each stronger than the last. Read one, go back to the temple, and only read the
 next if you need it. The same hints live in the temple itself: type `cascade.hint()` in the browser's developer
-console (F12), or open the altar (the round button in the bottom-right corner) and choose *ask for a hint*.
+console (F12), or open the altar (the round button in the bottom-right corner) and choose *ask for a hint*. On a face with a riddle of its own, the hints are about that riddle first.
 
 The hints never say a Word; you still find each one yourself.
 
@@ -147,5 +147,84 @@ In the console, cascade.inspect() counts the small secrets you have not found ye
 <summary>Nearly the answer</summary>
 
 Every face hides a few secrets of its own. Ask the altar for another face and look again.
+
+</details>
+
+## The faces' riddles
+
+Some faces keep a riddle of their own, solved on that face in one visit. While you are on such a face and its riddle is unsolved, the temple's hints are about that riddle first.
+
+### The Trembling Stain
+
+The All-Night Launderette: one garment in the basket trembles.
+
+<details>
+<summary>A nudge</summary>
+
+Wash the stained tee in every machine and read its care labels. Nearly everything about it changes, except one line. What sort of thing is that stain?
+
+</details>
+
+<details>
+<summary>A clue</summary>
+
+The stain is an animation declared with !important. A wash is an ordinary declaration (all: …), and an ordinary declaration never beats an important one, wherever it is written. You need something that is important too, and outranks it.
+
+</details>
+
+<details>
+<summary>Nearly the answer</summary>
+
+Every page of the temple has a small button in the bottom-left corner that stops all motion. Its own !important is declared in the first cascade layer, and among important declarations the first layer wins. Press it while the stain is trembling.
+
+</details>
+
+### The liver of clay
+
+Šumma, the Omen Tablets: one omen on the great tablet is broken off.
+
+<details>
+<summary>A nudge</summary>
+
+One line near the top of the great tablet is broken off after "If the Pilgrim stands like a re…". The editor says it is restored only for a Pilgrim who stands like a reed. A reed is tall and thin: make your window at least twice as tall as it is wide (a phone held upright usually is), then read that line again.
+
+</details>
+
+<details>
+<summary>A clue</summary>
+
+The restored line tells you to read the liver "in the Book, and not in the flesh". The flesh is the clay liver you can see on the page. The Book is this face's stylesheet: open /css/faces/omens.css (view the page source, or type that address) and find the part called THE LIVER, AS THE BOOK DRAWS IT.
+
+</details>
+
+<details>
+<summary>Nearly the answer</summary>
+
+There, the liver's grid-template-areas are drawn as four big block letters: the names z1 to zg are the strokes and the dots are bare clay. Step back from the text, read the word, and type it into "What does the liver say?" under the liver (or just type it anywhere on the page).
+
+</details>
+
+### The room that is not :empty
+
+The Interstice: any address the temple does not know, such as /nowhere (or the Stairwell, /404).
+
+<details>
+<summary>A nudge</summary>
+
+Every room in the Interstice is empty except one, and that one is only a few rooms from the room you came in by (the plan of the floor marks that room with a small blue triangle). Not every way through looks like a doorway.
+
+</details>
+
+<details>
+<summary>A clue</summary>
+
+Read the room descriptions: some doorways let "a little warmth" through, and they lead toward it. Further on, one wall with no door shows a thin line of warm light along its foot. That wall only looks solid. Move your pointer over it until the pointer turns into a hand, or press Tab until you reach "a wall that is not quite there".
+
+</details>
+
+<details>
+<summary>Nearly the answer</summary>
+
+From the room you came in by, go through the doorways with warmth coming through them (one or two rooms). In the room with the warm line under a wall, click that wall where the pointer becomes a hand, or Tab to it and press Enter (a side wall also gives way if you press the arrow key toward it twice). In the room behind it the slot in the far wall is open: click the letter in it, press Enter on it, or type take.
 
 </details>

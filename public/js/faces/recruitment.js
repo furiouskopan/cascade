@@ -19,6 +19,10 @@ import { SACRED_NUMBERS, OPUS } from '../lib/lexicon.js'
 import { sigil, saucer, yantra } from '../lib/sigil.js'
 import { hash } from '../kernel/rng.js'
 import * as D from './recruitment/data.js'
+import { LOT } from '../lib/faces.js'
+
+// How many faces the Oracle draws from, in words (a 1997 homepage spells its numbers out).
+const COUNT = ['NO', 'ONE', 'TWO', 'THREE', 'FOUR', 'FIVE', 'SIX', 'SEVEN', 'EIGHT', 'NINE', 'TEN', 'ELEVEN', 'TWELVE'][LOT.length] ?? String(LOT.length)
 import { vars, starTile, TILES, wordArt, WORDART, constructionSign, moonSvg, odometer, portrait, badge, newBurst, rainbowRule } from './recruitment/art.js'
 import { buildJoin } from './recruitment/join.js'
 import { makeLife, sparkleTrail, makeToaster, makeScreensaver } from './recruitment/widgets.js'
@@ -204,10 +208,10 @@ export function render(ctx) {
     const since = ctx.visit?.sinceLast
     const nights = ctx.visit?.lastVisit ? nightsBetween(ctx.visit.lastVisit, Date.now()) : 0
     const updates = nights ? `the Webmaster has updated the page ${nights} time${nights === 1 ? '' : 's'} since then (every night, at 3:33)` : 'the Webmaster has not updated the page since then (the next update is at 3:33 in the morning)'
-    const names = seen.map((f) => D.FACE_NAMES[f]).filter(Boolean)
+    const names = seen.filter((f) => LOT.includes(f)).map((f) => D.FACE_NAMES[f]).filter(Boolean)
     welcomeBody.push(
       h('p', {}, `Welcome back! This is visit number ${fmt(visits)}.`, since ? ` Your last visit was ${ago(since)}; ${updates}.` : ''),
-      h('p', {}, `So far you have seen ${names.length} of the temple's 5 faces: ${names.join(', ')}. ${names.length < 5 ? 'The others are still out there. The Oracle decides which one you meet.' : 'All five! You have seen every face of the temple. There is still the door.'}`),
+      h('p', {}, `So far you have seen ${names.length} of the temple's ${LOT.length} faces: ${names.join(', ')}. ${names.length < LOT.length ? 'The others are still out there. The Oracle decides which one you meet (or ask the Altar for another!).' : `All ${COUNT.toLowerCase()}! You have seen every face of the temple. There is still the door.`}`),
     )
   }
   if (m?.name) welcomeBody.push(h('p', { class: 'rc-hello-member' }, 'Hello again, member ', h('b', {}, m.name), ` (no. ${m.no})! Your card is still valid.`))
@@ -479,10 +483,10 @@ export function render(ctx) {
   )
 
   // ---- the five faces (collect them all!) -----------------------------------------------------------
-  const facesPanel = panel('rc-faces', 'THE FIVE FACES OF THE TEMPLE (collect them all!)', 'white',
-    h('p', {}, 'Our temple has five faces, and the Oracle chooses which one you meet. You cannot pick. Here is what the others look like, so that you will recognise them:'),
+  const facesPanel = panel('rc-faces', `THE ${COUNT} FACES OF THE TEMPLE (collect them all!)`, 'white',
+    h('p', {}, `Our temple has ${COUNT.toLowerCase()} faces, and the Oracle chooses which one you meet. You cannot pick (but you can ask the Altar for another one, very politely). Here is what the others look like, so that you will recognise them:`),
     h('ul', { class: 'rc-faces' },
-      D.FACES.map((f) => {
+      D.FACES.filter((f) => LOT.includes(f.id)).map((f) => {
         const here = f.id === 'recruitment'
         const was = seen.includes(f.id)
         const letters = ROSETTA[f.id] ?? []
@@ -498,6 +502,11 @@ export function render(ctx) {
         h('span', { class: 'rc-thumb rc-thumb--babel', 'aria-hidden': 'true' }, h('i'), h('i'), h('i')),
         h('h3', {}, D.BABEL.name),
         h('p', {}, D.BABEL.text, ' ', h('a', { href: D.BABEL.href }, 'Start reading here.')),
+      ),
+      h('li', { class: 'rc-face rc-face--babel rc-face--interstice' },
+        h('span', { class: 'rc-thumb rc-thumb--interstice', 'aria-hidden': 'true' }, h('i'), h('i'), h('i')),
+        h('h3', {}, D.INTERSTICE.name),
+        h('p', {}, D.INTERSTICE.text, ' ', h('a', { href: D.INTERSTICE.href }, 'Take the stairs.')),
       ),
     ),
   )

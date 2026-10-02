@@ -10,7 +10,7 @@ import { hash, makeRng } from '../kernel/rng.js'
 import { readSky } from '../kernel/sky.js'
 import { DOCTRINE, SAINTS, HERESIES, VIRTUES, SINS, INVENTED_MANTRAS, SACRED_NUMBERS } from '../lib/lexicon.js'
 import { fromPua } from '../lib/glyphs.js'
-import { hintFor } from '../lib/hints.js'
+import { hintFor, riddleFor, riddleHint } from '../lib/hints.js'
 import { h } from '../lib/dom.js'
 
 const HEAVEN = 2147483647
@@ -531,7 +531,7 @@ export async function init(ctx) {
     say(['☩ THE ORACLE OF THE CASCADE', C.title])
     const rows = [
       ["cascade.speak('…')", 'say a Word; the Oracle answers only the true ones'],
-      ['cascade.hint()', 'a hint for the step you are on; ask again for a stronger one'],
+      ['cascade.hint()', "a hint for this face's riddle or the next Word; ask again for a stronger one"],
       ['cascade.another()', 'ask the Oracle for another face of the temple'],
       ['cascade.inspect()', 'what you have spoken, and what you have found'],
       ['cascade.sky()', 'the omens of this hour, and when the door turns to gold'],
@@ -589,21 +589,33 @@ export async function init(ctx) {
 
   // ── Hints (public by design: lib/hints.js, docs/HINTS.md) ────────────────────────────────────
   // Each call gives the next, stronger hint for the step this visitor is on; the altar asks the same way.
-  function nextHint() {
-    const progress = { spoken: Object.keys(spokenWords()).map(Number), ascended: Boolean(memory.get('secrets.ascended', null)) }
+  // `which`: 'face' (this face's own riddle), 'words' (the five Words), or nothing: the face's riddle while it
+  // is unsolved, the Words otherwise.
+  function nextHint(which) {
     const held = memory.get('secrets.hints', {})
     const tiers = isMap(held) ? held : {}
-    const step = hintFor(progress, 0).step
-    const given = hintFor(progress, Number.isInteger(tiers[step]) ? tiers[step] : 0)
-    memory.set('secrets.hints', { ...tiers, [step]: Math.min(given.of - 1, given.tier + 1) })
-    return given
+    const riddle = riddleFor(face())
+    const forFace = riddle && (which === 'face' || (which !== 'words' && !memory.hasSecret(riddle.secret)))
+    let given
+    if (forFace) {
+      const step = `riddle:${face()}`
+      given = riddleHint(face(), Number.isInteger(tiers[step]) ? tiers[step] : 0)
+    } else {
+      const progress = { spoken: Object.keys(spokenWords()).map(Number), ascended: Boolean(memory.get('secrets.ascended', null)) }
+      const step = hintFor(progress, 0).step
+      given = hintFor(progress, Number.isInteger(tiers[step]) ? tiers[step] : 0)
+    }
+    memory.set('secrets.hints', { ...tiers, [given.step]: Math.min(given.of - 1, given.tier + 1) })
+    return { ...given, riddle: Boolean(forFace) }
   }
 
-  function hint() {
-    const x = nextHint()
+  function hint(which) {
+    const x = nextHint(which === 'face' || which === 'words' ? which : undefined)
     say([`☩ ${x.title.toUpperCase()}`, C.title], [`   hint ${x.tier + 1} of ${x.of}`, C.soft])
     say([x.text, C.text])
-    if (x.tier + 1 < x.of) say(['Ask again for a stronger one: ', C.soft], ['cascade.hint()', C.code])
+    const again = x.riddle ? "cascade.hint('face')" : riddleFor(face()) ? "cascade.hint('words')" : 'cascade.hint()'
+    if (x.tier + 1 < x.of) say(['Ask again for a stronger one: ', C.soft], [again, C.code])
+    if (x.riddle) say(['That hint was for this face\'s own riddle. For the five Words: ', C.soft], ["cascade.hint('words')", C.code])
   }
 
   // ── Another face, when the visitor asks (main.js keeps the rules: once a minute, never from a route face) ──
@@ -769,7 +781,7 @@ export async function init(ctx) {
     get ascended() { return Boolean(memory.get('secrets.ascended', null)) },
     spoken: () => Object.keys(spokenWords()).map(Number).sort(),
     speak,
-    hint: nextHint, // → {chain, step, title, tier, of, text}; each call one hint stronger
+    hint: nextHint, // (which?: 'face'|'words') → {chain, step, title, tier, of, text, riddle}; each call one hint stronger
     gilded,
     nextGold,
     ladder: () => ladder,

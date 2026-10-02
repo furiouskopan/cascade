@@ -158,6 +158,70 @@ words), links onward to other verse paths (a random walk), and 2 Rosetta pairs c
 Page title = the chapter reference. It must feel infinite: loading more verses as you scroll (still
 deterministic). Hell intensity: 0.2.
 
+The faces of Phase 1 (docs/ROADMAP.md §4). Each keeps a riddle solvable in one visit, with three public hints
+(`lib/hints.js` `RIDDLES`).
+
+### launderette: *The All-Night Launderette* (3:33 a.m. fluorescent deadpan)
+It is always 3:33 a.m. here. The room has mint walls under humming tubes (one dims, never more than once every
+4 s), white enamel front-loaders with chrome portholes, seven-segment displays and label-maker tape, a blue
+plastic basket, satin care labels, a cork board, orange bucket chairs and linoleum laid a seeded magic number off
+true. The five washers are INITIAL, INHERIT, UNSET, REVERT and REVERT-LAYER (still in its plastic, and working).
+A garment is a badly dressed element drawn from HERESIES, plus one rebuilt from the last face seen (`lastFace`).
+Loaded by its tag, a click or a drag, it hangs in a sane, reset lining (`.lnd-cloth`), so INHERIT and UNSET
+inherit plain values. START really writes `all: <keyword>` into its style attribute, group by group as the drum
+turns, and prints a care label of computed values before and after; a div washed in INITIAL comes out
+`display: inline`. An ironing board shows that a shorthand spoken last unsays everything before it. The window
+shows the real sky (daylight is quietly wrong; at night the real moon), and the clock says 3:33 while its second
+hand ticks backwards. The notice board is the live Wall in glyphs, with tear-off tabs to `/verse/…`; the
+care-marks poster is the Rosetta; the Inscription is cast into the kickplate; the free sheet carries the scripture
+and a sock floated left into it. The dryers tumble other faces' CSS (`facesSeen`). Summon: a coin in the change
+machine's slot. Stillness: at 7 s the hum dips, at 33 s a washer starts by itself, and at 108 s the machine at the
+back unlatches for one breath (`keeps = ['still']`). The riddle: the white tee's stain is
+`animation: lnd-stain … !important` in the face's layer (its one deliberate Inversion), so no wash lifts it. Mercy's
+important animation properties in `@layer reset` end it, and the face reads the lifting from the stain's
+`animationend`. Hell intensity: 0.35.
+
+### omens: *Šumma, the Omen Tablets* (dry, fatalistic clay)
+A scholar's table of unbaked clay on a reed mat, under hard light raking in from the upper left. The script is the
+Cascade's own glyphs pressed into clay, and every omen opens with the single upright wedge that writes *šumma*,
+"if". The great tablet is an omen series about the visitor's own device: twenty-four "If … : …" lines, each backed
+by a real condition. These are `@media` queries (orientation, pointer, hover, colour scheme, reduced motion,
+contrast, resolution, gamut, widths in centimetres, aspect ratio), two `@supports`, an `@container` on the tablet
+itself, the sky, and the visitor's conduct with true counts. The stylesheet fires each line (`--om-fire: 1`) inside
+the very block that carries its consequence, so tablet and page never disagree; resizing rewrites the fate live,
+and on arrival a reed stylus reads the tablet and sets the true lines alight. Around it: a clay liver (the riddle);
+a ziggurat of seven terraces in the colours Herodotus gave Ecbatana, with real z-indexes, `:root` for a shrine and a
+stair that runs downward; a personal cylinder seal cut from the first-visit seed and rolled by
+`background-position`; an envelope to press and hold, holding the hour's letter to the king; the watch of the sky
+(prayers counted in sexagesimal wedges); a pupil's round tablet holding the Rosetta; and a commentary of scripture.
+Summon: pluck the bull-headed lyre. Stillness: at 7 s the clay dries paler, at 33 s the stylus presses a colophon, at
+108 s the tablet is fired (`keeps = ['still']`). Its own curses, all stilled by mercy, never remove a word: lacuna
+rot (aria-hidden shards over whole text, restored by the editor's hand), cracks creeping a few pixels a minute, and
+the omen of the hour pressed into the wrong column. The riddle: one omen appears only to a reed
+(`max-aspect-ratio: 1/2`) and says to read the liver in the Book, where its `grid-template-areas` draw a word in
+block letters that transforms and clip-paths hide in the flesh; the word is checked by hash. Hell intensity: 0.35.
+Mesopotamian gods stay out of the jokes, and the omen series on birth anomalies is left out entirely.
+
+### interstice: *The Interstice* (route-only: every unknown address)
+Any address the temple does not know (registry `route: '*'`, served with a real 404) is a room, and the rooms are a
+DOM tree generated from the address alone: `/404` is the Stairwell (`body`, a stair and a sign `↓ −2147483648` to
+the lowest rung), and `/404/6/12` is `body > div:nth-child(6) > div:nth-child(12)`. Far-wall doorways lead to
+children, side doorways to siblings where their margins collapsed (the Union), and the parent is always behind you.
+Each room is six CSS 3D planes tinted like the Inspector's box-model overlay worn to old paint (dusty orange margin,
+a sallow border band, pale green padding, the cold blue content far wall), with pencilled px dimensions, seams that
+miss by a per-room magic number, an enamel plaque naming the room by its selector, and in the far wall the room's
+own real, empty div, its content box 0 px high. An unknown address opens on the Inspector's flat diagram of that
+room, is carried into it, and is written on masking tape over the plaque (with `textContent`). Steps are ~300 ms
+cuts (click, arrows, WASD, swipe, a lift panel); the address bar follows by `replaceState` only, and an automap
+draws the tree walked, keyed by the Rosetta fragment. Per-visit fate (`ctx.rng.fork('interstice')`) decides
+lighting, damage, pencilled verses and possessed plaques. The riddle: every room is `:empty` except one, planted from
+the room the visitor came in by; warmth through doorways leads to a wall with `pointer-events: none` (the Passable)
+whose foot leaks warm light, and behind it the slot holds one bare text node. Summon: a pull cord. Stillness: the
+hum dips (7 s), the far wall grows a doorway (33 s), all panels but one go dark and plaques count `:nth-last-child`
+(108 s). Rare rooms: windows on the real moon, the Waiting Room (`order` against Tab), the Mirror Room (your pointer
+from 33 s ago); nth-child(404) hangs upside down. The view and the plaque carry `data-hell="spare"`. Hell
+intensity: 0.35. Nothing is borrowed from the Backrooms fandom.
+
 ## §4 The kernel API (what every file can rely on)
 
 `ctx` (built in `public/js/main.js`):
@@ -478,4 +542,27 @@ Added in Phase 0 of the simplified roadmap (docs/ROADMAP.md §3):
   of it (§6). `ctx.secrets.gilded()` and `ctx.secrets.nextGold()` replace `doorOpen()` and `nextDoor()`.
 - **Server**: `TRUST_PROXY` (a hop count or a proxy address; default loopback, right for a tunnel on this
   machine) decides whose `X-Forwarded-For` is believed, because rate limits are per address.
+
+Added in Phase 1 (docs/ROADMAP.md §4):
+
+- **Unknown addresses**: the registry's `route: '*'` face (the Interstice) owns every address the temple does not
+  know. The server asks the registry too (`routeFace` in `server/index.js`): such addresses get the temple page
+  with a real **404** status, and those that look like files (an extension) get a plain-text 404. `/`,
+  `/index.html` and `/verse/…` answer 200; `/z/…`, `/api/…` and the breadcrumbs answer as before.
+- **Witness**: `--expect 404` lets the page itself answer 404 without counting as a failed request (its own
+  sub-requests are still checked).
+- **Face riddles**: `lib/hints.js` `RIDDLES[face] = {title, where, secret, hints[3]}`. While the current face has
+  an unsolved riddle, `cascade.hint()` and the altar's *ask for a hint* are about it first;
+  `cascade.hint('words')` and the altar's *a hint for the five Words instead* ask about the chain;
+  `cascade.hint('face')` forces the riddle. Each riddle marks the secret `<face>-riddle` when solved.
+- **The Phase 1 faces' secrets**: `launderette-riddle`, `-initial`, `-every-machine`, `-revert-layer`, `-pressed`,
+  `-absolution`, `-endless`; `omens-riddle`, `-reed`, `-stripped`, `-rewritten`, `-seal`, `-envelope`,
+  `-correction`, `-restored`, `-fired`; `interstice-riddle`, `-passable`, `-stairwell`, `-404`, `-mended`, `-dark`,
+  `-mirror`, `-tab-order`, `-xyzzy`; and each marks the shared `stillness` with its face. Memory:
+  `launderette.hints`, the liver read state (omens). Debug: a face module may export `debug` (its live instance,
+  for the Witness; departure, launderette, omens and interstice do); `?debug=launderette` runs wash cycles at 0.2×,
+  `?debug=interstice` exposes the plan. The launderette's garments sit under `[data-hell="spare"][data-secrets-skip]`
+  so curses and rubrics never touch the washing; the omen series is shielded from rubrics the same way.
+- **The recruitment face** counts the faces in the Oracle's lot from the registry and lists them (with babel and the
+  Interstice as places, not faces).
 

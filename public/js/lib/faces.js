@@ -141,6 +141,75 @@ export const REGISTRY = {
       hush: { glyph: '𝄐', on: 'hush', off: 'listen', hint: ['Hush the choir', 'Listen to this chapter sing'] },
     },
   },
+
+  // ── Phase 1 (docs/ROADMAP.md §4). The Launderette and the Omens are in the lot; the Interstice owns every
+  //    address the temple does not know.
+  launderette: {
+    title: 'The All-Night Launderette',
+    lot: true,
+    // Always 3:33 AM inside: it is most likely at the witching hour, and most of all at 3:33.
+    oracle: { weight: 1, omens: { witching: 5, 'thirty-three': 1.6, night: 1.5 }, planets: { Moon: 1.4 } },
+    hell: {
+      intensity: 0.35,
+      lean: { union: 1.5, drift: 1.2, melt: 0.8 },
+      words: {
+        whispers: ['your wash is done', 'the machine at the back is nearly done', 'you left a sock in the dryer', 'someone moved your washing', 'the tubes are still humming'],
+        ink: ['#e6f1ea', '#1f57b8'],
+        inversion: ['SPIN CYCLE', 'You have spoken the Inversion.', 'Everything in the drum is upside down for a few seconds. It will not come out in the wash.'],
+        union: ['one load', 'two garments touch', 'and share one drum', 'and are sorted again'],
+        war: 'Care instructions',
+        zwar: 'the top shelf is for detergent, not for page elements',
+      },
+    },
+    sound: {
+      tonic: 100, // the tubes hum at twice the mains
+      drone: { wave: 'sawtooth', partials: [1, 2, [3, 0.3]], level: 0.05, cutoff: 700, sway: [0.03, 0.2],
+        noise: { kind: 'pink', band: 240, level: 0.02 }, label: 'the tubes humming on the mains, and a drum turning' },
+      bell: 'gm',
+      prayer: ['gm', 987.77],
+      hush: { glyph: '⏻', on: 'lights out', off: 'coin in', hint: ['Lights out: let the machines rest', 'Put a coin in the slot'] },
+    },
+  },
+  omens: {
+    title: 'Šumma, the Omen Tablets',
+    lot: true,
+    oracle: { weight: 1, omens: { 'new-moon': 2, eclipse: 3 }, planets: { Moon: 2 } },
+    hell: { intensity: 0.35, lean: { rot: 1.4, war: 0.8, phantom: 0.8 } },
+    sound: {
+      tonic: 146.83,
+      drone: { wave: 'triangle', partials: [1, 1.5, [2, 0.5], [3, 0.2]], level: 0.06, cutoff: 1800, hall: 0.6,
+        sway: [0.04, 0.3], label: 'a lyre string left ringing in a room of clay' },
+      bell: 'hand',
+      prayer: ['hand', 1174.66],
+      hush: { glyph: '▽', on: 'lay the lyre down', off: 'pluck', hint: ['Lay the lyre down', 'Pluck the lyre'] },
+    },
+  },
+  interstice: {
+    title: 'The Interstice',
+    route: '*',
+    // The rooms themselves are spared (data-hell="spare"): the curses work on the plaque's neighbours, the
+    // plan and the words. Every passage here is a Union, so margins collapse more often than they melt.
+    hell: {
+      intensity: 0.35,
+      lean: { phantom: 1.3, union: 1.4, possess: 1.2, drift: 0.7, melt: 0.5 },
+      words: {
+        whispers: ['the light is still on in your room', '404 · we kept your room as you left it', 'your room has one more doorway now', 'nobody has been in since you left'],
+        ink: ['#11161b', '#c6b26f'],
+        inversion: ['nth-child(404)', 'You have spoken the Inversion.', 'Now every room hangs from its floor, as the Lost always has.'],
+        union: ['margin collapse', 'two rooms touch', 'and a doorway opens where they meet', 'and the wall closes over it again'],
+        war: 'Who names this room',
+        zwar: 'there is no up in the Interstice, only further in',
+      },
+    },
+    sound: {
+      tonic: 50, // the mains, in the walls
+      drone: { wave: 'sine', partials: [1, [2, 0.6], [3, 0.35], [4, 0.15]], level: 0.05, cutoff: 600, hall: 0.3,
+        sway: [0.02, 0.15], noise: { kind: 'brown', band: 120, level: 0.012 }, label: 'the mains humming inside an empty wall' },
+      bell: 'glass',
+      prayer: ['glass', 783.99],
+      hush: { glyph: '◌', on: 'light off', off: 'pull cord', hint: ['Switch the light off', 'Pull the light cord'] },
+    },
+  },
 }
 
 // Every face, in the registry's order.

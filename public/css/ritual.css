@@ -838,6 +838,104 @@
   [data-face="babel"] #altar .altar-title { font-style: italic; }
   [data-face="babel"] #altar .altar-kicker { font-family: var(--al-font); font-style: italic; letter-spacing: 0.06em; text-transform: none; }
 
+  /* ── launderette: a self-service counter at 3:33 AM. White enamel, label-maker tape, a chrome porthole ── */
+  [data-face="launderette"] #altar {
+    --al-bg: linear-gradient(180deg, #fbfbf7 0%, #eef3ef 100%);
+    --al-solid: #f6f5f0;
+    --al-ink: #1e2a29;
+    --al-dim: #56635f;
+    --al-faint: rgba(30, 42, 41, 0.06);
+    --al-rule: rgba(30, 42, 41, 0.18);
+    --al-accent: #d1262b;
+    --al-accent-ink: #ffffff;
+    --al-alt: #1f57b8;
+    --al-good: #1f8a4c;
+    --al-bad: #b3200f;
+    --al-font: 'Helvetica Neue', Arial, 'Liberation Sans', sans-serif;
+    --al-display: 'Bahnschrift', 'DIN Alternate', 'Arial Narrow', 'Helvetica Neue', Arial, sans-serif;
+    --al-mono: Consolas, 'Lucida Console', 'Courier New', monospace;
+    --al-radius: 12px;
+    --al-field: #ffffff;
+    --al-field-ink: #1e2a29;
+    --al-field-rule: rgba(30, 42, 41, 0.3);
+    --al-code: #eaf1ec;
+    --al-shadow: 0 22px 60px rgba(20, 40, 35, 0.45), 0 0 0 1px #b4b6ad, inset 0 -10px 0 #dfded6;
+    --al-bead: rgba(30, 42, 41, 0.2);
+    --al-bead-lit: #d1262b;
+    --al-btn-bg: radial-gradient(circle, #1d3d43 0 42%, #0c1d22 47%, #6c777b 53%, #dfe5e7 62%, #ffffff 70%, #b8c2c5 84%, #6c777b 100%);
+    --al-btn-ink: #e3fbff;
+    --al-btn-ring: rgba(108, 119, 123, 0.7);
+    --al-scheme: light;
+  }
+  /* Label-maker tape: white letters pressed into black plastic. */
+  [data-face="launderette"] #altar .altar-kicker {
+    display: inline-block; padding: 2px 7px; background: #1d1f20; color: #f4f4f0;
+    font: 600 11px/1.4 var(--al-mono); letter-spacing: 0.14em; text-transform: uppercase;
+  }
+  [data-face="launderette"] #altar .altar-title { font-family: var(--al-display); letter-spacing: 0.02em; }
+
+  /* ── omens: a fired tablet on the diviner's bench. Buff clay, terracotta, raking light ─────────────── */
+  [data-face="omens"] #altar {
+    --al-bg: radial-gradient(130% 90% at 12% 0%, rgba(255, 248, 228, 0.55), transparent 56%), radial-gradient(100% 90% at 94% 106%, rgba(84, 56, 30, 0.34), transparent 62%), #cdb793;
+    --al-solid: #d3bf9c;
+    --al-ink: #33251a;
+    --al-dim: #6c5539;
+    --al-faint: rgba(96, 64, 32, 0.08);
+    --al-rule: rgba(96, 68, 40, 0.3);
+    --al-accent: #b95b30;
+    --al-accent-ink: #fff1e2;
+    --al-alt: #27428e;
+    --al-good: #3f6a2c;
+    --al-bad: #9c2f12;
+    --al-font: 'Cambria', 'Hoefler Text', Georgia, serif;
+    --al-display: 'Copperplate Gothic Light', 'Copperplate', 'Cambria', Georgia, serif;
+    --al-mono: 'Consolas', 'Menlo', monospace;
+    --al-radius: 18px;
+    --al-field: rgba(255, 250, 236, 0.55);
+    --al-field-ink: #33251a;
+    --al-field-rule: rgba(96, 68, 40, 0.42);
+    --al-code: rgba(255, 246, 226, 0.5);
+    --al-shadow: 0 26px 60px rgba(20, 10, 2, 0.6), inset 8px 10px 16px -8px rgba(255, 249, 233, 0.6), inset -10px -14px 22px -10px rgba(66, 42, 20, 0.45), 0 0 0 1px rgba(78, 54, 30, 0.45);
+    --al-bead: rgba(96, 64, 32, 0.3);
+    --al-bead-lit: #b95b30;
+    --al-btn-bg: radial-gradient(circle at 36% 30%, #e08a5a 0%, #b95b30 46%, #7c3215 100%);
+    --al-btn-ink: #fff1e2;
+    --al-btn-ring: rgba(60, 20, 6, 0.55);
+    --al-scheme: light;
+  }
+  /* The altar button is a small fired tablet, not a coin. */
+  [data-face="omens"] #altar .altar-btn { border-radius: 10px 14px 12px 16px; }
+
+  /* ── interstice: lost property in an empty building. Night paint, amber lift light, steel ──────────── */
+  [data-face="interstice"] #altar {
+    --al-bg: linear-gradient(180deg, rgba(44, 52, 58, 0.98), rgba(27, 32, 36, 0.98));
+    --al-solid: #1d2327;
+    --al-ink: #edf0ed;
+    --al-dim: #9db0b6;
+    --al-faint: rgba(237, 240, 237, 0.06);
+    --al-rule: rgba(198, 178, 111, 0.3);
+    --al-accent: #c6b26f;
+    --al-accent-ink: #1d1a10;
+    --al-alt: #86a9c8;
+    --al-good: #a9c196;
+    --al-bad: #d6a676;
+    --al-font: Cambria, Constantia, 'Iowan Old Style', Georgia, serif;
+    --al-display: Corbel, 'Segoe UI', Frutiger, 'Helvetica Neue', Arial, sans-serif;
+    --al-mono: Consolas, 'SF Mono', Menlo, 'DejaVu Sans Mono', monospace;
+    --al-radius: 3px;
+    --al-field: rgba(255, 255, 255, 0.05);
+    --al-field-ink: #edf0ed;
+    --al-field-rule: rgba(157, 176, 182, 0.38);
+    --al-code: rgba(0, 0, 0, 0.3);
+    --al-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 0 0 1px #5a646b, 0 22px 60px rgba(0, 0, 0, 0.6);
+    --al-bead: rgba(198, 178, 111, 0.24);
+    --al-bead-lit: #ffd27a;
+    --al-btn-bg: radial-gradient(circle at 40% 32%, #f2f3f1 0%, #c4c8c9 55%, #8e9496 100%);
+    --al-btn-ink: #2b2f31;
+    --al-btn-ring: #e8a64a;
+    --al-scheme: dark;
+  }
+
   /* ── THE ECLIPSE: every 108th prayer, for thirty-three seconds ───────────────────────────────────── */
   #eclipse {
     --ex: 50%;

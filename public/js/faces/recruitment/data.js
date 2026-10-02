@@ -206,7 +206,7 @@ export const FAQ = [
   ],
   [
     'Why does this page look like this?',
-    'This is our Recruitment Office. The temple has five faces: an illuminated manuscript, a stylesheet with something living in it, a yantra that breathes, a transmission from the Mothership, and this one. The Oracle picks a face for every visit, using the moon, the hour and how fidgety you are. If you come back you may find a different temple at the same address. It is supposed to do that.',
+    'This is our Recruitment Office. The temple has several faces (we keep finding new ones): an illuminated manuscript, a stylesheet with something living in it, a yantra that breathes, a transmission from the Mothership, a launderette where it is always 3:33 in the morning, clay tablets that read your fortune from your screen, and this one. The Oracle picks a face for every visit, using the moon, the hour and how fidgety you are. If you come back you may find a different temple at the same address. It is supposed to do that.',
   ],
   [
     'Does it cost anything?',
@@ -281,16 +281,27 @@ export const FACE_NAMES = {
   recruitment: 'the Recruitment Office',
   ashram: 'the Yantra Breath Temple',
   departure: 'the Mothership',
+  launderette: 'the All-Night Launderette',
+  omens: 'the Omen Tablets',
+  interstice: 'the Interstice',
+  babel: 'the Infinite Scripture',
 }
 
-// THE FIVE FACES, as a 1997 homepage would describe its sister pages.
+// THE FACES, as a 1997 homepage would describe its sister pages. Only the faces in the Oracle's lot are shown.
 export const FACES = [
   { id: 'sanctum', name: 'the Illuminated Codex', text: 'A holy manuscript with real gold in the letters. Very quiet. Please wipe your feet.' },
   { id: 'possession', name: 'CSS Hell', text: 'Something has got into the stylesheet down there. We do not go in. It is still part of the temple.' },
   { id: 'recruitment', name: 'the Recruitment Office', text: 'Our homepage! Friendly, colourful, and best viewed at 800x600.' },
   { id: 'ashram', name: 'the Yantra Breath Temple', text: 'Indigo and saffron. It breathes, and it would like you to breathe with it.' },
   { id: 'departure', name: 'the Mothership', text: 'Transmissions from z-index 2147483647, where elements go when they leave their containers.' },
+  { id: 'launderette', name: 'the All-Night Launderette', text: 'Open all night, and it is always 3:33 in the morning. The machines really wash your elements. One stain will NOT come out!! (We have tried.)' },
+  { id: 'omens', name: 'the Omen Tablets', text: 'Clay tablets that read your fortune from your screen. Resize your window and your fate changes. Our Webmaster got a bad one at 800x600.' },
 ]
+export const INTERSTICE = {
+  name: 'the Interstice',
+  text: 'Not a face either: type an address we do not have and you end up in the empty rooms between the boxes. Do not be scared. The Back button always works.',
+  href: '/404',
+}
 export const BABEL = {
   name: 'the Infinite Scripture',
   text: 'Not a face, a library: every address that begins with /verse/ is a chapter that has always existed. This one you may visit on purpose.',

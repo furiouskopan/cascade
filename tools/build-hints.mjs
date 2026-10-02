@@ -7,7 +7,7 @@
 import { readFileSync, writeFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { CHAINS } from '../public/js/lib/hints.js'
+import { CHAINS, RIDDLES } from '../public/js/lib/hints.js'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const out = resolve(root, 'docs', 'HINTS.md')
@@ -17,7 +17,7 @@ let md = `# THE CASCADE: hints
 
 Stuck? Every step has three hints, each stronger than the last. Read one, go back to the temple, and only read the
 next if you need it. The same hints live in the temple itself: type \`cascade.hint()\` in the browser's developer
-console (F12), or open the altar (the round button in the bottom-right corner) and choose *ask for a hint*.
+console (F12), or open the altar (the round button in the bottom-right corner) and choose *ask for a hint*. On a face with a riddle of its own, the hints are about that riddle first.
 
 The hints never say a Word; you still find each one yourself.
 
@@ -28,6 +28,16 @@ for (const chain of CHAINS) {
   for (const step of chain.steps) {
     md += `\n### ${step.title}\n\n`
     step.hints.forEach((text, i) => {
+      md += `<details>\n<summary>${LEVEL[i] ?? `Hint ${i + 1}`}</summary>\n\n${text}\n\n</details>\n\n`
+    })
+  }
+}
+const riddles = Object.values(RIDDLES)
+if (riddles.length) {
+  md += `\n## The faces' riddles\n\nSome faces keep a riddle of their own, solved on that face in one visit. While you are on such a face and its riddle is unsolved, the temple's hints are about that riddle first.\n`
+  for (const r of riddles) {
+    md += `\n### ${r.title}\n\n${r.where ? `${r.where}\n\n` : ''}`
+    r.hints.forEach((text, i) => {
       md += `<details>\n<summary>${LEVEL[i] ?? `Hint ${i + 1}`}</summary>\n\n${text}\n\n</details>\n\n`
     })
   }

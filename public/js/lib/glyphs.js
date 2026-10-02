@@ -19,6 +19,10 @@ export const ROSETTA = {
   recruitment: ['k', 'n', 'p', 'c', 'y', 'b', 'f'],
   ashram: ['t', 'h', 'e', 's', 'l', 'u'],
   departure: ['o', 'r', 'n', 'a', 'v', 'z', 'j'],
+  // Phase 1 faces, weighted toward the letters the first faces show least (w, k, p, c).
+  launderette: ['w', 'a', 's', 'h', 'k', 'c', 'l'],
+  omens: ['o', 'm', 'e', 'n', 'p', 'i', 'f'],
+  interstice: ['p', 'k', 'w', 'c', 'g', 'y', 'b'],
 }
 
 // Latin -> PUA glyph code points (lowercase letters only; everything else is kept).

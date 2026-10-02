@@ -301,7 +301,7 @@ restarts (the SQLite file) and https. Serverless hosts such as Vercel or Netlify
 | phase | what | who |
 |---|---|---|
 | 0. **Open the doors** (done, 26 September) | the hint ladder and `docs/HINTS.md`, asking for another face, the softened Ascent, the face registry, the online preparation of §7; then go online | the orchestrator and the secrets owner |
-| 1. **Three strange rooms** | the Launderette, the Omens and the Interstice, with the kernel's new route rule (unknown addresses go to the Interstice, served as a real 404) | 3 face builders |
+| 1. **Three strange rooms** (built, 1 October) | the Launderette, the Omens and the Interstice, with the kernel's new route rule (unknown addresses go to the Interstice, served as a real 404) | 3 face builders |
 | 2. **The way down** | the Descent (`css/canon.css`, the secrets layer, a new `server/routes/undercroft.js`), the Archons and the Source | 3 builders |
 | 3. **Extras, pick what's fun** | any of the teletext, the tarot, the Portents, the invented calendar, the Inspector's trail and the Lint | at most 3 at a time |
 
@@ -375,10 +375,14 @@ and the planet of the current planetary hour. The door is `/z/2147483647`.
   declarations win, and it governs exactly the animation properties.
 - The Omens' reed omen appears on a tall, narrow screen (`max-aspect-ratio: 1/2`: a phone held upright, or a desktop
   window narrowed right down). It says to read the liver "in the Book and not in the flesh": in view-source, `omens.css`
-  draws the liver's `grid-template-areas` as block letters, spelling a word chosen at build time, which is spoken to the
-  Oracle.
-- The Interstice's one room that is not `:empty` holds a single stranded text node; its place is derived from the entry
-  address and chosen at build time.
+  draws the liver's `grid-template-areas` as block letters (areas z1 to zg, empty cells `..`) spelling `kiln`. Type it
+  into "What does the liver say?" under the liver, or anywhere on the page; the face checks it as
+  hash('omens:liver:' + word).
+- The Interstice's one room that is not `:empty` is planted from the room the visitor came in by: one or two doorways
+  that let "a little warmth" through lead to a room where a doorless wall leaks warm light along its foot. That wall
+  is `pointer-events: none` (click where the pointer becomes a hand, Tab to "a wall that is not quite there", or press
+  the arrow key toward a side wall twice). Behind it the slot holds a single bare text node: click it, press Enter, or
+  type `take`.
 - The Archons fall to `opacity`, `transform`, `filter`, `isolation`, `mix-blend-mode`, `will-change` and `contain`.
 - The teletext's hidden page is P1FF, the hexadecimal page between 199 and 200: only a keyboard can type A to F.
 - The Rigged Reading's answer depends on the colour asked for, and the browser checks it.

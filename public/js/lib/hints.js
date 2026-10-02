@@ -72,6 +72,50 @@ export const CHAINS = [
   },
 ]
 
+// Each face may keep a riddle of its own (docs/ROADMAP.md §4), solved on that face in one sitting. Solving it
+// marks its secret, and from then on the face's hints give way to the chain's.
+export const RIDDLES = {
+  launderette: {
+    title: 'The Trembling Stain',
+    where: 'The All-Night Launderette: one garment in the basket trembles.',
+    secret: 'launderette-riddle',
+    hints: [
+      'Wash the stained tee in every machine and read its care labels. Nearly everything about it changes, except one line. What sort of thing is that stain?',
+      'The stain is an animation declared with !important. A wash is an ordinary declaration (all: …), and an ordinary declaration never beats an important one, wherever it is written. You need something that is important too, and outranks it.',
+      'Every page of the temple has a small button in the bottom-left corner that stops all motion. Its own !important is declared in the first cascade layer, and among important declarations the first layer wins. Press it while the stain is trembling.',
+    ],
+  },
+  omens: {
+    title: 'The liver of clay',
+    where: 'Šumma, the Omen Tablets: one omen on the great tablet is broken off.',
+    secret: 'omens-riddle',
+    hints: [
+      'One line near the top of the great tablet is broken off after "If the Pilgrim stands like a re…". The editor says it is restored only for a Pilgrim who stands like a reed. A reed is tall and thin: make your window at least twice as tall as it is wide (a phone held upright usually is), then read that line again.',
+      'The restored line tells you to read the liver "in the Book, and not in the flesh". The flesh is the clay liver you can see on the page. The Book is this face\'s stylesheet: open /css/faces/omens.css (view the page source, or type that address) and find the part called THE LIVER, AS THE BOOK DRAWS IT.',
+      'There, the liver\'s grid-template-areas are drawn as four big block letters: the names z1 to zg are the strokes and the dots are bare clay. Step back from the text, read the word, and type it into "What does the liver say?" under the liver (or just type it anywhere on the page).',
+    ],
+  },
+  interstice: {
+    title: 'The room that is not :empty',
+    where: 'The Interstice: any address the temple does not know, such as /nowhere (or the Stairwell, /404).',
+    secret: 'interstice-riddle',
+    hints: [
+      'Every room in the Interstice is empty except one, and that one is only a few rooms from the room you came in by (the plan of the floor marks that room with a small blue triangle). Not every way through looks like a doorway.',
+      'Read the room descriptions: some doorways let "a little warmth" through, and they lead toward it. Further on, one wall with no door shows a thin line of warm light along its foot. That wall only looks solid. Move your pointer over it until the pointer turns into a hand, or press Tab until you reach "a wall that is not quite there".',
+      'From the room you came in by, go through the doorways with warmth coming through them (one or two rooms). In the room with the warm line under a wall, click that wall where the pointer becomes a hand, or Tab to it and press Enter (a side wall also gives way if you press the arrow key toward it twice). In the room behind it the slot in the far wall is open: click the letter in it, press Enter on it, or type take.',
+    ],
+  },
+}
+
+export const riddleFor = (face) => (Object.hasOwn(RIDDLES, face) ? RIDDLES[face] : null)
+
+export function riddleHint(face, tier = 0) {
+  const r = riddleFor(face)
+  if (!r) return null
+  const i = Math.max(0, Math.min(r.hints.length - 1, Math.floor(Number(tier) || 0)))
+  return { chain: r.title, step: `riddle:${face}`, title: r.title, tier: i, of: r.hints.length, text: r.hints[i] }
+}
+
 const ASCENT = CHAINS[0]
 
 // progress: { spoken: [n, ...] (the Words 1-4 this visitor has spoken), ascended: boolean }
